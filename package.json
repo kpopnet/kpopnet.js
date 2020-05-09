@@ -1,6 +1,6 @@
 {
   "name": "kpopnet",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "JavaScript kpopnet bindings",
   "scripts": {
     "start": "webpack-cli --mode=development --watch"
