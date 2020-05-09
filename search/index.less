@@ -1,0 +1,32 @@
+.search {
+  position: relative;
+  margin-top: 30px;
+  margin-bottom: 50px;
+}
+
+.search__input {
+  background: none;
+  font-size: 30px;
+  border: 1px solid #ccc;
+  width: 100%;
+  height: 50px;
+  text-align: center;
+  outline: none;
+}
+.search__input::placeholder {
+  color: #999;
+  opacity: 1;
+}
+
+.search__clear-control {
+  position: absolute;
+  top: 0;
+  right: 4px;
+  font-size: 35px;
+  color: #999;
+  cursor: pointer;
+  user-select: none;
+  &:hover {
+    color: #333;
+  }
+}
