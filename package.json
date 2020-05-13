@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@types/classnames": "^2.2.3",
-    "@types/node": "^9.6.2",
+    "@types/events": "^3.0.0",
     "clean-webpack-plugin": "^0.1.19",
     "css-loader": "^3.5.3",
     "file-loader": "^1.1.11",
