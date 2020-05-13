@@ -27,6 +27,9 @@ export {
   searchIdols,
 } from "./profiles";
 
+declare const API_PREFIX: string;
+declare const FILE_PREFIX: string;
+
 function handleResponse(res: Response): Promise<any> {
   return res.ok ? res.json() : handleErrorCode(res);
 }
@@ -64,8 +67,8 @@ export interface ApiOpts {
  * Get all profiles. ~47kb gzipped currently.
  */
 export function getProfiles(opts: ApiOpts = {}): Promise<Profiles> {
-  const prefix = opts.prefix || "/api";
-  return fetch(`${prefix}/idols/profiles`, { credentials: "same-origin" }).then(
+  const prefix = opts.prefix || API_PREFIX;
+  return fetch(`${prefix}/profiles`, { credentials: "same-origin" }).then(
     handleResponse,
     handleError
   );
@@ -82,7 +85,7 @@ export interface FileOpts {
  * right away.
  */
 export function getIdolPreviewUrl(idol: Idol, opts: FileOpts = {}): string {
-  const prefix = opts.prefix || "/uploads";
+  const prefix = opts.prefix || FILE_PREFIX;
   const fallback = opts.fallback || "/static/img/no-preview.svg";
   const sizeDir = opts.small ? "thumb" : "src";
   const sha1 = idol.image_id;
@@ -105,10 +108,10 @@ export function setIdolPreview(
   file: File,
   opts: ApiOpts = {}
 ): Promise<ImageIdData> {
-  const prefix = opts.prefix || "/api";
+  const prefix = opts.prefix || API_PREFIX;
   const form = new FormData();
   form.append("files[]", file);
-  return fetch(`${prefix}/idols/${idol.id}/preview`, {
+  return fetch(`${prefix}/${idol.id}/preview`, {
     credentials: "same-origin",
     method: "POST",
     body: form,
@@ -126,10 +129,10 @@ export function recognizeIdol(
   file: File,
   opts: ApiOpts = {}
 ): Promise<IdolIdData> {
-  const prefix = opts.prefix || "/api";
+  const prefix = opts.prefix || API_PREFIX;
   const form = new FormData();
   form.append("files[]", file);
-  return fetch(`${prefix}/idols/recognize`, {
+  return fetch(`${prefix}/recognize`, {
     credentials: "same-origin",
     method: "POST",
     body: form,

@@ -17,8 +17,6 @@ import {
 import "./index.less";
 import previewFallbackUrl from "./no-preview.svg";
 
-declare const FILE_PREFIX: string;
-
 interface ItemProps {
   idol: Idol;
   bandMap: BandMap;
@@ -29,8 +27,9 @@ class IdolItem extends Component<ItemProps, any> {
     return false;
   }
   public render({ idol, bandMap }: ItemProps) {
-    const opts = { prefix: FILE_PREFIX, fallback: previewFallbackUrl };
-    const previewUrl = getIdolPreviewUrl(idol, opts);
+    const previewUrl = getIdolPreviewUrl(idol, {
+      fallback: previewFallbackUrl,
+    });
     const style = { backgroundImage: `url(${previewUrl})` };
     const lines = renderIdol(idol, bandMap);
     const nameVal = lines[0][1];

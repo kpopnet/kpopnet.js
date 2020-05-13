@@ -2,9 +2,6 @@
  * Application entry point.
  */
 
-// tslint:disable-next-line:no-reference
-/// <reference path="./index.d.ts" />
-
 import { Component, h, render } from "preact";
 import Alerts, { showAlert } from "../alerts";
 import {
@@ -43,7 +40,7 @@ class Index extends Component<{}, IndexState> {
     };
   }
   public componentDidMount() {
-    getProfiles({ prefix: API_PREFIX }).then(
+    getProfiles().then(
       (profiles) => {
         this.profiles = profiles;
         this.bandMap = getBandMap(profiles);

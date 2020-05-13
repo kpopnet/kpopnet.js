@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "description": "JavaScript kpopnet bindings",
   "scripts": {
-    "start": "webpack-cli --mode=development --watch"
+    "start": "NODE_ENV=developemnt webpack-dev-server",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,7 @@
     "typescript": "^2.7.2",
     "webpack": "^4.28.3",
     "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.11.0",
     "webpack-spritesmith": "^0.5.4"
   }
 }

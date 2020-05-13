@@ -6,11 +6,20 @@ const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const SpritesmithPlugin = require("webpack-spritesmith");
 
+const DEBUG = process.env.NODE_ENV === "development";
+const DIST_DIR = path.resolve(__dirname, "dist");
+const JS_NAME = st(DEBUG ? "index.js" : "[chunkhash:10].js");
+const CSS_NAME = st(DEBUG ? "index.css" : "[contenthash:10].css");
+const ASSET_NAME = st(DEBUG ? "[name].[ext]" : "[hash:10].[ext]");
+const API_PREFIX = process.env.KPOPNET_API_PREFIX || "/api";
+const FILE_PREFIX =
+  process.env.KPOPNET_FILE_PREFIX || "http://localhost:8001/uploads";
+
 function st(name) {
   return `static/${name}`;
 }
 
-function createSpritPlugin() {
+function createSpritePlugin() {
   return new SpritesmithPlugin({
     src: {
       cwd: path.resolve(__dirname, "labels/icons"),
@@ -48,15 +57,6 @@ function createSpritPlugin() {
   });
 }
 
-const DEBUG = process.env.NODE_ENV === "development";
-const DIST_DIR = path.resolve(__dirname, "dist");
-const JS_NAME = st(DEBUG ? "index.js" : "[chunkhash:10].js");
-const CSS_NAME = st(DEBUG ? "index.css" : "[contenthash:10].css");
-const ASSET_NAME = st(DEBUG ? "[name].[ext]" : "[hash:10].[ext]");
-const API_PREFIX = process.env.KPOPNET_API_PREFIX || "/api";
-const FILE_PREFIX =
-  process.env.KPOPNET_FILE_PREFIX || "http://localhost:8001/uploads";
-
 module.exports = {
   mode: DEBUG ? "development" : "production",
   entry: path.resolve(__dirname, "index/index.tsx"),
@@ -83,10 +83,7 @@ module.exports = {
     ],
   },
   plugins: [
-    new CleanWebpackPlugin([env.output || DIST_DIR], {
-      allowExternal: true,
-      verbose: false,
-    }),
+    new CleanWebpackPlugin(DIST_DIR, { verbose: false }),
     new DefinePlugin({
       API_PREFIX: JSON.stringify(API_PREFIX),
       FILE_PREFIX: JSON.stringify(FILE_PREFIX),
@@ -95,13 +92,16 @@ module.exports = {
       title: "K-pop idols network | Profiles, images and face recognition",
       favicon: path.resolve(__dirname, "index/favicon.ico"),
     }),
-    createSpritPlugin(),
+    createSpritePlugin(),
     new MiniCssExtractPlugin({ filename: CSS_NAME }),
   ].concat(DEBUG ? [] : [new OptimizeCssAssetsPlugin()]),
   output: {
-    path: env.output || DIST_DIR,
+    path: DIST_DIR,
     filename: JS_NAME,
     publicPath: "/",
+  },
+  devServer: {
+    proxy: { "/api": "http://localhost:8002" },
   },
   stats: {
     children: false,
