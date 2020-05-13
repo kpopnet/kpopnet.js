@@ -10,6 +10,44 @@ function st(name) {
   return `static/${name}`;
 }
 
+function createSpritPlugin() {
+  return new SpritesmithPlugin({
+    src: {
+      cwd: path.resolve(__dirname, "labels/icons"),
+      glob: "*@[24]x.png",
+    },
+    target: {
+      image: path.resolve(__dirname, "labels/labels.png"),
+      css: [
+        [
+          path.resolve(__dirname, "labels/labels.css"),
+          { formatOpts: { cssSelector: (l) => ".label-" + l.name } },
+        ],
+      ],
+    },
+    apiOptions: {
+      cssImageRef: "labels.png",
+      generateSpriteName: (l) => path.basename(l.slice(0, -7)),
+    },
+    // This is a bit more complex than it should be because we
+    // provide 1x/2x and 2x/4x (normal/retina) combinations of label
+    // icons.
+    retina: {
+      classifier: (l) => ({
+        type: l.endsWith("@2x.png") ? "normal" : "retina",
+        normalName: l.slice(0, -7) + "@2x.png",
+        retinaName: l.slice(0, -7) + "@4x.png",
+      }),
+      targetImage: path.resolve(__dirname, "labels/labels@2x.png"),
+      cssImageRef: "labels@2x.png",
+    },
+    spritesmithOptions: {
+      // https://github.com/twolfson/gulp.spritesmith/issues/97
+      padding: 1,
+    },
+  });
+}
+
 const DEBUG = process.env.NODE_ENV === "development";
 const DIST_DIR = path.resolve(__dirname, "dist");
 const JS_NAME = st(DEBUG ? "index.js" : "[chunkhash:10].js");
@@ -45,7 +83,6 @@ module.exports = {
     ],
   },
   plugins: [
-    // Common plugins.
     new CleanWebpackPlugin([env.output || DIST_DIR], {
       allowExternal: true,
       verbose: false,
@@ -58,45 +95,7 @@ module.exports = {
       title: "K-pop idols network | Profiles, images and face recognition",
       favicon: path.resolve(__dirname, "index/favicon.ico"),
     }),
-    new SpritesmithPlugin({
-      src: {
-        cwd: path.resolve(__dirname, "labels/icons"),
-        glob: "*@[24]x.png",
-      },
-      target: {
-        image: path.resolve(__dirname, "labels/labels.png"),
-        css: [
-          [
-            path.resolve(__dirname, "labels/labels.css"),
-            {
-              formatOpts: {
-                cssSelector: (l) => ".label-" + l.name,
-              },
-            },
-          ],
-        ],
-      },
-      apiOptions: {
-        cssImageRef: "labels.png",
-        generateSpriteName: (l) => path.basename(l.slice(0, -7)),
-      },
-      // This is a bit more complex than it should be because we
-      // provide 1x/2x and 2x/4x (normal/retina) combinations of label
-      // icons.
-      retina: {
-        classifier: (l) => ({
-          type: l.endsWith("@2x.png") ? "normal" : "retina",
-          normalName: l.slice(0, -7) + "@2x.png",
-          retinaName: l.slice(0, -7) + "@4x.png",
-        }),
-        targetImage: path.resolve(__dirname, "labels/labels@2x.png"),
-        cssImageRef: "labels@2x.png",
-      },
-      spritesmithOptions: {
-        // https://github.com/twolfson/gulp.spritesmith/issues/97
-        padding: 1,
-      },
-    }),
+    createSpritPlugin(),
     new MiniCssExtractPlugin({ filename: CSS_NAME }),
   ].concat(DEBUG ? [] : [new OptimizeCssAssetsPlugin()]),
   output: {
