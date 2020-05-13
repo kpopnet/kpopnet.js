@@ -16,7 +16,7 @@ class Recognizer extends Component<RecognizerProps, {}> {
     this.imageUrl = URL.createObjectURL(props.file);
   }
   public componentWillMount() {
-    recognizeIdol(this.props.file, {prefix: API_PREFIX}).then(({ id }) => {
+    recognizeIdol(this.props.file, { prefix: API_PREFIX }).then(({ id }) => {
       this.props.onMatch(id);
     }, this.props.onError);
   }
@@ -35,7 +35,7 @@ class Recognizer extends Component<RecognizerProps, {}> {
   }
   private handleDrag = (e: DragEvent) => {
     e.preventDefault();
-  }
+  };
 }
 
 export default Recognizer;

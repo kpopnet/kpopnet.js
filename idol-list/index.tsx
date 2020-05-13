@@ -7,8 +7,12 @@
 
 import { Component, h } from "preact";
 import {
-  BandMap, getIdolPreviewUrl, Idol,
-  Profiles, renderIdol, searchIdols,
+  BandMap,
+  getIdolPreviewUrl,
+  Idol,
+  Profiles,
+  renderIdol,
+  searchIdols,
 } from "../api";
 import "./index.less";
 import previewFallbackUrl from "./no-preview.svg";
@@ -25,33 +29,30 @@ class IdolItem extends Component<ItemProps, any> {
     return false;
   }
   public render({ idol, bandMap }: ItemProps) {
-    const opts = {prefix: FILE_PREFIX, fallback: previewFallbackUrl};
+    const opts = { prefix: FILE_PREFIX, fallback: previewFallbackUrl };
     const previewUrl = getIdolPreviewUrl(idol, opts);
-    const style = {backgroundImage: `url(${previewUrl})`};
+    const style = { backgroundImage: `url(${previewUrl})` };
     const lines = renderIdol(idol, bandMap);
     const nameVal = lines[0][1];
     const { label_icon, label_name } = bandMap.get(idol.band_id);
     return (
       <section class="idol">
-        <div
-          class="idol__preview"
-          style={style}
-        />
+        <div class="idol__preview" style={style} />
         <div class="idol__info">
           <p class="idol__info-line idol__name-line">
             <span class="idol__info-val">{nameVal}</span>
-            {label_icon &&
+            {label_icon && (
               <span class="idol__label" title={label_name}>
                 <i class={`label label-${label_icon}`} />
               </span>
-            }
+            )}
           </p>
-          {lines.slice(1).map(([key, val]) =>
+          {lines.slice(1).map(([key, val]) => (
             <p class="idol__info-line">
               <span class="idol__info-key">{key}</span>
               <span class="idol__info-val">{val}</span>
-            </p>,
-          )}
+            </p>
+          ))}
         </div>
       </section>
     );
@@ -73,22 +74,14 @@ class IdolList extends Component<ListProps, any> {
     if (!idols.length) return this.renderEmpty();
     return (
       <article class="idols">
-        {idols.map((idol) =>
-          <IdolItem
-            key={idol.id}
-            idol={idol}
-            bandMap={bandMap}
-          />,
-        )}
+        {idols.map((idol) => (
+          <IdolItem key={idol.id} idol={idol} bandMap={bandMap} />
+        ))}
       </article>
     );
   }
   public renderEmpty() {
-    return (
-      <article class="idols idols_empty">
-        No results
-      </article>
-    );
+    return <article class="idols idols_empty">No results</article>;
   }
 }
 

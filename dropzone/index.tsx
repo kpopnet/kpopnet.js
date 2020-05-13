@@ -54,7 +54,7 @@ class Dropzone extends Component<DropzoneProps, any> {
       >
         Click/drop photo of idol here
         <input
-          ref={(f) => this.fileEl = f as HTMLInputElement}
+          ref={(f) => (this.fileEl = f as HTMLInputElement)}
           type="file"
           accept="image/*"
           class="dropzone__file"
@@ -66,17 +66,17 @@ class Dropzone extends Component<DropzoneProps, any> {
   private handleClick = () => {
     if (this.props.disabled) return;
     this.fileEl.click();
-  }
+  };
   private handleInputChange = () => {
     const files = this.fileEl.files;
     if (files.length) {
       this.handleFile(files[0]);
     }
-    this.fileEl.value = "";  // Allow to select same file again
-  }
+    this.fileEl.value = ""; // Allow to select same file again
+  };
   private handleDragOver = (e: DragEvent) => {
     e.preventDefault();
-  }
+  };
   private handleDrop = (e: DragEvent) => {
     e.preventDefault();
     if (this.props.disabled) return;
@@ -84,7 +84,7 @@ class Dropzone extends Component<DropzoneProps, any> {
     if (files.length) {
       this.handleFile(files[0]);
     }
-  }
+  };
   private handleFile(file: File) {
     validateImage(file).then(this.props.onChange, (err) => {
       showAlert(["Invalid image", err.message]);

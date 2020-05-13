@@ -13,9 +13,17 @@
 import { Idol, Profiles } from "./profiles";
 
 export {
-  ProfileValue, Band, Idol, Profiles,
-  RenderedLine, Rendered, renderIdol,
-  BandMap, IdolMap, getBandMap, getIdolMap,
+  ProfileValue,
+  Band,
+  Idol,
+  Profiles,
+  RenderedLine,
+  Rendered,
+  renderIdol,
+  BandMap,
+  IdolMap,
+  getBandMap,
+  getIdolMap,
   searchIdols,
 } from "./profiles";
 
@@ -34,7 +42,7 @@ function handleErrorCode(res: Response): Promise<any> {
   } else if (isJson) {
     // Probably standardly-shaped JSON error.
     return res.json().then((data) => {
-      throw new Error(data && data.error || unknown);
+      throw new Error((data && data.error) || unknown);
     });
   } else {
     // Probably text/plain or something like this.
@@ -57,8 +65,10 @@ export interface ApiOpts {
  */
 export function getProfiles(opts: ApiOpts = {}): Promise<Profiles> {
   const prefix = opts.prefix || "/api";
-  return fetch(`${prefix}/idols/profiles`, {credentials: "same-origin"})
-    .then(handleResponse, handleError);
+  return fetch(`${prefix}/idols/profiles`, { credentials: "same-origin" }).then(
+    handleResponse,
+    handleError
+  );
 }
 
 export interface FileOpts {
@@ -90,7 +100,11 @@ export interface ImageIdData {
 /**
  * Set idol's preview.
  */
-export function setIdolPreview(idol: Idol, file: File, opts: ApiOpts = {}): Promise<ImageIdData> {
+export function setIdolPreview(
+  idol: Idol,
+  file: File,
+  opts: ApiOpts = {}
+): Promise<ImageIdData> {
   const prefix = opts.prefix || "/api";
   const form = new FormData();
   form.append("files[]", file);
@@ -108,7 +122,10 @@ export interface IdolIdData {
 /**
  * Recognize idol.
  */
-export function recognizeIdol(file: File, opts: ApiOpts = {}): Promise<IdolIdData> {
+export function recognizeIdol(
+  file: File,
+  opts: ApiOpts = {}
+): Promise<IdolIdData> {
   const prefix = opts.prefix || "/api";
   const form = new FormData();
   form.append("files[]", file);

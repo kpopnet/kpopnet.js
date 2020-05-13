@@ -17,10 +17,10 @@ interface SpinnerProps {
 
 function Spinner({ center, large }: SpinnerProps = {}) {
   return (
-    <div class={cx("spinner", center && "spinner_centered", large && "spinner_2x")}>
-      {Array(12).fill(
-        <div class="spinner__blade" />,
-      )}
+    <div
+      class={cx("spinner", center && "spinner_centered", large && "spinner_2x")}
+    >
+      {Array(12).fill(<div class="spinner__blade" />)}
     </div>
   );
 }

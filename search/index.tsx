@@ -20,7 +20,7 @@ class Search extends Component<SearchProps, {}> {
     return (
       <div class="search">
         <input
-          ref={(i) => this.inputEl = i as HTMLInputElement}
+          ref={(i) => (this.inputEl = i as HTMLInputElement)}
           class="search__input"
           value={query}
           maxLength={40}
@@ -29,7 +29,7 @@ class Search extends Component<SearchProps, {}> {
           onInput={this.handleInputChange}
         />
         {this.renderClearButton()}
-        {loading && <Spinner/>}
+        {loading && <Spinner />}
       </div>
     );
   }
@@ -45,14 +45,14 @@ class Search extends Component<SearchProps, {}> {
     if (this.inputEl) {
       this.inputEl.focus();
     }
-  }
+  };
   private handleInputChange = () => {
     this.props.onChange(this.inputEl.value);
-  }
+  };
   private handleClearClick = () => {
     this.props.onChange("");
     setTimeout(this.focus);
-  }
+  };
 }
 
 export default Search;

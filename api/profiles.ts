@@ -110,8 +110,9 @@ const knownKeys = [
   "positions",
 ];
 
-const keyPriority = new Map(knownKeys
-  .map((k, idx) => [k, idx] as [string, number]));
+const keyPriority = new Map(
+  knownKeys.map((k, idx) => [k, idx] as [string, number])
+);
 
 function keepLine([key, val]: InfoLine): boolean {
   return keyPriority.has(key);
@@ -129,10 +130,10 @@ function capitalize(s: string): string {
 
 function denormalizeKey(key: string): string {
   switch (key) {
-  case "birth_date":
-    return "Birthday";
-  case "birth_name":
-    return "Real name";
+    case "birth_date":
+      return "Birthday";
+    case "birth_name":
+      return "Real name";
   }
   key = capitalize(key);
   key = key.replace(/_/g, " ");
@@ -141,22 +142,22 @@ function denormalizeKey(key: string): string {
 
 function denormalizeVal(key: string, val: ProfileValue, idol: Idol): string {
   switch (key) {
-  case "name":
-    const hangul = idol.name_hangul;
-    return hangul ? `${val} (${hangul})` : val as string;
-  case "birth_name":
-    const hangul2 = idol.birth_name_hangul;
-    return hangul2 ? `${val} (${hangul2})` : val as string;
-  case "birth_date":
-    return `${val} (${getAge(val as string)})`;
-  case "height":
-    return val + " cm";
-  case "weight":
-    return val + " kg";
-  case "positions":
-    return (val as string[]).join(", ");
-  default:
-    return val.toString();
+    case "name":
+      const hangul = idol.name_hangul;
+      return hangul ? `${val} (${hangul})` : (val as string);
+    case "birth_name":
+      const hangul2 = idol.birth_name_hangul;
+      return hangul2 ? `${val} (${hangul2})` : (val as string);
+    case "birth_date":
+      return `${val} (${getAge(val as string)})`;
+    case "height":
+      return val + " cm";
+    case "weight":
+      return val + " kg";
+    case "positions":
+      return (val as string[]).join(", ");
+    default:
+      return val.toString();
   }
 }
 
@@ -232,7 +233,7 @@ function parseQuery(query: string): Query {
       break;
     }
   }
-  return {name, props};
+  return { name, props };
 }
 
 // Match all possible names of the idol.
@@ -247,7 +248,10 @@ function matchIdolName(idol: Idol, val: string): boolean {
   if (idol.korean_name && normalize(idol.korean_name).includes(val)) {
     return true;
   }
-  if (idol.alt_names && idol.alt_names.some((n) => normalize(n).includes(val))) {
+  if (
+    idol.alt_names &&
+    idol.alt_names.some((n) => normalize(n).includes(val))
+  ) {
     return true;
   }
   return false;
@@ -264,7 +268,9 @@ function matchBandName(idol: Idol, bandMap: BandMap, val: string): boolean {
  */
 // TODO(Kagami): Profile/optimize.
 export function searchIdols(
-  query: string, profiles: Profiles, bandMap: BandMap,
+  query: string,
+  profiles: Profiles,
+  bandMap: BandMap
 ): Idol[] {
   if (query.length < 3) return [];
   // console.time("parseQuery");
@@ -277,31 +283,33 @@ export function searchIdols(
   const result = profiles.idols.filter((idol) => {
     // Fuzzy name matching.
     // TODO(Kagami): Allow combinations like "Orange Caramel lizzy"
-    if (q.name
-        && !matchIdolName(idol, q.name)
-        && !matchBandName(idol, bandMap, q.name)) {
+    if (
+      q.name &&
+      !matchIdolName(idol, q.name) &&
+      !matchBandName(idol, bandMap, q.name)
+    ) {
       return false;
     }
     // Match for exact properties if user requested.
     return q.props.every(([key, val]) => {
       switch (key) {
-      case "n":
-      case "name":
-        if (normalize(idol.name).includes(val)) {
-          return true;
-        }
-        break;
-      case "rn":
-        if (normalize(idol.birth_name || "").includes(val)) {
-          return true;
-        }
-        break;
-      case "b":
-      case "band":
-        if (normalize(bandMap.get(idol.band_id).name).includes(val)) {
-          return true;
-        }
-        break;
+        case "n":
+        case "name":
+          if (normalize(idol.name).includes(val)) {
+            return true;
+          }
+          break;
+        case "rn":
+          if (normalize(idol.birth_name || "").includes(val)) {
+            return true;
+          }
+          break;
+        case "b":
+        case "band":
+          if (normalize(bandMap.get(idol.band_id).name).includes(val)) {
+            return true;
+          }
+          break;
       }
       return false;
     });
