@@ -97,14 +97,14 @@ class Index extends Component<{}, IndexState> {
             <a
               class="footer__link"
               target="_blank"
-              href="https://github.com/Kagami/kpopnet"
+              href="https://github.com/kpopnet"
             >
               Source code
             </a>
             <a
               class="footer__link"
               target="_blank"
-              href="https://github.com/Kagami/kpopnet/issues"
+              href="https://github.com/kpopnet/kpopnet.js/issues"
             >
               Feedback
             </a>

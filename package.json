@@ -4,7 +4,8 @@
   "description": "JavaScript kpopnet bindings",
   "scripts": {
     "start": "NODE_ENV=development webpack-dev-server",
-    "build": "webpack"
+    "build": "webpack",
+    "deploy": "webpack && rsync -rvze ssh --delete dist/ ${KPOPNET_DEPLOY_HOST}:/srv/kpopnet/www/"
   },
   "repository": {
     "type": "git",
