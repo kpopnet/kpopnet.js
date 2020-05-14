@@ -11,9 +11,10 @@ const DIST_DIR = path.resolve(__dirname, "dist");
 const JS_NAME = st(DEBUG ? "index.js" : "[chunkhash:10].js");
 const CSS_NAME = st(DEBUG ? "index.css" : "[contenthash:10].css");
 const ASSET_NAME = st(DEBUG ? "[name].[ext]" : "[hash:10].[ext]");
-const API_PREFIX = process.env.KPOPNET_API_PREFIX || "/api";
-const FILE_PREFIX =
-  process.env.KPOPNET_FILE_PREFIX || "http://localhost:8001/uploads";
+const API_PREFIX = DEBUG ? "/api" : process.env.KPOPNET_API_PREFIX;
+const FILE_PREFIX = DEBUG
+  ? "http://localhost:8001/uploads"
+  : process.env.KPOPNET_FILE_PREFIX;
 
 function st(name) {
   return `static/${name}`;
