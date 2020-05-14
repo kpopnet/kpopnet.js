@@ -30,33 +30,34 @@ export {
 declare const API_PREFIX: string;
 declare const FILE_PREFIX: string;
 
+const unknownErr = "unknownErr";
+
 function handleResponse(res: Response): Promise<any> {
   return res.ok ? res.json() : handleErrorCode(res);
 }
 
 function handleErrorCode(res: Response): Promise<any> {
-  const unknown = "unknown error";
   const ctype = res.headers.get("Content-Type");
   const isHtml = ctype.startsWith("text/html");
   const isJson = ctype.startsWith("application/json");
   if (isHtml) {
     // Probably 404/500 page, don't bother parsing.
-    throw new Error(unknown);
+    throw new Error(unknownErr);
   } else if (isJson) {
     // Probably standardly-shaped JSON error.
     return res.json().then((data) => {
-      throw new Error((data && data.error) || unknown);
+      throw new Error((data && data.error) || unknownErr);
     });
   } else {
     // Probably text/plain or something like this.
     return res.text().then((data) => {
-      throw new Error(data || unknown);
+      throw new Error(data || unknownErr);
     });
   }
 }
 
 function handleError(err: Error) {
-  throw new Error(err.message || "unknown error");
+  throw new Error(err.message || unknownErr);
 }
 
 export interface ApiOpts {
