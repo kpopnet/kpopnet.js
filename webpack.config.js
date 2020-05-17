@@ -11,10 +11,12 @@ const DIST_DIR = path.resolve(__dirname, "dist");
 const JS_NAME = st(DEBUG ? "index.js" : "[chunkhash:10].js");
 const CSS_NAME = st(DEBUG ? "index.css" : "[contenthash:10].css");
 const ASSET_NAME = st(DEBUG ? "[name].[ext]" : "[hash:10].[ext]");
-const API_PREFIX = DEBUG ? "/api" : process.env.KPOPNET_API_PREFIX;
+const API_PREFIX = DEBUG
+  ? "http://localhost:8002/api"
+  : process.env.KPOPNET_API_PREFIX || "https://api.kpopnet.dev";
 const FILE_PREFIX = DEBUG
   ? "http://localhost:8001/uploads"
-  : process.env.KPOPNET_FILE_PREFIX;
+  : process.env.KEVENTS_FILE_PREFIX || "https://store.kpop.events";
 
 function st(name) {
   return `static/${name}`;
@@ -102,7 +104,7 @@ module.exports = {
     publicPath: "/",
   },
   devServer: {
-    proxy: { "/api": "http://localhost:8002" },
+    port: 9002,
   },
   stats: {
     children: false,
