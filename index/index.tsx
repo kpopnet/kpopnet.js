@@ -19,6 +19,9 @@ import Recognizer from "../recognizer";
 import Search from "../search";
 import "./index.less";
 
+const url = new URL(location.href);
+const isEmbed = url.searchParams.get("embed") != null;
+
 interface IndexState {
   loading: boolean;
   loadingErr: boolean;
@@ -89,27 +92,29 @@ class Index extends Component<{}, IndexState> {
             />
           )}
         </div>
-        <footer class="footer">
-          <div class="footer__inner">
-            <a class="footer__link" target="_blank" href="https://kpop.re/">
-              Kpop.re
-            </a>
-            <a
-              class="footer__link"
-              target="_blank"
-              href="https://github.com/kpopnet"
-            >
-              Source code
-            </a>
-            <a
-              class="footer__link"
-              target="_blank"
-              href="https://github.com/kpopnet/kpopnet.js/issues"
-            >
-              Feedback
-            </a>
-          </div>
-        </footer>
+        {!isEmbed && (
+          <footer class="footer">
+            <div class="footer__inner">
+              <a class="footer__link" target="_blank" href="https://kpop.re/">
+                Kpop.re
+              </a>
+              <a
+                class="footer__link"
+                target="_blank"
+                href="https://github.com/kpopnet"
+              >
+                Source code
+              </a>
+              <a
+                class="footer__link"
+                target="_blank"
+                href="https://github.com/kpopnet/kpopnet.js/issues"
+              >
+                Feedback
+              </a>
+            </div>
+          </footer>
+        )}
       </main>
     );
   }
