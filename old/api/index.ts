@@ -68,11 +68,37 @@ export interface ApiOpts {
  * Get all profiles. ~47kb gzipped currently.
  */
 export function getProfiles(opts: ApiOpts = {}): Promise<Profiles> {
-  const prefix = opts.prefix || API_PREFIX;
-  return fetch(`${prefix}/profiles`, { credentials: "same-origin" }).then(
-    handleResponse,
-    handleError
-  );
+  // const prefix = opts.prefix || API_PREFIX;
+  // return fetch(`${prefix}/profiles`, { credentials: "same-origin" }).then(
+  //   handleResponse,
+  //   handleError
+  // );
+  return Promise.resolve({
+    bands: [
+      {
+        agency_name: "Pledis",
+        debut_date: "2017-03-21",
+        disband_date: "2019-05-24",
+        id: "KWGkvTokzv6h",
+        name: "Pristin",
+        name_original: "프리스틴",
+      },
+    ],
+    idols: [
+      {
+        birth_date: "1997-07-29",
+        debut_date: "2017-03-21",
+        band_id: "KWGkvTokzv6h",
+        height: 172.0,
+        id: "G_DuWxfoSlXa",
+        name: "Minkyeung",
+        name_hangul: "민경",
+        birth_name: "Kim Minkyung",
+        birth_name_hangul: "김민경",
+        weight: 50.0,
+      },
+    ],
+  });
 }
 
 export interface FileOpts {
