@@ -1,7 +1,9 @@
 import { defineConfig } from "vite";
-import solid from "vite-plugin-solid";
+import solidPlugin from "vite-plugin-solid";
 
 export default defineConfig({
-  plugins: [solid()],
-  publicDir: "./src/assets",
+  plugins: [solidPlugin()],
+  build: {
+    target: "esnext",
+  },
 });
