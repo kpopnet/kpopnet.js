@@ -12,6 +12,9 @@ interface Alert {
 }
 
 let idCounter = 0;
+// XXX(Kagami): "While it is possible to use global state and computations,
+// Context is sometimes a better solution. Additionally, it is important to note
+// that global state should not be used in SSR"
 const [alerts, setAlerts] = createStore<Alert[]>([]);
 
 export function showAlert(opts: Error | string | [string, string]) {

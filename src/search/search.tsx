@@ -1,8 +1,8 @@
 import { Show, onMount, createEffect } from "solid-js";
 import type { Setter } from "solid-js";
 
-import Spinner from "../spinner/spinner";
 import "./search.less";
+import Spinner from "../spinner/spinner";
 
 interface SearchProps {
   query: string;

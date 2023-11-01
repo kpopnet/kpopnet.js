@@ -1,0 +1,63 @@
+.idols_empty {
+  text-align: center;
+  font-size: 30px;
+  color: #999;
+}
+
+.idol {
+  display: flex;
+  margin-bottom: 50px;
+  &:last-child {
+    margin-bottom: 100px;
+  }
+}
+
+.idol__preview {
+  min-width: 350px;
+  width: 350px;
+  min-height: 350px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  user-select: none;
+}
+
+.idol__info {
+  width: 100%;
+  margin-left: 10px;
+  border-left: 1px solid #d5d5d5;
+  padding-left: 20px;
+  font-size: 18px;
+}
+
+.idol__info-line {
+  display: flex;
+  margin: 0;
+}
+
+.idol__name-line {
+  border-bottom: 5px solid #6b6c9a;
+  margin-bottom: 12px;
+
+  .idol__info-val {
+    flex: 1;
+    font-size: 30px;
+  }
+}
+
+.idol__label {
+  align-self: flex-end;
+}
+
+.idol__info-key {
+  flex: 0 0 115px;
+  color: #bbb;
+  word-break: break-word;
+  &::after {
+    content: ":";
+  }
+}
+
+.idol__info-val {
+  word-break: break-word;
+}
