@@ -3,12 +3,13 @@
  */
 
 import { Switch, Match, For, Show, createMemo } from "solid-js";
+import type { Idol, Profiles } from "kpopnet.json";
 
 import "./idol-list.less";
 import previewFallbackUrl from "./no-preview.svg";
-
 import { searchIdols, renderIdol } from "./render";
-import type { GroupMap, Idol, Profiles } from "./render";
+import type { GroupMap } from "./render";
+// import "../labels/labels.less";
 
 interface ItemProps {
   idol: Idol;
@@ -16,11 +17,15 @@ interface ItemProps {
 }
 
 // XXX: fields never update so we render just once?
+// FIXME(Kagami): cache renders? display:none in <For>? or save renderIdol result in Map?
 function IdolItem(p: ItemProps) {
   const lines = renderIdol(p.idol, p.groupMap);
   const nameVal = lines[0][1];
+
   // TODO(Kagami): remove/rework agency info
-  const { agency_icon, agency_name } = p.groupMap.get(p.idol.group_id)!;
+  const agency_icon = "";
+  const agency_name = ""; //p.groupMap.get(p.idol.group_id)!;
+
   const previewUrl = previewFallbackUrl;
   const style = { "background-image": `url(${previewUrl})` };
   // console.log("rendering " + p.idol.id);

@@ -1,3 +1,3 @@
 # kpopnet.js
 
-JavaScript kpopnet bindings.
+JavaScript kpopnet bindings and web application.

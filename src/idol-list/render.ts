@@ -1,40 +1,18 @@
-export type ProfileValue = string | number | string[];
-
-export interface Group {
-  // Known props.
-  id: string;
-  name: string;
-  alt_names?: string[];
-  agency_icon?: string;
-  agency_name?: string;
-  debut_date?: string;
-  disband_date?: string;
-}
-
-export interface Idol {
-  // Known props.
-  id: string;
-  name: string;
-  name_hangul?: string;
-  alt_names?: string[];
-  group_id: string;
-  alt_group_ids?: string[];
-  image_id?: string;
-  birth_name?: string;
-  birth_name_hangul?: string;
-  korean_name?: string;
-  birth_date?: string;
-  debut_date?: string;
-  height?: number;
-  weight?: number;
-}
-
-export interface Profiles {
-  groups: Group[];
-  idols: Idol[];
-}
+import type { Idol, Group, Profiles } from "kpopnet.json";
 
 export type GroupMap = Map<string, Group>;
+
+type RenderedLine = [string, string];
+type Rendered = RenderedLine[];
+
+type ProfileValue = string | number | string[];
+type InfoLine = [string, ProfileValue];
+
+type SearchProp = [string, string];
+interface Query {
+  name: string;
+  props: SearchProp[];
+}
 
 export function getGroupMap(profiles: Profiles): GroupMap {
   const groupMap = new Map();
@@ -44,43 +22,28 @@ export function getGroupMap(profiles: Profiles): GroupMap {
   return groupMap;
 }
 
-function tryConcat<T>(a: T, b?: T[]): T[] {
-  return b ? [a].concat(b) : [a];
-}
-
 // TODO(Kagami): Profile/optimize.
 function getGroupNames(idol: Idol, groupMap: GroupMap): string[] {
   // NOTE(Kagami): Backend doesn't currently guarantee that alt_group_ids
   // contain correct existing group ids, so this may potentially fail.
-  const groupIds = tryConcat(idol.group_id, idol.alt_group_ids);
-  const groups = groupIds.map((id) => groupMap.get(id)!);
-  const gnames = [] as string[];
-  groups.forEach((g) => {
-    tryConcat(g.name, g.alt_names).forEach((gname) => {
-      gnames.push(gname);
-    });
-  });
-  return gnames;
+  const groups = idol.groups.map((id) => groupMap.get(id)!);
+  return groups.map((g) => g.name);
 }
-
-export type RenderedLine = [string, string];
-export type Rendered = RenderedLine[];
 
 export function renderIdol(idol: Idol, groupMap: GroupMap): Rendered {
   const renderLine = renderLineCtx.bind(null, idol);
   const gnames = getGroupNames(idol, groupMap);
   // Main name of the main group goes first.
+  // FIXME(Kagami): find main group? The only (first) with current=true?
   let gname = gnames[0];
   if (gnames.length > 1) {
     gname += " (";
     gname += gnames.slice(1).join(", ");
     gname += ")";
   }
-  const lines = getLines(idol).concat([["groups", gname]]);
+  const lines = getLines(idol).concat([["group_names", gname]]);
   return lines.filter(keepLine).sort(compareLines).map(renderLine);
 }
-
-type InfoLine = [string, ProfileValue];
 
 function getLines(idol: Idol): InfoLine[] {
   return Object.entries(idol);
@@ -88,8 +51,8 @@ function getLines(idol: Idol): InfoLine[] {
 
 const knownKeys = [
   "name",
-  "birth_name",
-  "groups",
+  "real_name",
+  "group_names",
   "birth_date",
   "height",
   "weight",
@@ -101,7 +64,7 @@ const keyPriority = new Map(
 );
 
 function keepLine([key, val]: InfoLine): boolean {
-  return keyPriority.has(key);
+  return keyPriority.has(key) && !!val;
 }
 
 function compareLines(a: InfoLine, b: InfoLine): number {
@@ -118,8 +81,10 @@ function denormalizeKey(key: string): string {
   switch (key) {
     case "birth_date":
       return "Birthday";
-    case "birth_name":
+    case "real_name":
       return "Real name";
+    case "group_names":
+      return "Groups";
   }
   key = capitalize(key);
   key = key.replace(/_/g, " ");
@@ -129,10 +94,10 @@ function denormalizeKey(key: string): string {
 function denormalizeVal(key: string, val: ProfileValue, idol: Idol): string {
   switch (key) {
     case "name":
-      const hangul = idol.name_hangul;
+      const hangul = idol.name_original;
       return hangul ? `${val} (${hangul})` : (val as string);
-    case "birth_name":
-      const hangul2 = idol.birth_name_hangul;
+    case "real_name":
+      const hangul2 = idol.real_name_original;
       return hangul2 ? `${val} (${hangul2})` : (val as string);
     case "birth_date":
       return `${val} (${getAge(val as string)})`;
@@ -140,8 +105,6 @@ function denormalizeVal(key: string, val: ProfileValue, idol: Idol): string {
       return val + " cm";
     case "weight":
       return val + " kg";
-    case "positions":
-      return (val as string[]).join(", ");
     default:
       return val.toString();
   }
@@ -168,19 +131,12 @@ function normalize(s: string): string {
   return s.replace(/[' .-]/g, "").toLowerCase();
 }
 
-type SearchProp = [string, string];
-
-interface Query {
-  name: string;
-  props: SearchProp[];
-}
-
 // Split query into main component and property-tagged parts.
 // Example: "name words prop1:prop words prop2:more words"
 // TODO(Kagami): Profile/optimize.
 function parseQuery(query: string): Query {
   let name = "";
-  const props = [] as SearchProp[];
+  const props: SearchProp[] = [];
   let lastKey = "";
   while (true) {
     // Search for prop1[:]
@@ -228,18 +184,18 @@ function matchIdolName(idol: Idol, val: string): boolean {
   if (normalize(idol.name).includes(val)) {
     return true;
   }
-  if (idol.birth_name && normalize(idol.birth_name).includes(val)) {
+  if (idol.real_name && normalize(idol.real_name).includes(val)) {
     return true;
   }
-  if (idol.korean_name && normalize(idol.korean_name).includes(val)) {
+  if (idol.name_original && normalize(idol.name_original).includes(val)) {
     return true;
   }
-  if (
+  /*if (
     idol.alt_names &&
     idol.alt_names.some((n) => normalize(n).includes(val))
   ) {
     return true;
-  }
+  }*/
   return false;
 }
 
@@ -265,6 +221,7 @@ export function searchIdols(
   if (!q.name && !q.props.length) return [];
 
   // TODO(Kagam): Sort idols?
+  // TODO(Kagami): Limit number of results, pagination?
   // console.time("searchIdols");
   const result = profiles.idols.filter((idol) => {
     // Fuzzy name matching.
@@ -286,13 +243,17 @@ export function searchIdols(
           }
           break;
         case "rn":
-          if (normalize(idol.birth_name || "").includes(val)) {
+          if (normalize(idol.real_name || "").includes(val)) {
             return true;
           }
           break;
         case "b":
         case "group":
-          if (normalize(groupMap.get(idol.group_id)!.name).includes(val)) {
+          // FIXME(Kagami): main group id
+          if (
+            idol.groups.length &&
+            normalize(groupMap.get(idol.groups[0])!.name).includes(val)
+          ) {
             return true;
           }
           break;

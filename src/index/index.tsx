@@ -9,37 +9,10 @@ import "./index.less";
 import Alerts, { showAlert } from "../alerts/alerts";
 import Search from "../search/search";
 import IdolList from "../idol-list/idol-list";
-import type { Profiles } from "../idol-list/render";
 import { getGroupMap } from "../idol-list/render";
-// import "../labels";
+import profiles from "kpopnet.json";
 
 export default function Index() {
-  // FIXME: get actual profiles
-  const profiles: Profiles = {
-    groups: [
-      {
-        agency_name: "Pledis",
-        debut_date: "2017-03-21",
-        disband_date: "2019-05-24",
-        id: "KWGkvTokzv6h",
-        name: "Pristin",
-      },
-    ],
-    idols: [
-      {
-        birth_date: "1997-07-29",
-        debut_date: "2017-03-21",
-        group_id: "KWGkvTokzv6h",
-        height: 172.0,
-        id: "G_DuWxfoSlXa",
-        name: "Minkyeung",
-        name_hangul: "민경",
-        birth_name: "Kim Minkyung",
-        birth_name_hangul: "김민경",
-        weight: 50.0,
-      },
-    ],
-  };
   const groupMap = getGroupMap(profiles);
 
   // TODO(Kagami): Might use later for loading e.g. WASM
