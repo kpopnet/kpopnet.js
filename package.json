@@ -1,12 +1,23 @@
 {
   "name": "kpopnet",
   "version": "0.1.1",
+  "description": "JavaScript kpopnet bindings",
   "type": "module",
   "scripts": {
     "start": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kpopnet/kpopnet.js.git"
+  },
+  "author": "Kagami Hiiragi",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/kpopnet/kpopnet.js/issues"
+  },
+  "homepage": "https://github.com/kpopnet/kpopnet.js#readme",
   "dependencies": {
     "solid-js": "^1.7.8"
   },

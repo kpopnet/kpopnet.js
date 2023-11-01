@@ -5,32 +5,22 @@
 import "./global.less";
 import "./index.less";
 
-import { onMount } from "solid-js";
+import { onMount, createSignal } from "solid-js";
 import Alerts, { showAlert } from "../alerts/alerts";
+import Search from "../search/search";
+
+// import {
+//   BandMap,
+//   getBandMap,
+//   getIdolMap,
+//   getProfiles,
+//   IdolMap,
+//   Profiles,
+// } from "../api";
+// import IdolList from "../idol-list";
+// import "../labels";
 
 /*
-import {
-  BandMap,
-  getBandMap,
-  getIdolMap,
-  getProfiles,
-  IdolMap,
-  Profiles,
-} from "../api";
-import Dropzone from "../dropzone";
-import IdolList from "../idol-list";
-import "../labels";
-import Recognizer from "../recognizer";
-import Search from "../search";
-import "./index.less";
-
-interface IndexState {
-  loading: boolean;
-  loadingErr: boolean;
-  query: string;
-  file?: File;
-}
-
 class Index extends Component<{}, IndexState> {
   private profiles: Profiles = null;
   private bandMap: BandMap = null;
@@ -87,41 +77,35 @@ class Index extends Component<{}, IndexState> {
 */
 
 export default function Index() {
+  let [loading, setLoading] = createSignal(true);
+  let [loadingErr, _setLoadingErr] = createSignal(false);
+  let [query, setQuery] = createSignal("");
+
   onMount(() => {
-    showAlert("test");
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
   });
+
   return (
     <main class="index">
       <div class="index__inner">
         <Alerts />
-        {/*<Search
-          query={query}
-          loading={loading}
-          disabled={loadingErr || !!file}
-          onChange={this.handleSearch}
+        <Search
+          query={query()}
+          setQuery={setQuery}
+          loading={loading()}
+          disabled={loadingErr()}
         />
-        {!loading && !file && query && (
+        {/*!loading && !file && query && (
           <IdolList
             profiles={this.profiles}
             bandMap={this.bandMap}
             query={query}
           />
-        )}
-        {!file && !query && (
-          <Dropzone
-            disabled={loading || loadingErr}
-            onChange={this.handleFile}
-          />
-        )}
-        {file && (
-          <Recognizer
-            file={file}
-            onMatch={this.handleRecognizeMatch}
-            onError={this.handleRecognizeError}
-          />
-        )}*/}
+        )*/}
       </div>
-      <footer class="footer">
+      {/*<footer class="footer">
         <div class="footer__inner">
           <a class="footer__link" target="_blank" href="https://kpop.re/">
             Kpop.re
@@ -141,7 +125,7 @@ export default function Index() {
             Feedback
           </a>
         </div>
-      </footer>
+      </footer>*/}
     </main>
   );
 }
