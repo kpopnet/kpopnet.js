@@ -5,14 +5,14 @@
 import { onMount, createSignal } from "solid-js";
 
 import "./global.less";
-import "./index.less";
+import "./main.less";
 import Alerts, { showAlert } from "../alerts/alerts";
 import Search from "../search/search";
 import IdolList from "../idol-list/idol-list";
 import { getGroupMap } from "../idol-list/render";
 import profiles from "kpopnet.json";
 
-export default function Index() {
+export default function Main() {
   const groupMap = getGroupMap(profiles);
 
   // TODO(Kagami): Might use later for loading e.g. WASM
@@ -27,8 +27,8 @@ export default function Index() {
   });
 
   return (
-    <main class="index">
-      <div class="index__inner">
+    <main class="main">
+      <div class="main__inner">
         <Alerts />
         <Search
           query={query()}

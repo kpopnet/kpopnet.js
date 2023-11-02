@@ -1,7 +1,7 @@
 /* @refresh reload */
 import { render } from "solid-js/web";
 
-import Index from "./index";
+import Main from "./main";
 
 // XXX: Extra DOM element and extra import seem to be required for HMR.
-render(() => <Index />, document.getElementById("root")!);
+render(() => <Main />, document.getElementById("root")!);

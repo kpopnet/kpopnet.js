@@ -26,7 +26,7 @@ function IdolItem(p: ItemProps) {
   const agency_icon = "";
   const agency_name = ""; //p.groupMap.get(p.idol.group_id)!;
 
-  const previewUrl = previewFallbackUrl;
+  const previewUrl = p.idol.thumb_url || previewFallbackUrl;
   const style = { "background-image": `url(${previewUrl})` };
   // console.log("rendering " + p.idol.id);
 
