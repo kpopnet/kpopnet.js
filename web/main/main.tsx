@@ -2,16 +2,16 @@
  * Application entry point.
  */
 
-import { onMount, createSignal, createEffect, on } from "solid-js";
+import { createSignal, createEffect, on } from "solid-js";
 
 import "./global.less";
 import "./main.less";
-import Alerts, { showAlert } from "../alerts/alerts";
-import Search from "../search/search";
+// import Alerts from "../alerts/alerts";
+import SearchInput from "../search-input/search-input";
 import IdolList from "../idol-list/idol-list";
-import { getGroupMap } from "../idol-list/render";
+import { getGroupMap } from "../../lib/search";
 import profiles from "kpopnet.json";
-import { debounce, getUrlQuery, setUrlQuery } from "../utils";
+import { debounce, getUrlQuery, setUrlQuery } from "../../lib/utils";
 
 export default function Main() {
   // TODO(Kagami): Might use later for loading e.g. WASM
@@ -31,16 +31,15 @@ export default function Main() {
 
   return (
     <main class="main">
-      <div class="main__inner">
-        <Alerts />
-        <Search
+      <section class="main__inner">
+        <SearchInput
           query={query()}
           setQuery={setQuery}
           loading={loading()}
           disabled={loadingErr()}
         />
         <IdolList profiles={profiles} groupMap={groupMap} query={query()} />
-      </div>
+      </section>
     </main>
   );
 }

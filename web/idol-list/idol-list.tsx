@@ -7,8 +7,9 @@ import type { Idol, Profiles } from "kpopnet.json";
 
 import "./idol-list.less";
 import previewFallbackUrl from "./no-preview.svg";
-import { searchIdols, renderIdol } from "./render";
-import type { GroupMap } from "./render";
+import { renderIdol } from "../../lib/render";
+import { searchIdols } from "../../lib/search";
+import type { GroupMap } from "../../lib/search";
 // import "../labels/labels.less";
 
 interface ItemProps {

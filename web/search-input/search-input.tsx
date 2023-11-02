@@ -1,7 +1,7 @@
 import { Show, onMount, createEffect } from "solid-js";
 import type { Setter } from "solid-js";
 
-import "./search.less";
+import "./search-input.less";
 import Spinner from "../spinner/spinner";
 
 interface SearchProps {
@@ -11,7 +11,7 @@ interface SearchProps {
   disabled: boolean;
 }
 
-export default function Search(p: SearchProps) {
+export default function SearchInput(p: SearchProps) {
   let inputEl: HTMLInputElement;
 
   function focus() {
