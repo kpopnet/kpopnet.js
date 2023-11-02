@@ -65,7 +65,7 @@ export default function IdolList(p: ListProps) {
   });
   return (
     <Switch fallback={<section class="idols idols_empty">No results</section>}>
-      <Match when={p.query.length < 3}> </Match>
+      <Match when={p.query.length < 2}> </Match>
       <Match when={idols().length}>
         <section class="idols">
           <For each={idols()}>

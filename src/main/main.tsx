@@ -2,7 +2,7 @@
  * Application entry point.
  */
 
-import { onMount, createSignal } from "solid-js";
+import { onMount, createSignal, createEffect, on } from "solid-js";
 
 import "./global.less";
 import "./main.less";
@@ -11,20 +11,23 @@ import Search from "../search/search";
 import IdolList from "../idol-list/idol-list";
 import { getGroupMap } from "../idol-list/render";
 import profiles from "kpopnet.json";
+import { debounce, getUrlQuery, setUrlQuery } from "../utils";
 
 export default function Main() {
-  const groupMap = getGroupMap(profiles);
-
   // TODO(Kagami): Might use later for loading e.g. WASM
-  let [loading, setLoading] = createSignal(false);
+  let [loading, _setLoading] = createSignal(false);
   let [loadingErr, _setLoadingErr] = createSignal(false);
-  let [query, setQuery] = createSignal("");
+  let [query, setQuery] = createSignal(getUrlQuery());
 
-  onMount(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  });
+  const debounceSetUrlQuery = debounce(setUrlQuery, 400);
+  createEffect(
+    on(query, (q) => {
+      debounceSetUrlQuery(q);
+    })
+  );
+
+  // TODO(Kagami): make other caches
+  const groupMap = getGroupMap(profiles);
 
   return (
     <main class="main">

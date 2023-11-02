@@ -22,10 +22,8 @@ export function getGroupMap(profiles: Profiles): GroupMap {
   return groupMap;
 }
 
-// TODO(Kagami): Profile/optimize.
+// FIXME(Kagami): cache idol->groups
 function getGroupNames(idol: Idol, groupMap: GroupMap): string[] {
-  // NOTE(Kagami): Backend doesn't currently guarantee that alt_group_ids
-  // contain correct existing group ids, so this may potentially fail.
   const groups = idol.groups.map((id) => groupMap.get(id)!);
   return groups.map((g) => g.name);
 }
@@ -179,17 +177,11 @@ function parseQuery(query: string): Query {
 }
 
 // Match all possible names of the idol.
-// TODO(Kagami): Search for hangul?
 function matchIdolName(idol: Idol, val: string): boolean {
-  if (normalize(idol.name).includes(val)) {
-    return true;
-  }
-  if (idol.real_name && normalize(idol.real_name).includes(val)) {
-    return true;
-  }
-  if (idol.name_original && normalize(idol.name_original).includes(val)) {
-    return true;
-  }
+  if (normalize(idol.name).includes(val)) return true;
+  if (normalize(idol.real_name_original).includes(val)) return true;
+  if (normalize(idol.real_name).includes(val)) return true;
+  if (normalize(idol.name_original).includes(val)) return true;
   /*if (
     idol.alt_names &&
     idol.alt_names.some((n) => normalize(n).includes(val))
@@ -214,7 +206,7 @@ export function searchIdols(
   profiles: Profiles,
   groupMap: GroupMap
 ): Idol[] {
-  if (query.length < 3) return [];
+  if (query.length < 2) return [];
   // console.time("parseQuery");
   const q = parseQuery(query);
   // console.timeEnd("parseQuery");
@@ -238,14 +230,10 @@ export function searchIdols(
       switch (key) {
         case "n":
         case "name":
-          if (normalize(idol.name).includes(val)) {
-            return true;
-          }
+          if (normalize(idol.name).includes(val)) return true;
           break;
         case "rn":
-          if (normalize(idol.real_name || "").includes(val)) {
-            return true;
-          }
+          if (normalize(idol.real_name).includes(val)) return true;
           break;
         case "b":
         case "group":
