@@ -27,12 +27,10 @@ function IdolItem(p: ItemProps) {
   const agency_name = ""; //p.groupMap.get(p.idol.group_id)!;
 
   const previewUrl = p.idol.thumb_url || previewFallbackUrl;
-  const style = { "background-image": `url(${previewUrl})` };
-  // console.log("rendering " + p.idol.id);
 
   return (
     <article class="idol">
-      <div class="idol__preview" style={style} />
+      <img class="idol__preview" src={previewUrl} loading="lazy" />
       <div class="idol__info">
         <p class="idol__info-line idol__name-line">
           <span class="idol__info-val">{nameVal}</span>
