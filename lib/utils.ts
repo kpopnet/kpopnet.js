@@ -16,6 +16,8 @@ export function setUrlQuery(query: string) {
   const url = new URL(location.href);
   if (query) {
     url.searchParams.set("q", query);
+    // don't escape colon https://stackoverflow.com/q/13713671
+    url.search = url.searchParams.toString().replace(/%3A/g, ":");
   } else {
     url.searchParams.delete("q");
   }

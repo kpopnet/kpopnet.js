@@ -26,7 +26,8 @@ export default function Main() {
     })
   );
 
-  // TODO(Kagami): make other caches
+  // TODO(Kagami): make other caches idol->groups, groups->idol, idolMap
+  // Check for reference match and display error if didn't match!
   const groupMap = getGroupMap(profiles);
 
   return (

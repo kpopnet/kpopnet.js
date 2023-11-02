@@ -11,6 +11,7 @@ type InfoLine = [string, ProfileValue];
 
 export function renderIdol(idol: Idol, groupMap: GroupMap): Rendered {
   const renderLine = renderLineCtx.bind(null, idol);
+  // FIXME(Kagami): show orig group names
   const gnames = getGroupNames(idol, groupMap);
   // Main name of the main group goes first.
   // FIXME(Kagami): find main group? The only (first) with current=true?
@@ -20,7 +21,7 @@ export function renderIdol(idol: Idol, groupMap: GroupMap): Rendered {
     gname += gnames.slice(1).join(", ");
     gname += ")";
   }
-  const lines = getLines(idol).concat([["group_names", gname]]);
+  const lines = getLines(idol).concat([["_groups", gname]]);
   return lines.filter(keepLine).sort(compareLines).map(renderLine);
 }
 
@@ -31,7 +32,7 @@ function getLines(idol: Idol): InfoLine[] {
 const knownKeys = [
   "name",
   "real_name",
-  "group_names",
+  "_groups", // our key
   "birth_date",
   "height",
   "weight",
@@ -62,7 +63,7 @@ function denormalizeKey(key: string): string {
       return "Birthday";
     case "real_name":
       return "Real name";
-    case "group_names":
+    case "_groups":
       return "Groups";
   }
   key = capitalize(key);

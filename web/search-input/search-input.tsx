@@ -1,4 +1,4 @@
-import { Show, onMount, createEffect } from "solid-js";
+import { Show, onMount, createEffect, onCleanup } from "solid-js";
 import type { Setter } from "solid-js";
 
 import "./search-input.less";
@@ -27,8 +27,26 @@ export default function SearchInput(p: SearchProps) {
     setTimeout(focus);
   }
 
+  function handleGlobalHotkeys(event: KeyboardEvent) {
+    // Maybe just ignore "/" key completely?
+    if (event.key == "/") {
+      if (window.scrollY > 0 || document.activeElement !== inputEl) {
+        event.preventDefault();
+        focus();
+      }
+      if (window.scrollY > 0) {
+        window.scrollTo(0, 0);
+      }
+    }
+  }
+
   onMount(() => {
     focus();
+    document.addEventListener("keydown", handleGlobalHotkeys);
+  });
+
+  onCleanup(() => {
+    document.removeEventListener("keydown", handleGlobalHotkeys);
   });
 
   createEffect<boolean>((wasLoading) => {
@@ -47,6 +65,7 @@ export default function SearchInput(p: SearchProps) {
         maxLength={40}
         placeholder="Search for idol or group"
         disabled={p.loading || p.disabled}
+        spellcheck={false}
         onInput={handleInputChange}
       />
       <Show when={p.query}>

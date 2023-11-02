@@ -29,7 +29,17 @@ function getOrigGroupNames(idol: Idol, groupMap: GroupMap): string[] {
 
 // Remove symbols which doesn't make sense for fuzzy search.
 function normalize(s: string): string {
-  return s.replace(/[:' .-]/g, "").toLowerCase();
+  return s.replace(/\P{L}/gu, "").toLowerCase();
+}
+
+// Don't need normalization for some props
+function pushProp(props: SearchProp[], key: string, val: string) {
+  if (key === "id") {
+    val = val.trim();
+  } else {
+    val = normalize(val);
+  }
+  props.push([key, val]);
 }
 
 // Split query into main component and property-tagged parts.
@@ -47,11 +57,11 @@ function parseQuery(query: string): Query {
       const spaceIdx = query.lastIndexOf(" ", colonIdx);
       if (spaceIdx >= 0) {
         // [name words] prop1:
-        const lastVal = normalize(query.slice(0, spaceIdx));
+        const lastVal = query.slice(0, spaceIdx);
         if (lastKey) {
-          props.push([lastKey, lastVal]);
+          pushProp(props, lastKey, lastVal);
         } else {
-          name = lastVal;
+          name = normalize(lastVal);
         }
         // [prop1]:...
         lastKey = query.slice(spaceIdx + 1, colonIdx);
@@ -66,12 +76,13 @@ function parseQuery(query: string): Query {
         query = query.slice(colonIdx + 1);
       }
     } else {
-      // prop2:[more words]
-      const lastVal = normalize(query);
+      const lastVal = query;
       if (lastKey) {
-        props.push([lastKey, lastVal]);
+        // prop1:[more words]
+        pushProp(props, lastKey, lastVal);
       } else {
-        name = lastVal;
+        // [just query]
+        name = normalize(lastVal);
       }
       break;
     }
@@ -79,7 +90,7 @@ function parseQuery(query: string): Query {
   return { name, props };
 }
 
-// Match all possible names of the idol.
+// Match all possible idol names.
 function matchIdolName(idol: Idol, val: string): boolean {
   if (normalize(idol.name).includes(val)) return true;
   if (normalize(idol.real_name_original).includes(val)) return true;
@@ -96,16 +107,10 @@ function matchIdolName(idol: Idol, val: string): boolean {
 }
 
 // Match all possible group names.
-function matchGroupName(
-  idol: Idol,
-  groupMap: GroupMap,
-  val: string,
-  withOrig = true
-): boolean {
-  const gnames = getGroupNames(idol, groupMap);
-  if (withOrig) {
-    gnames.push(...getOrigGroupNames(idol, groupMap));
-  }
+function matchGroupName(idol: Idol, groupMap: GroupMap, val: string): boolean {
+  const gnames = getGroupNames(idol, groupMap).concat(
+    getOrigGroupNames(idol, groupMap)
+  );
   return gnames.some((gname) => normalize(gname).includes(val));
 }
 
@@ -140,16 +145,19 @@ export function searchIdols(
     // Match for exact properties if user requested.
     return q.props.every(([key, val]) => {
       switch (key) {
+        case "id":
+          // FIXME: optimize, idolMap/groupMap out of the loop
+          if (idol.id === val) return true;
+          // TODO(Kagami): might need different results for idol/group view
+          if (idol.groups.includes(val)) return true;
+          break;
         case "n":
         case "name":
-          if (normalize(idol.name).includes(val)) return true;
-          break;
-        case "rn":
-          if (normalize(idol.real_name).includes(val)) return true;
+          if (matchIdolName(idol, val)) return true;
           break;
         case "g":
         case "group":
-          if (matchGroupName(idol, groupMap, val, false)) return true;
+          if (matchGroupName(idol, groupMap, val)) return true;
           break;
       }
       return false;
