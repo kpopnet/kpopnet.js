@@ -2,10 +2,11 @@
   "name": "kpopnet",
   "version": "0.1.1",
   "description": "JavaScript kpopnet bindings",
+  "type": "module",
   "scripts": {
-    "start": "NODE_ENV=development webpack-dev-server",
-    "build": "webpack",
-    "deploy": "webpack && rsync -rvze ssh --delete dist/ ${KPOPNET_DEPLOY_HOST}:/srv/kpopnet/www/"
+    "start": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
   },
   "repository": {
     "type": "git",
@@ -18,26 +19,13 @@
   },
   "homepage": "https://github.com/kpopnet/kpopnet.js#readme",
   "dependencies": {
-    "classnames": "^2.2.5",
-    "events": "^2.0.0",
-    "preact": "^8.2.7"
+    "kpopnet.json": "^2.0.1",
+    "solid-js": "^1.8.5"
   },
   "devDependencies": {
-    "@types/classnames": "^2.2.3",
-    "@types/events": "^3.0.0",
-    "clean-webpack-plugin": "^0.1.19",
-    "css-loader": "^3.5.3",
-    "file-loader": "^1.1.11",
-    "html-webpack-plugin": "^3.0.6",
-    "less": "^3.9.0",
-    "less-loader": "^4.1.0",
-    "mini-css-extract-plugin": "^0.5.0",
-    "optimize-css-assets-webpack-plugin": "^5.0.3",
-    "ts-loader": "^4.0.1",
-    "typescript": "^2.7.2",
-    "webpack": "^4.28.3",
-    "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.11.0",
-    "webpack-spritesmith": "^0.5.4"
+    "less": "^4.2.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0",
+    "vite-plugin-solid": "^2.7.2"
   }
 }

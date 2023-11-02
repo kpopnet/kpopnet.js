@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
-    "lib": ["DOM", "ES6", "DOM.Iterable", "ScriptHost", "ES2017.object"],
-    "downlevelIteration": true,
-    "moduleResolution": "node",
-    "module": "ES6",
-    "target": "ES5",
-    "jsx": "react",
-    "jsxFactory": "h",
     "strict": true,
-    "strictNullChecks": false,
-    "noUnusedLocals": true
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "types": ["vite/client"],
+    "noEmit": true,
+    "isolatedModules": true
   }
 }
