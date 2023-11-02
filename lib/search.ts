@@ -29,17 +29,7 @@ function getOrigGroupNames(idol: Idol, groupMap: GroupMap): string[] {
 
 // Remove symbols which doesn't make sense for fuzzy search.
 function normalize(s: string): string {
-  return s.replace(/\P{L}/gu, "").toLowerCase();
-}
-
-// Don't need normalization for some props
-function pushProp(props: SearchProp[], key: string, val: string) {
-  if (key === "id") {
-    val = val.trim();
-  } else {
-    val = normalize(val);
-  }
-  props.push([key, val]);
+  return s.replace(/[^\p{L}\d]/gu, "").toLowerCase();
 }
 
 // Split query into main component and property-tagged parts.
@@ -57,11 +47,11 @@ function parseQuery(query: string): Query {
       const spaceIdx = query.lastIndexOf(" ", colonIdx);
       if (spaceIdx >= 0) {
         // [name words] prop1:
-        const lastVal = query.slice(0, spaceIdx);
+        const lastVal = normalize(query.slice(0, spaceIdx));
         if (lastKey) {
-          pushProp(props, lastKey, lastVal);
+          props.push([lastKey, lastVal]);
         } else {
-          name = normalize(lastVal);
+          name = lastVal;
         }
         // [prop1]:...
         lastKey = query.slice(spaceIdx + 1, colonIdx);
@@ -76,13 +66,13 @@ function parseQuery(query: string): Query {
         query = query.slice(colonIdx + 1);
       }
     } else {
-      const lastVal = query;
+      const lastVal = normalize(query);
       if (lastKey) {
         // prop1:[more words]
-        pushProp(props, lastKey, lastVal);
+        props.push([lastKey, lastVal]);
       } else {
         // [just query]
-        name = normalize(lastVal);
+        name = lastVal;
       }
       break;
     }
@@ -145,12 +135,6 @@ export function searchIdols(
     // Match for exact properties if user requested.
     return q.props.every(([key, val]) => {
       switch (key) {
-        case "id":
-          // FIXME: optimize, idolMap/groupMap out of the loop
-          if (idol.id === val) return true;
-          // TODO(Kagami): might need different results for idol/group view
-          if (idol.groups.includes(val)) return true;
-          break;
         case "n":
         case "name":
           if (matchIdolName(idol, val)) return true;
