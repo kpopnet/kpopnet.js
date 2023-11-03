@@ -1,25 +1,19 @@
-/**
- * Filterable idol list.
- */
+import { For, Show } from "solid-js";
+import type { Idol } from "kpopnet.json";
 
-import { Switch, Match, For, Show, createMemo } from "solid-js";
-import type { Idol, Profiles } from "kpopnet.json";
-
-import "./idol-list.less";
-import previewFallbackUrl from "./no-preview.svg?url";
-import { renderIdol } from "../../lib/render";
-import { searchIdols } from "../../lib/search";
 import type { GroupMap } from "../../lib/search";
-// import "../labels/labels.less";
+import { renderIdol } from "../../lib/render";
+import previewFallbackUrl from "./no-preview.svg?url";
+import "./idol.less";
 
-interface ItemProps {
+interface IdolProps {
   idol: Idol;
   groupMap: GroupMap;
 }
 
 // XXX: fields never update so we render just once?
 // FIXME(Kagami): cache renders? display:none in <For>? or save renderIdol result in Map?
-function IdolItem(p: ItemProps) {
+export default function IdolView(p: IdolProps) {
   const lines = renderIdol(p.idol, p.groupMap);
   const nameVal = lines[0][1];
 
@@ -51,29 +45,5 @@ function IdolItem(p: ItemProps) {
         </For>
       </div>
     </article>
-  );
-}
-
-interface ListProps {
-  query: string;
-  profiles: Profiles;
-  groupMap: GroupMap;
-}
-
-export default function IdolList(p: ListProps) {
-  const idols = createMemo(() => {
-    return searchIdols(p.query, p.profiles, p.groupMap).slice(0, 20);
-  });
-  return (
-    <Switch fallback={<section class="idols idols_empty">No results</section>}>
-      <Match when={p.query.length < 2}> </Match>
-      <Match when={idols().length}>
-        <section class="idols">
-          <For each={idols()}>
-            {(idol) => <IdolItem idol={idol} groupMap={p.groupMap} />}
-          </For>
-        </section>
-      </Match>
-    </Switch>
   );
 }

@@ -8,7 +8,7 @@ import "./global.less";
 import "./main.less";
 // import Alerts from "../alerts/alerts";
 import SearchInput from "../search-input/search-input";
-import IdolList from "../idol-list/idol-list";
+import ItemList from "../item-list/item-list";
 import { getGroupMap } from "../../lib/search";
 import profiles from "kpopnet.json";
 import { debounce, getUrlQuery, setUrlQuery } from "../../lib/utils";
@@ -39,7 +39,7 @@ export default function Main() {
           loading={loading()}
           disabled={loadingErr()}
         />
-        <IdolList profiles={profiles} groupMap={groupMap} query={query()} />
+        <ItemList profiles={profiles} groupMap={groupMap} query={query()} />
       </section>
     </main>
   );
