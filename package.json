@@ -20,13 +20,15 @@
   },
   "homepage": "https://github.com/kpopnet/kpopnet.js#readme",
   "dependencies": {
-    "kpopnet.json": "^2.0.1",
+    "@tabler/icons": "^2.40.0",
+    "kpopnet.json": "^2.0.2",
     "solid-js": "^1.8.5"
   },
   "devDependencies": {
     "less": "^4.2.0",
     "typescript": "^5.2.2",
     "vite": "^4.5.0",
-    "vite-plugin-solid": "^2.7.2"
+    "vite-plugin-solid": "^2.7.2",
+    "vite-plugin-solid-svg": "^0.7.0"
   }
 }

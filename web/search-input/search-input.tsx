@@ -3,6 +3,7 @@ import type { Setter } from "solid-js";
 
 import "./search-input.less";
 import Spinner from "../spinner/spinner";
+import { IconX } from "../icons/icons";
 
 interface SearchProps {
   query: string;
@@ -28,15 +29,10 @@ export default function SearchInput(p: SearchProps) {
   }
 
   function handleGlobalHotkeys(event: KeyboardEvent) {
-    // Maybe just ignore "/" key completely?
     if (event.key == "/") {
-      if (window.scrollY > 0 || document.activeElement !== inputEl) {
-        event.preventDefault();
-        focus();
-      }
-      if (window.scrollY > 0) {
-        window.scrollTo(0, 0);
-      }
+      event.preventDefault();
+      focus();
+      window.scrollTo(0, 0);
     }
   }
 
@@ -69,9 +65,7 @@ export default function SearchInput(p: SearchProps) {
         onInput={handleInputChange}
       />
       <Show when={p.query}>
-        <span class="search__clear-control" onClick={handleClearClick}>
-          ✖
-        </span>
+        <IconX class="search__clear-control" onClick={handleClearClick} />
       </Show>
       <Show when={p.loading}>
         <Spinner />

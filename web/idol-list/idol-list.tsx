@@ -6,7 +6,7 @@ import { Switch, Match, For, Show, createMemo } from "solid-js";
 import type { Idol, Profiles } from "kpopnet.json";
 
 import "./idol-list.less";
-import previewFallbackUrl from "./no-preview.svg";
+import previewFallbackUrl from "./no-preview.svg?url";
 import { renderIdol } from "../../lib/render";
 import { searchIdols } from "../../lib/search";
 import type { GroupMap } from "../../lib/search";
