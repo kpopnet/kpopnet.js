@@ -1,7 +1,7 @@
 import type { Component, ComponentProps } from "solid-js";
 
 import "./icons.less";
-import _IconX from "@tabler/icons/icons/x.svg";
+import _IconX from "bootstrap-icons/icons/x-lg.svg";
 
 type SvgProps = ComponentProps<"svg">;
 type SvgComponent = Component<SvgProps>;
