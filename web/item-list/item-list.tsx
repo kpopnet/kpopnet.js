@@ -5,11 +5,11 @@
 import { Switch, Match, For, Show, createMemo } from "solid-js";
 import type { Profiles } from "kpopnet.json";
 
-import "./item-list.less";
+import "./item-list.scss";
 import { searchIdols } from "../../lib/search";
 import type { GroupMap } from "../../lib/search";
 import IdolView from "../item-view/idol";
-// import "../labels/labels.less";
+// import "../labels/labels.scss";
 
 interface ListProps {
   query: string;

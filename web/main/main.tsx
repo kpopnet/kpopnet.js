@@ -4,8 +4,8 @@
 
 import { createSignal, createEffect, on } from "solid-js";
 
-import "./global.less";
-import "./main.less";
+import "./global.scss";
+import "./main.scss";
 // import Alerts from "../alerts/alerts";
 import SearchInput from "../search-input/search-input";
 import ItemList from "../item-list/item-list";
@@ -21,8 +21,8 @@ export default function Main() {
 
   const debounceSetUrlQuery = debounce(setUrlQuery, 400);
   createEffect(
-    on(query, (q) => {
-      debounceSetUrlQuery(q);
+    on(query, (q, prev) => {
+      if (q || prev) debounceSetUrlQuery(q);
     })
   );
 

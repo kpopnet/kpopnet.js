@@ -1,7 +1,7 @@
 import { For, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 
-import "./alerts.less";
+import "./alerts.scss";
 
 interface Alert {
   id: number;

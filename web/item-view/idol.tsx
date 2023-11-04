@@ -1,10 +1,11 @@
 import { For, Show } from "solid-js";
 import type { Idol } from "kpopnet.json";
 
+import "./idol.scss";
+import { IconLink } from "../icons/icons";
 import type { GroupMap } from "../../lib/search";
 import { renderIdol } from "../../lib/render";
 import previewFallbackUrl from "./no-preview.svg?url";
-import "./idol.less";
 
 interface IdolProps {
   idol: Idol;
@@ -29,6 +30,9 @@ export default function IdolView(p: IdolProps) {
       <div class="idol__info">
         <p class="idol__info-line idol__name-line">
           <span class="idol__info-val">{nameVal}</span>
+          <span class="idol__links">
+            <IconLink class="idol__link-icon" />
+          </span>
           <Show when={agency_icon}>
             <span class="idol__label" title={agency_name}>
               <i class={`label label-${agency_icon}`} />

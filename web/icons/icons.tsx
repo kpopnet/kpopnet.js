@@ -1,7 +1,8 @@
 import type { Component, ComponentProps } from "solid-js";
 
-import "./icons.less";
+import "./icons.scss";
 import _IconX from "bootstrap-icons/icons/x-lg.svg";
+import _IconLink from "bootstrap-icons/icons/link-45deg.svg";
 
 type SvgProps = ComponentProps<"svg">;
 type SvgComponent = Component<SvgProps>;
@@ -16,3 +17,4 @@ function fixProps(svg: SvgComponent): SvgComponent {
 }
 
 export const IconX = fixProps(_IconX);
+export const IconLink = fixProps(_IconLink);

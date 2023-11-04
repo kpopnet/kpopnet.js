@@ -1,7 +1,7 @@
 import { Show, onMount, createEffect, onCleanup } from "solid-js";
 import type { Setter } from "solid-js";
 
-import "./search-input.less";
+import "./search-input.scss";
 import Spinner from "../spinner/spinner";
 import { IconX } from "../icons/icons";
 
@@ -58,7 +58,6 @@ export default function SearchInput(p: SearchProps) {
         ref={inputEl!}
         class="search__input"
         value={p.query}
-        maxLength={40}
         placeholder="Search for idol or group"
         disabled={p.loading || p.disabled}
         spellcheck={false}

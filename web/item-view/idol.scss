@@ -41,6 +41,20 @@
   align-self: flex-end;
 }
 
+.idol__links {
+  align-self: flex-end;
+}
+
+.idol__link-icon {
+  color: #999;
+  cursor: pointer;
+  &:hover {
+    color: #000;
+  }
+}
+
+//---
+
 .idol__info-key {
   flex: 0 0 115px;
   color: #bbb;
