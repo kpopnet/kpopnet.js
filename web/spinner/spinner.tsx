@@ -4,7 +4,6 @@
  * Based on https://loading.io/css/ example.
  */
 
-import "./spinner.scss";
 
 interface SpinnerProps {
   center?: boolean;

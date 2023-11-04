@@ -4,8 +4,6 @@
 
 import { createSignal, createEffect, on } from "solid-js";
 
-import "./global.scss";
-import "./main.scss";
 // import Alerts from "../alerts/alerts";
 import SearchInput from "../search-input/search-input";
 import ItemList from "../item-list/item-list";

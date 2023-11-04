@@ -1,7 +1,6 @@
 import { Show, onMount, createEffect, onCleanup } from "solid-js";
 import type { Setter } from "solid-js";
 
-import "./search-input.scss";
 import Spinner from "../spinner/spinner";
 import { IconX } from "../icons/icons";
 
@@ -64,7 +63,10 @@ export default function SearchInput(p: SearchProps) {
         onInput={handleInputChange}
       />
       <Show when={p.query}>
-        <IconX class="search__clear-control" onClick={handleClearClick} />
+        <IconX
+          class="icon_control search__clear-control"
+          onClick={handleClearClick}
+        />
       </Show>
       <Show when={p.loading}>
         <Spinner />

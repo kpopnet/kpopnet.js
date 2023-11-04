@@ -2,3 +2,12 @@
   width: 24px;
   height: 24px;
 }
+
+.icon_control {
+  cursor: pointer;
+  user-select: none;
+  color: $cc-control;
+  &:hover {
+    color: $cc-controlHover;
+  }
+}

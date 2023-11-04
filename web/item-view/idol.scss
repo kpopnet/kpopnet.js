@@ -45,15 +45,14 @@
   align-self: flex-end;
 }
 
-.idol__link-icon {
-  color: #999;
-  cursor: pointer;
-  &:hover {
-    color: #000;
-  }
+.idol-links-menu {
+  inset: 0 0 auto auto;
 }
 
-//---
+.idol-links-menu__control {
+  width: 16px;
+  height: 16px;
+}
 
 .idol__info-key {
   flex: 0 0 115px;

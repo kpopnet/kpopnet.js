@@ -136,11 +136,9 @@ export function searchIdols(
     return q.props.every(([key, val]) => {
       switch (key) {
         case "n":
-        case "name":
           if (matchIdolName(idol, val)) return true;
           break;
         case "g":
-        case "group":
           if (matchGroupName(idol, groupMap, val)) return true;
           break;
       }
