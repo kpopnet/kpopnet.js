@@ -1,27 +1,29 @@
 import type { Idol, Group, Profiles } from "kpopnet.json";
 
-import { getGroupNames } from "./search";
-import type { GroupMap } from "./search";
+import { getSortedGroupNames } from "./search";
+import type { Cache } from "./search";
 
-type RenderedLine = [string, string];
-type Rendered = RenderedLine[];
+export type RenderedLine = [string, string];
+export type Rendered = RenderedLine[];
 
 type ProfileValue = string | number | string[];
 type InfoLine = [string, ProfileValue];
 
-export function renderIdol(idol: Idol, groupMap: GroupMap): Rendered {
+export function renderIdol(idol: Idol, cache: Cache): Rendered {
   const renderLine = renderLineCtx.bind(null, idol);
-  // FIXME(Kagami): show orig group names
-  const gnames = getGroupNames(idol, groupMap);
-  // Main name of the main group goes first.
-  // FIXME(Kagami): find main group? The only (first) with current=true?
-  let gname = gnames[0];
+  const gnames = getSortedGroupNames(idol, cache);
+  // Name of the main group goes first.
+  // FIXME(Kagami): show orig group names; in title?
+  let ginfo = gnames.length ? gnames[0][0] : "";
   if (gnames.length > 1) {
-    gname += " (";
-    gname += gnames.slice(1).join(", ");
-    gname += ")";
+    ginfo += " (";
+    ginfo += gnames
+      .slice(1)
+      .map((a) => a[0])
+      .join(", ");
+    ginfo += ")";
   }
-  const lines = getLines(idol).concat([["_groups", gname]]);
+  const lines = getLines(idol).concat([["_groups", ginfo]]);
   return lines.filter(keepLine).sort(compareLines).map(renderLine);
 }
 
@@ -38,10 +40,7 @@ const knownKeys = [
   "weight",
   "positions",
 ];
-
-const keyPriority = new Map(
-  knownKeys.map((k, idx) => [k, idx] as [string, number])
-);
+const keyPriority = new Map(knownKeys.map((k, idx) => [k, idx]));
 
 function keepLine([key, val]: InfoLine): boolean {
   return keyPriority.has(key) && !!val;

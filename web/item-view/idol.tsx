@@ -2,26 +2,26 @@ import { For, Show, createSignal } from "solid-js";
 import type { Idol } from "kpopnet.json";
 
 import { IconLink, IconExternalLink } from "../icons/icons";
-import type { GroupMap } from "../../lib/search";
+import type { Cache } from "../../lib/search";
 import { renderIdol } from "../../lib/render";
 import previewFallbackUrl from "./no-preview.svg?url";
 
 interface IdolProps {
   idol: Idol;
-  groupMap: GroupMap;
+  cache: Cache;
 }
 
-// XXX: fields never update so we render just once?
-// FIXME(Kagami): cache renders? display:none in <For>? or save renderIdol result in Map?
 export default function IdolView(p: IdolProps) {
   const [showMenu, setShowMenu] = createSignal(false);
 
-  const lines = renderIdol(p.idol, p.groupMap);
+  // XXX: fields never update so we render just once (until ItemList update by search query)
+  // TODO(Kagami): cache renders? display:none in <For>? or save renderIdol result in Cache?
+  const lines = renderIdol(p.idol, p.cache);
   const nameVal = lines[0][1];
 
   // TODO(Kagami): remove/rework agency info
   const agency_icon = "";
-  const agency_name = ""; //p.groupMap.get(p.idol.group_id)!;
+  const agency_name = ""; //p.cache.groupMap.get(p.idol.group_id)!;
 
   const previewUrl = p.idol.thumb_url || previewFallbackUrl;
 

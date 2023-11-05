@@ -1,11 +1,16 @@
 import { For, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 
-
 interface Alert {
   id: number;
   message: string;
   closing: boolean;
+  sticky?: boolean;
+  title?: string;
+}
+
+interface AlertOpts {
+  message: string;
   sticky?: boolean;
   title?: string;
 }
@@ -16,16 +21,19 @@ let idCounter = 0;
 // that global state should not be used in SSR"
 const [alerts, setAlerts] = createStore<Alert[]>([]);
 
-export function showAlert(opts: Error | string | [string, string]) {
-  let a: Alert = { id: idCounter++, message: "", closing: false };
+export function showAlert(opts: AlertOpts | Error | string | [string, string]) {
+  const aopts: AlertOpts = { message: "" };
   if (typeof opts === "string") {
-    a.message = opts;
+    aopts.message = opts;
   } else if (opts instanceof Error) {
-    a.message = opts.message;
+    aopts.message = opts.message;
   } else if (Array.isArray(opts)) {
-    a.title = opts[0];
-    a.message = opts[1];
+    aopts.title = opts[0];
+    aopts.message = opts[1];
+  } else {
+    Object.assign(aopts, opts);
   }
+  const a = Object.assign(aopts, { id: idCounter++, closing: false });
   setAlerts([a].concat(alerts));
   if (!a.sticky) {
     setTimeout(makeClose(a.id), 4000);
@@ -45,19 +53,19 @@ function makeClose(id: number) {
   };
 }
 
-export default function Alerts() {
+export default function GlobalAlerts() {
   return (
-    <aside class="alerts">
+    <aside class="galerts">
       <For each={alerts}>
         {(a) => (
-          <article classList={{ alert: true, alert_closing: a.closing }}>
-            <a class="alert__close-control" onClick={makeClose(a.id)}>
+          <article classList={{ galert: true, galert_closing: a.closing }}>
+            <a class="galert__close-control" onClick={makeClose(a.id)}>
               ✖
             </a>
             <Show when={a.title}>
-              <header class="alert__title">{a.title}</header>
+              <header class="galert__title">{a.title}</header>
             </Show>
-            <section class="alert__message">{a.message}</section>
+            <section class="galert__message">{a.message}</section>
           </article>
         )}
       </For>

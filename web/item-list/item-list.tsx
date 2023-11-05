@@ -6,18 +6,18 @@ import { Switch, Match, For, Show, createMemo } from "solid-js";
 import type { Profiles } from "kpopnet.json";
 
 import { searchIdols } from "../../lib/search";
-import type { GroupMap } from "../../lib/search";
+import type { Cache } from "../../lib/search";
 import IdolView from "../item-view/idol";
 
 interface ListProps {
   query: string;
   profiles: Profiles;
-  groupMap: GroupMap;
+  cache: Cache;
 }
 
 export default function ItemList(p: ListProps) {
   const idols = createMemo(() => {
-    return searchIdols(p.query, p.profiles, p.groupMap).slice(0, 20);
+    return searchIdols(p.query, p.profiles, p.cache).slice(0, 20);
   });
   return (
     <Switch
@@ -27,7 +27,7 @@ export default function ItemList(p: ListProps) {
       <Match when={idols().length}>
         <section class="idols">
           <For each={idols()}>
-            {(idol) => <IdolView idol={idol} groupMap={p.groupMap} />}
+            {(idol) => <IdolView idol={idol} cache={p.cache} />}
           </For>
         </section>
       </Match>

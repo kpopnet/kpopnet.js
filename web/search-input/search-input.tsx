@@ -31,6 +31,7 @@ export default function SearchInput(p: SearchProps) {
     if (event.key == "/") {
       event.preventDefault();
       focus();
+      inputEl.select();
       window.scrollTo(0, 0);
     }
   }

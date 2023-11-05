@@ -1,11 +1,11 @@
-.alerts {
+.galerts {
   position: fixed;
   top: 20px;
   right: 20px;
   z-index: 600;
 }
 
-.alert {
+.galert {
   box-sizing: border-box;
   min-width: 250px;
   max-width: 500px;
@@ -23,12 +23,12 @@
   }
 }
 
-.alert_closing {
+.galert_closing {
   opacity: 0;
   transition: opacity 1s;
 }
 
-.alert__close-control {
+.galert__close-control {
   float: right;
   font-size: 22px;
   margin-top: -5px;
@@ -40,12 +40,12 @@
   }
 }
 
-.alert__title {
+.galert__title {
   font-weight: bold;
   font-size: larger;
   margin-bottom: 5px;
 }
 
-.alert__message {
+.galert__message {
   word-break: break-word;
 }
