@@ -23,3 +23,24 @@ export function setUrlQuery(query: string) {
   }
   history.replaceState("", "", url);
 }
+
+const MILLISECONDS_IN_YEAR = 1000 * 365 * 24 * 60 * 60;
+
+export function validDate(date: string): boolean {
+  const d = new Date(date);
+  return !isNaN(d.getTime());
+}
+
+export function getAge(birthday: string): number {
+  const now = Date.now();
+  // Birthday is always in YYYY-MM-DD form and can be parsed as
+  // simplified ISO 8601 format.
+  const born = new Date(birthday).getTime();
+  return Math.floor((now - born) / MILLISECONDS_IN_YEAR);
+}
+
+export function getAgo(date: string): string | undefined {
+  const years = getAge(date);
+  const s = years === 1 ? "" : "s";
+  return `${years} year${s} ago`;
+}

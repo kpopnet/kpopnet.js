@@ -67,3 +67,19 @@
 .idol__info-val {
   word-break: break-word;
 }
+
+.idol__groups-other::before {
+  content: " (";
+}
+
+.idol__groups-other::after {
+  content: ")";
+}
+
+.idol__group-other ~ .idol__group-other::before {
+  content: ", ";
+}
+
+.idol__group_inactive {
+  text-decoration: line-through;
+}

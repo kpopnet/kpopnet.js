@@ -90,10 +90,10 @@ function getOrigGroupNames(idol: Idol, cache: Cache): string[] {
   return cache.idolGroupsMap.get(idol.id)!.map((g) => g.name_original);
 }
 
-// Name of the main group goes first.
+// Main group goes first.
 // Otherwise sort by group's debut date.
 // If unknown then by group's name.
-export function getSortedGroupNames(idol: Idol, cache: Cache): string[][] {
+export function getSortedIdolGroups(idol: Idol, cache: Cache): Group[] {
   const groups = Array.from(cache.idolGroupsMap.get(idol.id)!);
   groups.sort((g1, g2) => {
     const memberOfG1 = +getIdolGroupMember(idol, g1, cache)!.current;
@@ -103,7 +103,7 @@ export function getSortedGroupNames(idol: Idol, cache: Cache): string[][] {
     if (!cmp) cmp = g2.name.localeCompare(g1.name);
     return cmp;
   });
-  return groups.map((g) => [g.name, g.name_original]);
+  return groups;
 }
 
 // Remove symbols which doesn't make sense for fuzzy search.
