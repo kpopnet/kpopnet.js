@@ -46,7 +46,8 @@
 }
 
 .idol-links-menu {
-  inset: 0 0 auto auto;
+  top: 0;
+  right: -$border-width;
 }
 
 .idol-links-menu__control {
