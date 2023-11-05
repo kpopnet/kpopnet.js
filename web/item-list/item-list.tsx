@@ -8,22 +8,23 @@ import type { Profiles } from "kpopnet.json";
 import { searchIdols } from "../../lib/search";
 import type { Cache } from "../../lib/search";
 import IdolView from "../item-view/idol";
+import { useRouter } from "../main/router";
 
 interface ListProps {
-  query: string;
   profiles: Profiles;
   cache: Cache;
 }
 
 export default function ItemList(p: ListProps) {
+  const [_, query, _goto] = useRouter();
   const idols = createMemo(() => {
-    return searchIdols(p.query, p.profiles, p.cache).slice(0, 20);
+    return searchIdols(query(), p.profiles, p.cache).slice(0, 20);
   });
   return (
     <Switch
       fallback={<section class="item-list item-list_empty">No results</section>}
     >
-      <Match when={p.query.length < 2}> </Match>
+      <Match when={query().length < 2}> </Match>
       <Match when={idols().length}>
         <section class="idols">
           <For each={idols()}>

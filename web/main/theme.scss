@@ -1,0 +1,13 @@
+@import "./cc-light.scss";
+
+@mixin link {
+  color: $cc-link;
+  text-decoration: none;
+  &:hover {
+    cursor: pointer;
+    color: $cc-linkHover;
+  }
+}
+
+$body: #333;
+$border: 1px solid #ccc;

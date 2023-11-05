@@ -2,27 +2,30 @@
  * Application entry point.
  */
 
-import { Show, createSignal, createEffect, on } from "solid-js";
+import { Show, createSignal } from "solid-js";
+import profiles from "kpopnet.json";
 
-import GlobalAlerts, { showAlert } from "../alerts/alerts";
+import GlobalAlerts, { useAlerts } from "../alerts/alerts";
 import SearchInput from "../search-input/search-input";
 import ItemList from "../item-list/item-list";
 import { Cache, makeCache } from "../../lib/search";
-import profiles from "kpopnet.json";
-import { debounce, getUrlQuery, setUrlQuery } from "../../lib/utils";
+import Router from "./router";
 
-export default function Main() {
+export default function MainContext() {
+  return (
+    <Router>
+      <GlobalAlerts>
+        <Main />
+      </GlobalAlerts>
+    </Router>
+  );
+}
+
+function Main() {
   // TODO(Kagami): Might use later for loading e.g. WASM
   const [loading, _setLoading] = createSignal(false);
   const [loadingErr, _setLoadingErr] = createSignal(false);
-  const [query, setQuery] = createSignal(getUrlQuery());
-
-  const debounceSetUrlQuery = debounce(setUrlQuery, 400);
-  createEffect(
-    on(query, (q, prev) => {
-      if (q || prev) debounceSetUrlQuery(q);
-    })
-  );
+  const showAlert = useAlerts();
 
   let cache: Cache | undefined;
   try {
@@ -34,16 +37,10 @@ export default function Main() {
 
   return (
     <main class="main">
-      <GlobalAlerts />
       <section class="main__inner">
-        <SearchInput
-          query={query()}
-          setQuery={setQuery}
-          loading={loading()}
-          disabled={loadingErr()}
-        />
+        <SearchInput loading={loading()} disabled={loadingErr()} />
         <Show when={cache}>
-          <ItemList profiles={profiles} cache={cache!} query={query()} />
+          <ItemList profiles={profiles} cache={cache!} />
         </Show>
       </section>
     </main>

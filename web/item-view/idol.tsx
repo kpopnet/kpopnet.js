@@ -1,4 +1,12 @@
-import { For, Show, createSignal, createMemo } from "solid-js";
+import {
+  For,
+  Show,
+  createSignal,
+  createMemo,
+  JSXElement,
+  createEffect,
+  children,
+} from "solid-js";
 import type { Group, GroupMember, Idol } from "kpopnet.json";
 
 import thumbFallbackUrl from "./no-preview.svg?url";
@@ -8,7 +16,13 @@ import {
   getIdolGroupMember,
   type Cache,
 } from "../../lib/search";
-import { getAge, getAgo, validDate } from "../../lib/utils";
+import { getAge, validDate } from "../../lib/utils";
+import {
+  ItemRoute,
+  QueryRoute,
+  routeToUrlParam,
+  useRouter,
+} from "../main/router";
 
 interface IdolProps {
   idol: Idol;
@@ -17,10 +31,9 @@ interface IdolProps {
 
 // TODO(Kagami): cache renders, display:none in <For>?
 export default function IdolView(p: IdolProps) {
-  const [showMenu, setShowMenu] = createSignal(false);
-
   const thumbUrl = createMemo(() => p.idol.thumb_url || thumbFallbackUrl);
   const age = createMemo(() => getAge(p.idol.birth_date));
+  const ago = createMemo(() => getAge(p.idol.debut_date!));
   const urls = createMemo(() =>
     p.idol.urls.filter((url) => !url.includes("net.kpop.re"))
   );
@@ -31,59 +44,37 @@ export default function IdolView(p: IdolProps) {
       gm: getIdolGroupMember(p.idol, group, p.cache)!,
     }));
   });
-
-  function getLinkName(url: string): string {
-    if (url.includes("selca.kastden.org")) return "kastden";
-    return "other";
-  }
-
   return (
     <article class="idol">
       <img class="idol__preview" src={thumbUrl()} loading="lazy" />
       <div class="idol__info">
         <div class="idol__info-line idol__name-line">
-          <span class="idol__info-val">{p.idol.name}</span>
-          <div
-            class="idol__links dropdown"
-            onMouseOver={() => setShowMenu(true)}
-            onMouseLeave={() => setShowMenu(false)}
-          >
-            <IconLink class="icon_control idol__show-menu-control" />
-            <Show when={showMenu()}>
-              <div class="idol-links-menu dropdown-menu show">
-                <For each={urls()}>
-                  {(url) => (
-                    <a
-                      class="idol-links-menu__item dropdown-item"
-                      href={url}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {getLinkName(url)}{" "}
-                      <IconExternalLink class="idol-links-menu__control" />
-                    </a>
-                  )}
-                </For>
-              </div>
-            </Show>
-          </div>
+          <span class="idol__info-val">
+            <Searchable k="id" id={p.idol.id}>
+              {p.idol.name}
+            </Searchable>
+          </span>
+          <LinkMenu urls={urls()} />
         </div>
         <p class="idol__info-line">
           <span class="idol__info-key">Name</span>
           <span class="idol__info-val">
-            {p.idol.name} ({p.idol.name_original})
+            <Searchable k="n">{p.idol.name}</Searchable> (
+            <Searchable k="n">{p.idol.name_original}</Searchable>)
           </span>
         </p>
         <p class="idol__info-line">
           <span class="idol__info-key">Real name</span>
           <span class="idol__info-val">
-            {p.idol.real_name} ({p.idol.real_name_original})
+            <Searchable k="n">{p.idol.real_name}</Searchable> (
+            <Searchable k="n">{p.idol.real_name_original}</Searchable>)
           </span>
         </p>
         <p class="idol__info-line">
           <span class="idol__info-key">Birthday</span>
           <span class="idol__info-val">
-            {p.idol.birth_date} ({age()})
+            <Searchable k="bd">{p.idol.birth_date}</Searchable> (
+            <Searchable k="y">{age()}</Searchable>)
           </span>
         </p>
         <IdolGroupsView igroups={igroups()} />
@@ -91,20 +82,26 @@ export default function IdolView(p: IdolProps) {
           <p class="idol__info-line">
             <span class="idol__info-key">Debut date</span>
             <span class="idol__info-val">
-              {p.idol.debut_date} ({getAgo(p.idol.debut_date!)})
+              <Searchable k="dd">{p.idol.debut_date}</Searchable> (
+              <Searchable k="dy">{ago()}</Searchable> year
+              {ago() === 1 ? "" : "s"} ago)
             </span>
           </p>
         </Show>
         <Show when={p.idol.height}>
           <p class="idol__info-line">
             <span class="idol__info-key">Height</span>
-            <span class="idol__info-val">{p.idol.height} cm</span>
+            <span class="idol__info-val">
+              <Searchable k="h">{p.idol.height}</Searchable> cm
+            </span>
           </p>
         </Show>
         <Show when={p.idol.weight}>
           <p class="idol__info-line">
             <span class="idol__info-key">Weight</span>
-            <span class="idol__info-val">{p.idol.weight} kg</span>
+            <span class="idol__info-val">
+              <Searchable k="w">{p.idol.weight}</Searchable> kg
+            </span>
           </p>
         </Show>
       </div>
@@ -149,5 +146,65 @@ function IdolGroupView(p: { ig: IdolGroup; other?: boolean }) {
     >
       {p.ig.g.name}
     </span>
+  );
+}
+
+function Searchable(p: { k: string; id?: string; children: JSXElement }) {
+  const [_, _query, goto] = useRouter();
+  const resolved = children(() => p.children);
+  const newRoute = () => (p.k === "id" ? ItemRoute : QueryRoute);
+  const newQuery = () => (p.k === "id" ? p.id! : p.k + ":" + normalizeQuery());
+  const urlParam = () => routeToUrlParam(newRoute());
+  const url = () => `?${urlParam()}=${newQuery().replace(/ /g, "+")}`;
+
+  function normalizeQuery() {
+    let q = resolved()!;
+    if (p.k === "w" || p.k === "h") q = Math.floor(+q);
+    return q.toString();
+  }
+
+  function handleClick(e: MouseEvent) {
+    e.preventDefault();
+    goto(newRoute(), newQuery());
+  }
+
+  return (
+    <a onClick={handleClick} href={url()} class="idol__info-search">
+      {resolved()}
+    </a>
+  );
+}
+
+function LinkMenu(p: { urls: string[] }) {
+  const [showMenu, setShowMenu] = createSignal(false);
+  function getLinkName(url: string): string {
+    if (url.includes("selca.kastden.org")) return "kastden";
+    return "other";
+  }
+  return (
+    <div
+      class="idol__links"
+      onMouseOver={() => setShowMenu(true)}
+      onMouseLeave={() => setShowMenu(false)}
+    >
+      <IconLink class="icon_control idol__show-menu-control" />
+      <Show when={showMenu()}>
+        <div class="idol-links-menu">
+          <For each={p.urls}>
+            {(url) => (
+              <a
+                class="idol-links-menu__item"
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {getLinkName(url)}{" "}
+                <IconExternalLink class="idol-links-menu__control" />
+              </a>
+            )}
+          </For>
+        </div>
+      </Show>
+    </div>
   );
 }

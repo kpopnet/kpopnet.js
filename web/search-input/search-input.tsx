@@ -3,15 +3,15 @@ import type { Setter } from "solid-js";
 
 import Spinner from "../spinner/spinner";
 import { IconX } from "../icons/icons";
+import { useRouter } from "../main/router";
 
 interface SearchProps {
-  query: string;
-  setQuery: Setter<string>;
   loading: boolean;
   disabled: boolean;
 }
 
 export default function SearchInput(p: SearchProps) {
+  const [_, query, goto] = useRouter();
   let inputEl: HTMLInputElement;
 
   function focus() {
@@ -19,11 +19,11 @@ export default function SearchInput(p: SearchProps) {
   }
 
   function handleInputChange() {
-    p.setQuery(inputEl.value);
+    goto(null, inputEl.value);
   }
 
   function handleClearClick() {
-    p.setQuery("");
+    goto(null, "");
     setTimeout(focus);
   }
 
@@ -57,13 +57,13 @@ export default function SearchInput(p: SearchProps) {
       <input
         ref={inputEl!}
         class="search__input"
-        value={p.query}
+        value={query()}
         placeholder="Search for idol or group"
         disabled={p.loading || p.disabled}
         spellcheck={false}
         onInput={handleInputChange}
       />
-      <Show when={p.query}>
+      <Show when={query()}>
         <IconX
           class="icon_control search__clear-control"
           onClick={handleClearClick}

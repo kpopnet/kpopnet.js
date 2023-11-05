@@ -7,21 +7,22 @@ export function debounce(callback: Function, interval: number) {
   };
 }
 
-export function getUrlQuery(): string {
+export function getUrlParams(): URLSearchParams {
   const url = new URL(location.href);
-  return url.searchParams.get("q") || "";
+  return url.searchParams;
 }
 
-export function setUrlQuery(query: string) {
+export function setUrlParam(key: string, value: string) {
   const url = new URL(location.href);
-  if (query) {
-    url.searchParams.set("q", query);
-    // don't escape colon https://stackoverflow.com/q/13713671
-    url.search = url.searchParams.toString().replace(/%3A/g, ":");
-  } else {
-    url.searchParams.delete("q");
+
+  for (const key of url.searchParams.keys()) {
+    url.searchParams.delete(key);
   }
-  history.replaceState("", "", url);
+  url.searchParams.set(key, value);
+  // don't escape colon https://stackoverflow.com/q/13713671
+  url.search = url.searchParams.toString().replace(/%3A/g, ":");
+
+  history.pushState("", "", url);
 }
 
 const MILLISECONDS_IN_YEAR = 1000 * 365 * 24 * 60 * 60;
@@ -37,10 +38,4 @@ export function getAge(birthday: string): number {
   // simplified ISO 8601 format.
   const born = new Date(birthday).getTime();
   return Math.floor((now - born) / MILLISECONDS_IN_YEAR);
-}
-
-export function getAgo(date: string): string | undefined {
-  const years = getAge(date);
-  const s = years === 1 ? "" : "s";
-  return `${years} year${s} ago`;
 }

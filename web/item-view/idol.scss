@@ -41,19 +41,7 @@
   align-self: flex-end;
 }
 
-.idol__links {
-  align-self: flex-end;
-}
-
-.idol-links-menu {
-  top: 0;
-  right: -$border-width;
-}
-
-.idol-links-menu__control {
-  width: 16px;
-  height: 16px;
-}
+//---
 
 .idol__info-key {
   flex: 0 0 115px;
@@ -67,6 +55,43 @@
 .idol__info-val {
   word-break: break-word;
 }
+
+.idol__info-search {
+  color: $body;
+  text-decoration: none;
+  &:hover {
+    cursor: pointer;
+    color: $cc-linkHover;
+  }
+}
+
+//---
+
+.idol__links {
+  align-self: flex-end;
+  position: relative;
+}
+
+.idol-links-menu {
+  position: absolute;
+  background: $cc-bodyBG;
+  border: $border;
+  top: 0;
+  right: 0;
+  padding: 5px 10px;
+}
+
+.idol-links-menu__item {
+  @include link;
+  text-wrap: nowrap;
+}
+
+.idol-links-menu__control {
+  width: 16px;
+  height: 16px;
+}
+
+//---
 
 .idol__groups-other::before {
   content: " (";

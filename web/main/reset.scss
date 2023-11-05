@@ -19,8 +19,8 @@ html {
 }
 
 body {
-  color: #333;
-  background: hsl(275, 10%, 94%);
+  color: $body;
+  background: $cc-bodyBG;
   font-family: Helvetica, sans-serif;
   line-height: 1.4;
 }
