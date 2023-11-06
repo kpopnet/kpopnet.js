@@ -155,7 +155,7 @@ function Searchable(p: {
   q?: string;
   children: JSXElement;
 }) {
-  const [_, _query, goto] = useRouter();
+  const [_, __, goto] = useRouter();
   const resolved = children(() => p.children);
   const newRoute = () => (p.k === "id" ? ItemRoute : QueryRoute);
   const newQuery = () => (p.k === "id" ? p.id! : p.k + ":" + normalizeQuery());
@@ -218,7 +218,7 @@ function LinkMenu(p: { urls: string[] }) {
       onMouseOver={() => setShowMenu(true)}
       onMouseLeave={() => setShowMenu(false)}
     >
-      <IconLink class="icon_control idol__show-menu-control" />
+      <IconLink control class="idol__show-menu-control" />
       <Show when={showMenu()}>
         <div class="idol-links-menu">
           <For each={p.urls}>
@@ -230,7 +230,7 @@ function LinkMenu(p: { urls: string[] }) {
                 rel="noreferrer"
               >
                 {getLinkName(url)}{" "}
-                <IconExternalLink class="idol-links-menu__control" />
+                <IconExternalLink control class="idol-links-menu__control" />
               </a>
             )}
           </For>

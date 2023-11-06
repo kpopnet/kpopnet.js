@@ -16,7 +16,7 @@ interface ListProps {
 }
 
 export default function ItemList(p: ListProps) {
-  const [_, query, _goto] = useRouter();
+  const [_, query, __] = useRouter();
   const idols = createMemo(() => {
     return searchIdols(query(), p.profiles, p.cache).slice(0, 20);
   });

@@ -1,4 +1,4 @@
-@import "./cc-light.scss";
+@import "./cc-light";
 
 @mixin link {
   color: $cc-link;
@@ -11,3 +11,6 @@
 
 $body: #333;
 $border: 1px solid #ccc;
+
+$icon-size: 24px;
+$icon-size-small: 16px;

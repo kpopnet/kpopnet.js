@@ -12,9 +12,10 @@ import {
 
 import { debounce, getUrlParams, setUrlParam } from "../../lib/utils";
 
-export const QueryRoute: symbol = Symbol("QueryRoute");
-export const ItemRoute: symbol = Symbol("ItemRoute");
-type Route = typeof QueryRoute | typeof ItemRoute;
+// FIXME(Kagami): HMR seems to be breaking Symbol match.
+export const QueryRoute = "QueryRoute"; // Symbol("QueryRoute");
+export const ItemRoute = "ItemRoute"; // Symbol("ItemRoute");
+type Route = string; // typeof QueryRoute | typeof ItemRoute;
 interface GotoOpts {
   delay?: boolean /** set URL search param with delay to avoid cluttering history */;
 }
@@ -31,11 +32,10 @@ const RouterContext = createContext<RouteContextValue>([
 ]);
 
 export function routeToUrlParam(route: Route): string {
-  // FIXME(Kagami): HMR seems to be breaking Symbol match.
-  switch (route.toString()) {
-    case "Symbol(ItemRoute)":
+  switch (route) {
+    case ItemRoute:
       return "id";
-    case "Symbol(QueryRoute)":
+    case QueryRoute:
       return "q";
     default:
       throw new Error(`Unknown route ${route.toString()}`);
@@ -65,10 +65,10 @@ export default function Router(prop: { children: JSXElement }) {
   const debounceSetUrlParam = debounce(setUrlParam, 400);
   createEffect(
     on(view, ([r, q, o], prev) => {
-      // console.log("@@@ route", r, JSON.stringify(q), o, prev);
       if (prev == null) return;
       window.scrollTo(0, 0);
       const fn = o.delay ? debounceSetUrlParam : setUrlParam;
+      // console.log("@@@ route", r, JSON.stringify(q), o, prev);
       fn(routeToUrlParam(r), q);
     })
   );

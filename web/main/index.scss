@@ -1,10 +1,12 @@
-@import "./theme.scss";
+@import "./vars";
 
-@import "./reset.scss";
-@import "../main/main.scss";
-@import "../icons/icons.scss";
-@import "../alerts/alerts.scss";
-@import "../spinner/spinner.scss";
-@import "../search-input/search-input.scss";
-@import "../item-list/item-list.scss";
-@import "../item-view/idol.scss";
+@import "./reset";
+@import "./main";
+@import "./nav";
+@import "../icons/icons";
+@import "../alerts/alerts";
+@import "../spinner/spinner";
+@import "../search-input/search-input";
+@import "../item-list/item-list";
+@import "../item-view/item";
+@import "../item-view/idol";

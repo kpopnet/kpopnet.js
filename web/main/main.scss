@@ -1,37 +1,19 @@
 .main {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
-}
-
-.main__inner {
-  flex: 1;
+  // FIXME(Kagami): mobile screen
   width: 800px;
+  height: 100%;
   margin: 0 auto;
 }
 
-.footer {
-  height: 51px;
-  line-height: 50px;
-  font-size: 20px;
-  background: #d8d6e0;
-  border-top: 1px solid #ccc;
-}
-
-.footer__inner {
-  width: 800px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-around;
+.main__error {
+  margin: auto;
   text-align: center;
+  font-size: 30px;
+  color: #999;
 }
 
-.footer__link {
-  color: #7e488f;
-  text-decoration: none;
-  outline: none;
-}
-
-.footer__link:hover {
-  color: #9e85ad;
+.main__error-info {
+  font-size: 25px;
 }

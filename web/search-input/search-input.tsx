@@ -1,4 +1,4 @@
-import { Show, onMount, createEffect, onCleanup } from "solid-js";
+import { Show, onMount, createEffect, onCleanup, on } from "solid-js";
 import type { Setter } from "solid-js";
 
 import Spinner from "../spinner/spinner";
@@ -6,8 +6,8 @@ import { IconX } from "../icons/icons";
 import { useRouter } from "../main/router";
 
 interface SearchProps {
-  loading: boolean;
-  disabled: boolean;
+  loading?: boolean;
+  disabled?: boolean;
 }
 
 export default function SearchInput(p: SearchProps) {
@@ -45,7 +45,7 @@ export default function SearchInput(p: SearchProps) {
     document.removeEventListener("keydown", handleGlobalHotkeys);
   });
 
-  createEffect<boolean>((wasLoading) => {
+  createEffect<boolean | undefined>((wasLoading) => {
     if (wasLoading && !p.loading) {
       focus();
     }
@@ -65,7 +65,8 @@ export default function SearchInput(p: SearchProps) {
       />
       <Show when={query()}>
         <IconX
-          class="icon_control search__clear-control"
+          control
+          class="search__clear-control"
           onClick={handleClearClick}
         />
       </Show>
