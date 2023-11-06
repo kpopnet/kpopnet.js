@@ -8,7 +8,7 @@ import type { Profiles } from "kpopnet.json";
 import { searchIdols } from "../../lib/search";
 import type { Cache } from "../../lib/search";
 import IdolView from "../item-view/idol";
-import { useRouter } from "../main/router";
+import { useRouter } from "../router/router";
 
 interface ListProps {
   profiles: Profiles;

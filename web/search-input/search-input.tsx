@@ -3,7 +3,7 @@ import type { Setter } from "solid-js";
 
 import Spinner from "../spinner/spinner";
 import { IconX } from "../icons/icons";
-import { useRouter } from "../main/router";
+import { useRouter } from "../router/router";
 
 interface SearchProps {
   loading?: boolean;

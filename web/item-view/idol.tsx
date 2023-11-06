@@ -22,7 +22,7 @@ import {
   QueryRoute,
   routeToUrlParam,
   useRouter,
-} from "../main/router";
+} from "../router/router";
 
 interface IdolProps {
   idol: Idol;

@@ -10,8 +10,8 @@ import SearchInput from "../search-input/search-input";
 import ItemList from "../item-list/item-list";
 import ItemView from "../item-view/item";
 import { Cache, makeCache } from "../../lib/search";
-import Router, { ItemRoute, QueryRoute, useRouter } from "./router";
-import Navbar from "./nav";
+import Router, { ItemRoute, QueryRoute, useRouter } from "../router/router";
+import Navbar from "../nav/nav";
 
 export default function MainContext() {
   return (

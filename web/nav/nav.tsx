@@ -1,6 +1,6 @@
 import { Show, createSignal } from "solid-js";
 import { IconGithub, IconHome, IconQuestion, IconWiki } from "../icons/icons";
-import { QueryRoute, useRouter } from "./router";
+import { QueryRoute, useRouter } from "../router/router";
 import logo from "./logo.png";
 import kastden from "./kastden.png";
 
@@ -37,7 +37,7 @@ function Info() {
           <b>kpopnet</b> web app for kpop fans
         </p>
         <p class="navinfo__p">
-          Search syntax:{" "}
+          Help and tips:{" "}
           <a
             class="navinfo__link"
             target="_blank"

@@ -1,4 +1,4 @@
-import { resolve } from "node:path";
+// import { resolve } from "node:path";
 import { defineConfig } from "vite";
 import solidPlugin from "vite-plugin-solid";
 import solidSvg from "vite-plugin-solid-svg";
@@ -22,7 +22,7 @@ export default defineConfig({
     target: "esnext",
     assetsDir: "static",
   },
-  resolve: {
+  /*resolve: {
     alias: [
       {
         // XXX(Kagami): vite's bug
@@ -30,5 +30,5 @@ export default defineConfig({
         replacement: resolve(__dirname, "node_modules/@tabler"),
       },
     ],
-  },
+  },*/
 });
