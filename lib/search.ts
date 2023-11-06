@@ -1,4 +1,5 @@
 import type { Idol, Group, Profiles, GroupMember } from "kpopnet.json";
+import { getAge } from "./utils";
 
 export type IdolMap = Map<string, Idol>;
 export type GroupMap = Map<string, Group>;
@@ -111,6 +112,15 @@ function normalize(s: string): string {
   return s.replace(/[^\p{L}\d]/gu, "").toLowerCase();
 }
 
+function pushProp(props: SearchProp[], key: string, val: string) {
+  val = val.trim();
+  // heavily normalize only name/group prop queries
+  if (key === "n" || key === "g") {
+    val = normalize(val);
+  }
+  props.push([key, val]);
+}
+
 // Split query into main component and property-tagged parts.
 // Example: "name words prop1:prop words prop2:more words"
 // TODO(Kagami): Profile/optimize.
@@ -126,11 +136,11 @@ function parseQuery(query: string): Query {
       const spaceIdx = query.lastIndexOf(" ", colonIdx);
       if (spaceIdx >= 0) {
         // [name words] prop1:
-        const lastVal = normalize(query.slice(0, spaceIdx));
+        const lastVal = query.slice(0, spaceIdx);
         if (lastKey) {
-          props.push([lastKey, lastVal]);
+          pushProp(props, lastKey, lastVal);
         } else {
-          name = lastVal;
+          name = normalize(lastVal);
         }
         // [prop1]:...
         lastKey = query.slice(spaceIdx + 1, colonIdx);
@@ -145,13 +155,13 @@ function parseQuery(query: string): Query {
         query = query.slice(colonIdx + 1);
       }
     } else {
-      const lastVal = normalize(query);
+      const lastVal = query;
       if (lastKey) {
         // prop1:[more words]
-        props.push([lastKey, lastVal]);
+        pushProp(props, lastKey, lastVal);
       } else {
         // [just query]
-        name = lastVal;
+        name = normalize(lastVal);
       }
       break;
     }
@@ -181,6 +191,22 @@ function matchGroupName(idol: Idol, cache: Cache, val: string): boolean {
     getOrigGroupNames(idol, cache)
   );
   return gnames.some((gname) => normalize(gname).includes(val));
+}
+
+function matchDate(idate: string | null, qdate: string): boolean {
+  if (!idate) return false;
+  return idate.startsWith(qdate);
+}
+
+function matchYAgo(idate: string | null, qago: string): boolean {
+  if (!idate) return false;
+  const ago = getAge(idate);
+  return ago.toString() === qago;
+}
+
+function matchNum(inum: number | null, qnum: string): boolean {
+  if (!inum) return false;
+  return Math.floor(inum).toString() === qnum;
 }
 
 /**
@@ -219,6 +245,24 @@ export function searchIdols(
           break;
         case "g":
           if (matchGroupName(idol, cache, val)) return true;
+          break;
+        case "d":
+          if (matchDate(idol.birth_date, val)) return true;
+          break;
+        case "a":
+          if (matchYAgo(idol.birth_date, val)) return true;
+          break;
+        case "dd":
+          if (matchDate(idol.debut_date, val)) return true;
+          break;
+        case "da":
+          if (matchYAgo(idol.debut_date, val)) return true;
+          break;
+        case "h":
+          if (matchNum(idol.height, val)) return true;
+          break;
+        case "w":
+          if (matchNum(idol.weight, val)) return true;
           break;
       }
       return false;

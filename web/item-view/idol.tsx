@@ -16,7 +16,7 @@ import {
   getIdolGroupMember,
   type Cache,
 } from "../../lib/search";
-import { getAge, validDate } from "../../lib/utils";
+import { getAge } from "../../lib/utils";
 import {
   ItemRoute,
   QueryRoute,
@@ -33,7 +33,7 @@ interface IdolProps {
 export default function IdolView(p: IdolProps) {
   const thumbUrl = createMemo(() => p.idol.thumb_url || thumbFallbackUrl);
   const age = createMemo(() => getAge(p.idol.birth_date));
-  const ago = createMemo(() => getAge(p.idol.debut_date!));
+  const ago = createMemo(() => getAge(p.idol.debut_date || ""));
   const urls = createMemo(() =>
     p.idol.urls.filter((url) => !url.includes("net.kpop.re"))
   );
@@ -73,17 +73,17 @@ export default function IdolView(p: IdolProps) {
         <p class="idol__info-line">
           <span class="idol__info-key">Birthday</span>
           <span class="idol__info-val">
-            <Searchable k="bd">{p.idol.birth_date}</Searchable> (
-            <Searchable k="y">{age()}</Searchable>)
+            <SearchableDate k="d" q={p.idol.birth_date} /> (
+            <Searchable k="a">{age()}</Searchable>)
           </span>
         </p>
         <IdolGroupsView igroups={igroups()} />
-        <Show when={p.idol.debut_date && validDate(p.idol.debut_date)}>
+        <Show when={p.idol.debut_date}>
           <p class="idol__info-line">
             <span class="idol__info-key">Debut date</span>
             <span class="idol__info-val">
-              <Searchable k="dd">{p.idol.debut_date}</Searchable> (
-              <Searchable k="dy">{ago()}</Searchable> year
+              <SearchableDate k="dd" q={p.idol.debut_date!} /> (
+              <Searchable k="da">{ago()}</Searchable> year
               {ago() === 1 ? "" : "s"} ago)
             </span>
           </p>
@@ -149,7 +149,12 @@ function IdolGroupView(p: { ig: IdolGroup; other?: boolean }) {
   );
 }
 
-function Searchable(p: { k: string; id?: string; children: JSXElement }) {
+function Searchable(p: {
+  k: string;
+  id?: string;
+  q?: string;
+  children: JSXElement;
+}) {
   const [_, _query, goto] = useRouter();
   const resolved = children(() => p.children);
   const newRoute = () => (p.k === "id" ? ItemRoute : QueryRoute);
@@ -158,6 +163,7 @@ function Searchable(p: { k: string; id?: string; children: JSXElement }) {
   const url = () => `?${urlParam()}=${newQuery().replace(/ /g, "+")}`;
 
   function normalizeQuery() {
+    if (p.q) return p.q;
     let q = resolved()!;
     if (p.k === "w" || p.k === "h") q = Math.floor(+q);
     return q.toString();
@@ -172,6 +178,31 @@ function Searchable(p: { k: string; id?: string; children: JSXElement }) {
     <a onClick={handleClick} href={url()} class="idol__info-search">
       {resolved()}
     </a>
+  );
+}
+
+function SearchableDate(p: { k: string; q: string }) {
+  const y = createMemo(() => p.q.split("-")[0]);
+  const m = createMemo(() => p.q.split("-")[1]);
+  const d = createMemo(() => p.q.split("-")[2]);
+  return (
+    <>
+      <Searchable k={p.k} q={y()}>
+        {y()}
+      </Searchable>
+      <Show when={m() !== "00"}>
+        -
+        <Searchable k={p.k} q={y() + "-" + m()}>
+          {m()}
+        </Searchable>
+        <Show when={d() !== "00"}>
+          -
+          <Searchable k={p.k} q={p.q}>
+            {d()}
+          </Searchable>
+        </Show>
+      </Show>
+    </>
   );
 }
 

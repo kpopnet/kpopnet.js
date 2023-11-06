@@ -19,7 +19,7 @@ export default function SearchInput(p: SearchProps) {
   }
 
   function handleInputChange() {
-    goto(null, inputEl.value);
+    goto(null, inputEl.value, { delay: true });
   }
 
   function handleClearClick() {
