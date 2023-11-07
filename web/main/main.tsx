@@ -5,11 +5,11 @@
 import { Match, Show, Switch, createSignal } from "solid-js";
 import profiles from "kpopnet.json";
 
-import GlobalAlerts, { useAlerts } from "../alerts/alerts";
+import GlobalAlerts from "../alerts/alerts";
 import SearchInput from "../search-input/search-input";
 import ItemList from "../item-list/item-list";
 import ItemView from "../item-view/item";
-import { Cache, makeCache } from "../../lib/search";
+import { type Cache, makeCache } from "../../lib/search";
 import Router, { ItemRoute, QueryRoute, useRouter } from "../router/router";
 import Navbar from "../nav/nav";
 

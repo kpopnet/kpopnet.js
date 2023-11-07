@@ -26,7 +26,7 @@ export default function ItemList(p: ListProps) {
     >
       <Match when={query().length < 2}> </Match>
       <Match when={idols().length}>
-        <section class="idols">
+        <section class="item-list">
           <For each={idols()}>
             {(idol) => <IdolView idol={idol} cache={p.cache} />}
           </For>

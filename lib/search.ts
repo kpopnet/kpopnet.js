@@ -115,7 +115,7 @@ function normalize(s: string): string {
 function pushProp(props: SearchProp[], key: string, val: string) {
   val = val.trim();
   // heavily normalize only name/group prop queries
-  if (key === "n" || key === "g") {
+  if (key === "n" || key === "g" || key === "c") {
     val = normalize(val);
   }
   props.push([key, val]);
@@ -193,6 +193,15 @@ function matchGroupName(idol: Idol, cache: Cache, val: string): boolean {
   return gnames.some((gname) => normalize(gname).includes(val));
 }
 
+// Match all idols in groups with given company name.
+// TODO(Kagami): idol should have agency_name field too?
+function matchCompanyName(idol: Idol, cache: Cache, val: string): boolean {
+  const groups = cache.idolGroupsMap.get(idol.id)!;
+  return groups.some((group) => {
+    return normalize(group.agency_name).includes(val);
+  });
+}
+
 function matchDate(idate: string | null, qdate: string): boolean {
   if (!idate) return false;
   return idate.startsWith(qdate);
@@ -242,30 +251,25 @@ export function searchIdols(
       switch (key) {
         case "n":
           if (matchIdolName(idol, val)) return true;
-          break;
         case "g":
           if (matchGroupName(idol, cache, val)) return true;
-          break;
+        case "c":
+          if (matchCompanyName(idol, cache, val)) return true;
         case "d":
           if (matchDate(idol.birth_date, val)) return true;
-          break;
         case "a":
           if (matchYAgo(idol.birth_date, val)) return true;
-          break;
         case "dd":
           if (matchDate(idol.debut_date, val)) return true;
-          break;
         case "da":
           if (matchYAgo(idol.debut_date, val)) return true;
-          break;
         case "h":
           if (matchNum(idol.height, val)) return true;
-          break;
         case "w":
           if (matchNum(idol.weight, val)) return true;
-          break;
+        default:
+          return false;
       }
-      return false;
     });
   });
   // console.timeEnd("searchIdols");
