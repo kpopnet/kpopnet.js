@@ -18,7 +18,6 @@ export default function ItemList(p: { profiles: Profiles; cache: Cache }) {
   return (
     <section class="item-list" classList={{ "item-list_empty": noResults() }}>
       <Switch>
-        <Match when={query().length < 2}> </Match>
         <Match when={idols().length}>
           <For each={idols()}>
             {(idol) => <IdolView idol={idol} cache={p.cache} />}

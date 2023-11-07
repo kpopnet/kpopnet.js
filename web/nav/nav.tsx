@@ -15,7 +15,7 @@ export default function Navbar() {
 
   return (
     <nav class="navbar" onMouseLeave={() => setShowInfo(false)}>
-      <a href="/" onClick={handleHome} class="navbar__item">
+      <a onClick={handleHome} class="navbar__item">
         <IconHome control />
       </a>
       <a onMouseOver={() => setShowInfo(true)} class="navbar__item">

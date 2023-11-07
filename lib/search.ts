@@ -91,7 +91,7 @@ function getOrigGroupNames(idol: Idol, cache: Cache): string[] {
   return cache.idolGroupsMap.get(idol.id)!.map((g) => g.name_original);
 }
 
-// Main group goes first.
+// Main group goes first (if any).
 // Otherwise sort by group's debut date.
 // If unknown then by group's name.
 export function getSortedIdolGroups(idol: Idol, cache: Cache): Group[] {
@@ -227,11 +227,10 @@ export function searchIdols(
   profiles: Profiles,
   cache: Cache
 ): Idol[] {
-  if (query.length < 2) return [];
   // console.time("parseQuery");
   const q = parseQuery(query);
   // console.timeEnd("parseQuery");
-  if (!q.name && !q.props.length) return [];
+  if (!q.name && !q.props.length) return profiles.idols;
 
   // TODO(Kagam): Sort idols?
   // TODO(Kagami): Limit number of results, pagination?

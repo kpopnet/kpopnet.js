@@ -92,15 +92,23 @@ interface IdolGroup {
 
 // TODO(Kagami): show roles/current info
 function IdolGroupsView(p: { igroups: IdolGroup[] }) {
+  const mainGroup = createMemo(() =>
+    p.igroups.length && p.igroups[0].gm.current ? p.igroups[0] : null
+  );
+  const otherGroups = createMemo(() =>
+    mainGroup() ? p.igroups.slice(1) : p.igroups
+  );
   return (
     <Show when={p.igroups.length}>
       <p class="item__line">
         <span class="item__key">Groups</span>
         <span class="item__val">
-          <IdolGroupView ig={p.igroups[0]} />
-          <Show when={p.igroups.length > 1}>
+          <Show when={mainGroup()}>
+            <IdolGroupView ig={mainGroup()!} />
+          </Show>
+          <Show when={otherGroups().length}>
             <span class="idol__groups-other">
-              <For each={p.igroups.slice(1)}>
+              <For each={otherGroups()}>
                 {(ig) => <IdolGroupView ig={ig} other />}
               </For>
             </span>
