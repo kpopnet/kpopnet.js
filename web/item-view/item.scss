@@ -39,19 +39,19 @@
   font-size: 18px;
 }
 
-.item__info-line {
+.item__line {
   display: flex;
   margin: 0;
 }
 
-.item__name-line {
+.item__line_name {
   border-bottom: 5px solid #6b6c9a;
   margin-bottom: 12px;
+}
 
-  .item__info-val {
-    flex: 1;
-    font-size: 30px;
-  }
+.item__val_name {
+  flex: 1;
+  font-size: 30px;
 }
 
 .item__label {
@@ -60,7 +60,7 @@
 
 //---
 
-.item__info-key {
+.item__key {
   flex: 0 0 120px;
   color: #bbb;
   word-break: break-word;
@@ -69,11 +69,11 @@
   }
 }
 
-.item__info-val {
+.item__val {
   word-break: break-word;
 }
 
-.item__info-search {
+.item__search {
   color: $body;
   text-decoration: none;
   &:hover {

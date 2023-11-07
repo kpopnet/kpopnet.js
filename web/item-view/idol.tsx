@@ -1,14 +1,18 @@
 import { For, Show, createMemo } from "solid-js";
 import type { Group, GroupMember, Idol } from "kpopnet.json";
 
-import thumbFallbackUrl from "./no-preview.svg?url";
 import {
   getSortedIdolGroups,
   getIdolGroupMember,
   type Cache,
 } from "../../lib/search";
 import { getAge } from "../../lib/utils";
-import { LinkMenu, Searchable, SearchableDate } from "./common";
+import {
+  LinkMenu,
+  Searchable,
+  SearchableDate,
+  thumbFallbackUrl,
+} from "./common";
 
 // TODO(Kagami): cache renders, display:none in <For>?
 export default function IdolView(p: { idol: Idol; cache: Cache }) {
@@ -26,40 +30,40 @@ export default function IdolView(p: { idol: Idol; cache: Cache }) {
     <article class="item idol">
       <img class="item__preview" src={thumbUrl()} loading="lazy" />
       <div class="item__info">
-        <div class="item__info-line item__name-line">
-          <span class="item__info-val">
+        <div class="item__line item__line_name">
+          <span class="item__val item__val_name">
             <Searchable k="id" id={p.idol.id}>
               {p.idol.name}
             </Searchable>
           </span>
           <LinkMenu urls={p.idol.urls} />
         </div>
-        <p class="item__info-line">
-          <span class="item__info-key">Name</span>
-          <span class="item__info-val">
+        <p class="item__line">
+          <span class="item__key">Name</span>
+          <span class="item__val">
             <Searchable k="n">{p.idol.name}</Searchable> (
             <Searchable k="n">{p.idol.name_original}</Searchable>)
           </span>
         </p>
-        <p class="item__info-line">
-          <span class="item__info-key">Real name</span>
-          <span class="item__info-val">
+        <p class="item__line">
+          <span class="item__key">Real name</span>
+          <span class="item__val">
             <Searchable k="n">{p.idol.real_name}</Searchable> (
             <Searchable k="n">{p.idol.real_name_original}</Searchable>)
           </span>
         </p>
-        <p class="item__info-line">
-          <span class="item__info-key">Birthday</span>
-          <span class="item__info-val">
+        <p class="item__line">
+          <span class="item__key">Birthday</span>
+          <span class="item__val">
             <SearchableDate k="d" q={p.idol.birth_date} /> (
             <Searchable k="a">{age()}</Searchable>)
           </span>
         </p>
         <IdolGroupsView igroups={igroups()} />
         <Show when={p.idol.debut_date}>
-          <p class="item__info-line">
-            <span class="item__info-key">Debut date</span>
-            <span class="item__info-val">
+          <p class="item__line">
+            <span class="item__key">Debut date</span>
+            <span class="item__val">
               <SearchableDate k="dd" q={p.idol.debut_date!} /> (
               <Searchable k="da">{ago()}</Searchable> year
               {ago() === 1 ? "" : "s"} ago)
@@ -67,17 +71,17 @@ export default function IdolView(p: { idol: Idol; cache: Cache }) {
           </p>
         </Show>
         <Show when={p.idol.height}>
-          <p class="item__info-line">
-            <span class="item__info-key">Height</span>
-            <span class="item__info-val">
+          <p class="item__line">
+            <span class="item__key">Height</span>
+            <span class="item__val">
               <Searchable k="h">{p.idol.height}</Searchable> cm
             </span>
           </p>
         </Show>
         <Show when={p.idol.weight}>
-          <p class="item__info-line">
-            <span class="item__info-key">Weight</span>
-            <span class="item__info-val">
+          <p class="item__line">
+            <span class="item__key">Weight</span>
+            <span class="item__val">
               <Searchable k="w">{p.idol.weight}</Searchable> kg
             </span>
           </p>
@@ -96,9 +100,9 @@ interface IdolGroup {
 function IdolGroupsView(p: { igroups: IdolGroup[] }) {
   return (
     <Show when={p.igroups.length}>
-      <p class="item__info-line">
-        <span class="item__info-key">Groups</span>
-        <span class="item__info-val">
+      <p class="item__line">
+        <span class="item__key">Groups</span>
+        <span class="item__val">
           <IdolGroupView ig={p.igroups[0]} />
           <Show when={p.igroups.length > 1}>
             <span class="idol__groups-other">

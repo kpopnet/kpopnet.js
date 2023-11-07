@@ -6,6 +6,7 @@ import {
   createMemo,
   createSignal,
 } from "solid-js";
+
 import {
   ItemRoute,
   QueryRoute,
@@ -13,6 +14,9 @@ import {
   useRouter,
 } from "../router/router";
 import { IconExternalLink, IconLink } from "../icons/icons";
+import thumbFallbackUrl from "./no-preview.svg?url";
+
+export { thumbFallbackUrl };
 
 export function Searchable(p: {
   k: string;
@@ -40,7 +44,7 @@ export function Searchable(p: {
   }
 
   return (
-    <a onClick={handleClick} href={url()} class="item__info-search">
+    <a onClick={handleClick} href={url()} class="item__search">
       {resolved()}
     </a>
   );
