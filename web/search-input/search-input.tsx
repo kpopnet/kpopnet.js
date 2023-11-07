@@ -53,7 +53,7 @@ export default function SearchInput(p: SearchProps) {
   }, p.loading);
 
   return (
-    <div class="search">
+    <section class="search">
       <input
         ref={inputEl!}
         class="search__input"
@@ -73,6 +73,6 @@ export default function SearchInput(p: SearchProps) {
       <Show when={p.loading}>
         <Spinner />
       </Show>
-    </div>
+    </section>
   );
 }

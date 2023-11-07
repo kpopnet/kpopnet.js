@@ -1,0 +1,92 @@
+.item {
+  display: flex;
+  margin-bottom: 50px;
+  &:last-child {
+    margin-bottom: 100px;
+  }
+}
+
+.item__preview {
+  min-width: 250px;
+  width: 250px;
+  min-height: 250px;
+  object-fit: contain;
+  user-select: none;
+}
+
+.item__info {
+  width: 100%;
+  margin-left: 10px;
+  border-left: 1px solid #d5d5d5;
+  padding-left: 20px;
+  font-size: 18px;
+}
+
+.item__line {
+  display: flex;
+  margin: 0;
+}
+
+.item__line_name {
+  border-bottom: 5px solid #6b6c9a;
+  margin-bottom: 12px;
+}
+
+.item__val_name {
+  flex: 1;
+  font-size: 30px;
+}
+
+.item__label {
+  align-self: flex-end;
+}
+
+//---
+
+.item__key {
+  flex: 0 0 120px;
+  color: #bbb;
+  word-break: break-word;
+  &::after {
+    content: ":";
+  }
+}
+
+.item__val {
+  word-break: break-word;
+}
+
+.item__search {
+  color: $body;
+  text-decoration: none;
+  &:hover {
+    cursor: pointer;
+    color: $cc-linkHover;
+  }
+}
+
+//---
+
+.item__links {
+  align-self: flex-end;
+  position: relative;
+}
+
+.item-links {
+  position: absolute;
+  background: $cc-bodyBG;
+  border: $border;
+  top: 0;
+  right: 0;
+  padding: 10px 15px;
+}
+
+.item-links__item {
+  @include link;
+  text-wrap: nowrap;
+}
+
+.item-links__control {
+  width: 16px;
+  height: 16px;
+}

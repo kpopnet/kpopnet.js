@@ -8,7 +8,7 @@ import profiles from "kpopnet.json";
 import GlobalAlerts from "../alerts/alerts";
 import SearchInput from "../search-input/search-input";
 import ItemList from "../item-list/item-list";
-import ItemView from "../item-view/item";
+import SingleItemView from "../item-view/item";
 import { type Cache, makeCache } from "../../lib/search";
 import Router, { ItemRoute, QueryRoute, useRouter } from "../router/router";
 import Navbar from "../nav/nav";
@@ -38,13 +38,16 @@ function Main() {
   return (
     <>
       <Navbar />
-      <main class="main">
+      <main class="main" classList={{ main_error: !!err() }}>
         <Switch fallback={"Invalid route"}>
           <Match when={!cache()}>
-            <MainError err={err()} />
+            Can't load profile data
+            <div class="main__error-info">
+              {err()?.message || "Unknown error"}
+            </div>
           </Match>
           <Match when={route() === ItemRoute}>
-            <ItemView id={query()} cache={cache()!} />
+            <SingleItemView id={query()} cache={cache()!} />
           </Match>
           <Match when={route() === QueryRoute}>
             <SearchInput />
@@ -53,15 +56,5 @@ function Main() {
         </Switch>
       </main>
     </>
-  );
-}
-
-// TODO(Kagami): better error display
-function MainError(p: { err: any }) {
-  return (
-    <div class="main__error">
-      Can't load profile data
-      <div class="main__error-info">{p.err?.message || "Unknown error"}</div>
-    </div>
   );
 }

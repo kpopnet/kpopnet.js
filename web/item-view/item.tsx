@@ -4,7 +4,7 @@ import IdolView from "./idol";
 import GroupView from "./group";
 
 /** Show corresponding single item by its id */
-export default function ItemView(p: { id: string; cache: Cache }) {
+export default function SingleItemView(p: { id: string; cache: Cache }) {
   const foundIdol = p.cache.idolMap.get(p.id);
   const foundGroup = p.cache.groupMap.get(p.id);
   const notFound = !foundIdol && !foundGroup;
