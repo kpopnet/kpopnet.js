@@ -1,12 +1,16 @@
 .item {
-  display: flex;
-  margin-bottom: 50px;
+  display: grid;
+  grid: "preview info" / auto 1fr;
+  column-gap: 10px;
+  margin-bottom: $content-margin-next;
   &:last-child {
-    margin-bottom: 100px;
+    margin-bottom: $content-margin-last;
   }
 }
 
 .item__preview {
+  grid-area: preview;
+  display: block;
   min-width: 250px;
   width: 250px;
   min-height: 250px;
@@ -15,8 +19,8 @@
 }
 
 .item__info {
+  grid-area: info;
   width: 100%;
-  margin-left: 10px;
   border-left: 1px solid #d5d5d5;
   padding-left: 20px;
   font-size: 18px;

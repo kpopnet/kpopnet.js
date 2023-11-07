@@ -1,3 +1,24 @@
+.group {
+  grid:
+    "preview info"
+    "idols idols" / auto 1fr;
+  row-gap: 10px;
+  &:last-child {
+    margin-bottom: 0; // accounted by last idol in group_idols
+  }
+}
+
 .group__company ~ .group__company::before {
   content: ", ";
+}
+
+.group__idols {
+  grid-area: idols;
+  border-top: 1px solid #d5d5d5;
+  padding-top: 10px;
+  padding-left: 50px;
+}
+
+.item__info_group {
+  border: 0;
 }

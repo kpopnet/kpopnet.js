@@ -8,7 +8,7 @@ import profiles from "kpopnet.json";
 import GlobalAlerts from "../alerts/alerts";
 import SearchInput from "../search-input/search-input";
 import ItemList from "../item-list/item-list";
-import SingleItemView from "../item-view/item";
+import ItemView from "../item-view/item-view";
 import { type Cache, makeCache } from "../../lib/search";
 import Router, { ItemRoute, QueryRoute, useRouter } from "../router/router";
 import Navbar from "../nav/nav";
@@ -47,7 +47,7 @@ function Main() {
             </div>
           </Match>
           <Match when={route() === ItemRoute}>
-            <SingleItemView id={query()} cache={cache()!} />
+            <ItemView id={query()} cache={cache()!} />
           </Match>
           <Match when={route() === QueryRoute}>
             <SearchInput />

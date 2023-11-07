@@ -7,16 +7,10 @@ import {
   type Cache,
 } from "../../lib/search";
 import { getAge } from "../../lib/utils";
-import {
-  LinkMenu,
-  Searchable,
-  SearchableDate,
-  thumbFallbackUrl,
-} from "./common";
+import { Preview, LinkMenu, Searchable, SearchableDate } from "./common";
 
 // TODO(Kagami): cache renders, display:none in <For>?
 export default function IdolView(p: { idol: Idol; cache: Cache }) {
-  const thumbUrl = createMemo(() => p.idol.thumb_url || thumbFallbackUrl);
   const age = createMemo(() => getAge(p.idol.birth_date));
   const ago = createMemo(() => getAge(p.idol.debut_date || ""));
   const igroups = createMemo(() => {
@@ -28,8 +22,8 @@ export default function IdolView(p: { idol: Idol; cache: Cache }) {
   });
   return (
     <article class="item idol">
-      <img class="item__preview" src={thumbUrl()} loading="lazy" />
-      <div class="item__info">
+      <Preview url={p.idol.thumb_url} id={p.idol.id} />
+      <section class="item__info">
         <div class="item__line item__line_name">
           <span class="item__val item__val_name">
             <Searchable k="id" id={p.idol.id}>
@@ -86,7 +80,7 @@ export default function IdolView(p: { idol: Idol; cache: Cache }) {
             </span>
           </p>
         </Show>
-      </div>
+      </section>
     </article>
   );
 }

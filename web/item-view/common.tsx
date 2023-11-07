@@ -16,7 +16,14 @@ import {
 import { IconExternalLink, IconLink } from "../icons/icons";
 import thumbFallbackUrl from "./no-preview.svg?url";
 
-export { thumbFallbackUrl };
+export function Preview(p: { id: string; url: string | null }) {
+  const thumbUrl = createMemo(() => p.url || thumbFallbackUrl);
+  return (
+    <Searchable k="id" id={p.id}>
+      <img class="item__preview" src={thumbUrl()} loading="lazy" />
+    </Searchable>
+  );
+}
 
 export function Searchable(p: {
   k: string;
@@ -29,7 +36,9 @@ export function Searchable(p: {
   const newRoute = () => (p.k === "id" ? ItemRoute : QueryRoute);
   const newQuery = () => (p.k === "id" ? p.id! : p.k + ":" + normalizeQuery());
   const urlParam = () => routeToUrlParam(newRoute());
-  const url = () => `?${urlParam()}=${newQuery().replace(/ /g, "+")}`;
+  const url = createMemo(
+    () => `?${urlParam()}=${newQuery().replace(/ /g, "+")}`
+  );
 
   function normalizeQuery() {
     if (p.q) return p.q;

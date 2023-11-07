@@ -1,23 +1,19 @@
 import { For, Show, createMemo } from "solid-js";
-import type { Group } from "kpopnet.json";
+import type { Group, Idol } from "kpopnet.json";
 
 import { type Cache } from "../../lib/search";
 import { getAge } from "../../lib/utils";
-import {
-  LinkMenu,
-  Searchable,
-  SearchableDate,
-  thumbFallbackUrl,
-} from "./common";
+import { Preview, LinkMenu, Searchable, SearchableDate } from "./common";
+import IdolView from "./idol";
 
 export default function GroupView(p: { group: Group; cache: Cache }) {
-  const thumbUrl = createMemo(() => p.group.thumb_url || thumbFallbackUrl);
   const debutAgo = createMemo(() => getAge(p.group.debut_date || ""));
   const disbandAgo = createMemo(() => getAge(p.group.disband_date || ""));
+  const idols = createMemo(() => p.cache.groupIdolsMap.get(p.group.id)!);
   return (
     <article class="item group">
-      <img class="item__preview" src={thumbUrl()} loading="lazy" />
-      <div class="item__info">
+      <Preview url={p.group.thumb_url} id={p.group.id} />
+      <section class="item__info item__info_group">
         <div class="item__line item__line_name">
           <span class="item__val item__val_name">
             <Searchable k="id" id={p.group.id}>
@@ -59,7 +55,8 @@ export default function GroupView(p: { group: Group; cache: Cache }) {
             </span>
           </p>
         </Show>
-      </div>
+      </section>
+      <GroupIdolsView idols={idols()} cache={p.cache} />
     </article>
   );
 }
@@ -74,5 +71,14 @@ function CompanyView(p: { name: string }) {
         </span>
       )}
     </For>
+  );
+}
+function GroupIdolsView(p: { idols: Idol[]; cache: Cache }) {
+  return (
+    <section class="group__idols">
+      <For each={p.idols}>
+        {(idol) => <IdolView idol={idol} cache={p.cache} />}
+      </For>
+    </section>
   );
 }
