@@ -8,7 +8,7 @@ import GroupView from "./group";
 export default function ItemView(p: { id: string; cache: Cache }) {
   const foundIdol = createMemo(() => p.cache.idolMap.get(p.id));
   const foundGroup = createMemo(() => p.cache.groupMap.get(p.id));
-  const notFound = createMemo(() => !foundIdol && !foundGroup);
+  const notFound = createMemo(() => !foundIdol() && !foundGroup());
   return (
     <section class="item-view" classList={{ "item-view_empty": notFound() }}>
       <Switch>

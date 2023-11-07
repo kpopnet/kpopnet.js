@@ -1,7 +1,5 @@
 .search {
   position: relative;
-  // FIXME(Kagami): implicit dependency on <Search><ItemList> / <ItemView> layout!
-  margin-top: $content-margin-top;
   margin-bottom: $content-margin-next;
 }
 

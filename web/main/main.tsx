@@ -42,9 +42,7 @@ function Main() {
         <Switch fallback={"Invalid route"}>
           <Match when={!cache()}>
             Can't load profile data
-            <div class="main__error-info">
-              {err()?.message || "Unknown error"}
-            </div>
+            <div class="main__error-info">{showError(err())}</div>
           </Match>
           <Match when={route() === ItemRoute}>
             <ItemView id={query()} cache={cache()!} />
@@ -57,4 +55,8 @@ function Main() {
       </main>
     </>
   );
+}
+
+function showError(err: any): string {
+  return err?.message || `Unknown error "${err}"`;
 }

@@ -4,7 +4,7 @@
   column-gap: 10px;
   margin-bottom: $content-margin-next;
   &:last-child {
-    margin-bottom: $content-margin-last;
+    margin-bottom: 0;
   }
 }
 
