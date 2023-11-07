@@ -32,9 +32,11 @@ function getNormIdolNames(idol: Idol): string {
     normalizeAll(idol.real_name_original),
     normalizeAll(idol.real_name),
     normalizeAll(idol.name_original),
-  ].join("");
+  ].join(" ");
 }
 
+// NOTE(Kagami): joined by space because [word1 word2] in query would be
+// concatenated into "word1word2" and this shouldn't match "group1group2".
 function getNormIdolGroupNames(
   idol: Idol,
   idolGroupsMap: IdolGroupsMap
@@ -44,7 +46,7 @@ function getNormIdolGroupNames(
     names.push(normalizeAll(g.name));
     names.push(normalizeAll(g.name_original));
   });
-  return names.join("");
+  return names.join(" ");
 }
 
 // XXX(Kagami): a bit hacky but no tuple keys in Map.
@@ -55,6 +57,7 @@ function idolGroupMemberKey(idol: Idol, group: Group): string {
 // NOTE: Will raise exception if references are invalid! If this function
 // completed successfully it's guaranteed that all references are valid so it's
 // safe to use `map.get(id)!` later.
+// TODO(Kagami): 3ms right now. Should we be worried?
 export function makeCache(profiles: Profiles): Cache {
   if (import.meta.env.DEV) console.time("makeCache");
 
@@ -311,10 +314,11 @@ function filterIdol(q: Query, idol: Idol, cache: Cache): boolean {
 }
 
 // Sorty by debut date by default.
+// Should be as fast as possible! ~1ms for full array right now.
 function compareIdols(i1: Idol, i2: Idol): number {
-  let cmp = (i2.debut_date || "0").localeCompare(i1.debut_date || "0");
-  if (!cmp) cmp = i2.birth_date.localeCompare(i1.birth_date);
-  return cmp;
+  const s1 = i1.debut_date || "0";
+  const s2 = i2.debut_date || "0";
+  return s1 == s2 ? 0 : s1 > s2 ? -1 : 1;
 }
 
 /**
@@ -326,12 +330,25 @@ export function searchIdols(
   profiles: Profiles,
   cache: Cache
 ): Idol[] {
-  if (import.meta.env.DEV) console.time("searchIdols");
-
+  /*dev*/ const dev = import.meta.env.DEV;
+  /*dev*/ const tStart = dev ? performance.now() : 0;
   const q = parseQuery(query);
+  /*dev*/ const tQuery = dev ? performance.now() : 0;
   const result = profiles.idols.filter((idol) => filterIdol(q, idol, cache));
-  result.sort(compareIdols);
+  /*dev*/ const tFilter = dev ? performance.now() : 0;
+  // result.sort(compareIdols);
+  /*dev*/ const tSort = dev ? performance.now() : 0;
+  /*dev*/ const tEnd = dev ? tSort : 0;
 
-  if (import.meta.env.DEV) console.timeEnd("searchIdols");
+  if (dev) {
+    const f = (t2: number, t1: number) => (t2 - t1).toFixed(3);
+    console.log(
+      `total:${f(tEnd, tStart)}`,
+      `query:${f(tQuery, tStart)}`,
+      `filter:${f(tFilter, tQuery)}`,
+      `sort:${f(tSort, tFilter)}`,
+      `q:${query}`
+    );
+  }
   return result;
 }
