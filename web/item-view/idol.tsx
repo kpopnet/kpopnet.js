@@ -13,6 +13,13 @@ import { Preview, LinkMenu, Searchable, SearchableDate } from "./common";
 export default function IdolView(p: { idol: Idol; cache: Cache }) {
   const age = createMemo(() => getAge(p.idol.birth_date));
   const ago = createMemo(() => getAge(p.idol.debut_date || ""));
+  // Normally every idol should have it so it's required key in JSON.
+  // But they're few exceptions.
+  const unknownRealName = createMemo(
+    () =>
+      p.idol.real_name.startsWith("unknown_") ||
+      p.idol.real_name_original.startsWith("unknown_")
+  );
   const igroups = createMemo(() => {
     const sorted = getSortedIdolGroups(p.idol, p.cache);
     return sorted.map((group) => ({
@@ -39,13 +46,15 @@ export default function IdolView(p: { idol: Idol; cache: Cache }) {
             <Searchable k="n">{p.idol.name_original}</Searchable>)
           </span>
         </p>
-        <p class="item__line">
-          <span class="item__key">Real name</span>
-          <span class="item__val">
-            <Searchable k="n">{p.idol.real_name}</Searchable> (
-            <Searchable k="n">{p.idol.real_name_original}</Searchable>)
-          </span>
-        </p>
+        <Show when={!unknownRealName()}>
+          <p class="item__line">
+            <span class="item__key">Real name</span>
+            <span class="item__val">
+              <Searchable k="n">{p.idol.real_name}</Searchable> (
+              <Searchable k="n">{p.idol.real_name_original}</Searchable>)
+            </span>
+          </p>
+        </Show>
         <p class="item__line">
           <span class="item__key">Birthday</span>
           <span class="item__val">
