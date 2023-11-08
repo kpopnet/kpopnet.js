@@ -1,12 +1,12 @@
 .search {
   position: relative;
-  margin-bottom: $content-margin-next;
+  margin-bottom: var(--content-margin-next);
 }
 
 .search__input {
   background: none;
   font-size: 30px;
-  border: $border;
+  border: var(--border);
   width: 100%;
   height: 50px;
   text-align: center;

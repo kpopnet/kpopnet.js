@@ -1,13 +1,13 @@
 .main {
   display: flex;
   flex-direction: column;
-  // FIXME(Kagami): mobile screen
+  /* FIXME(Kagami): mobile screen */
   width: 800px;
   min-height: 100%;
   margin: 0 auto;
 
-  padding-top: $content-margin-top;
-  padding-bottom: $content-margin-last;
+  padding-top: var(--content-margin-top);
+  padding-bottom: var(--content-margin-last);
 }
 
 .main_error {

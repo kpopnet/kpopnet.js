@@ -106,7 +106,7 @@ export function LinkMenu(p: { urls: string[] }) {
           <For each={urls()}>
             {(url) => (
               <a
-                class="item-links__item"
+                class="link item-links__item"
                 href={url}
                 target="_blank"
                 rel="noreferrer"

@@ -2,7 +2,7 @@
   display: grid;
   grid: "preview info" / auto 1fr;
   column-gap: 10px;
-  margin-bottom: $content-margin-next;
+  margin-bottom: var(--content-margin-next);
   &:last-child {
     margin-bottom: 0;
   }
@@ -45,7 +45,7 @@
   align-self: flex-end;
 }
 
-//---
+/*---*/
 
 .item__key {
   flex: 0 0 120px;
@@ -61,15 +61,15 @@
 }
 
 .item__search {
-  color: $body;
+  color: var(--body);
   text-decoration: none;
   &:hover {
     cursor: pointer;
-    color: $cc-linkHover;
+    color: var(--cc-linkHover);
   }
 }
 
-//---
+/*---*/
 
 .item__links {
   align-self: flex-end;
@@ -78,15 +78,14 @@
 
 .item-links {
   position: absolute;
-  background: $cc-bodyBG;
-  border: $border;
+  background: var(--cc-bodyBG);
+  border: var(--border);
   top: 0;
   right: 0;
   padding: 10px 15px;
 }
 
 .item-links__item {
-  @include link;
   text-wrap: nowrap;
 }
 

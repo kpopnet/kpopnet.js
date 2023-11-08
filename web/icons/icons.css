@@ -1,0 +1,20 @@
+.icon,
+.icon_small,
+.icon_control {
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.icon_small {
+  width: var(--icon-size-small);
+  height: var(--icon-size-small);
+}
+
+.icon_control {
+  cursor: pointer;
+  user-select: none;
+  color: var(--cc-control);
+  &:hover {
+    color: var(--cc-controlHover);
+  }
+}

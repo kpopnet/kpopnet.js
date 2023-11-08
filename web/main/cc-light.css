@@ -1,0 +1,123 @@
+/*////////////////////////////
+// LIGHT THEME
+// https://github.com/cutechan/cutechan/blob/master/less/light.less
+////////////////////////////*/
+
+:root {
+  /* Fonts, sizes. */
+  --cc-fontSize: 14px;
+  --cc-headerFontSize: 14px;
+  --cc-searchFontSize: 15px;
+  --cc-posttimeFontSize: 11px;
+  --cc-lineHeight: 1.4;
+  --cc-headerHeight: 30px;
+  --cc-scrollbarWidth: 8px;
+
+  /* Backgrounds. */
+  --cc-bodyBG: hsl(275, 10%, 94%);
+  --cc-postBG: hsl(275, 9%, 90%);
+  --cc-headerBG: rgba(239, 238, 241, 0.9);
+  --cc-headerBGHover: #d8d6e0;
+  --cc-buttonBG: transparent;
+  --cc-modalBG: hsl(275, 12%, 94%);
+  --cc-replyBG: hsl(275, 9%, 90%);
+  --cc-replyfloatBG: hsl(275, 9%, 90%);
+  --cc-replyinfoBG: hsla(0, 0%, 100%, 0.8);
+  --cc-modalInput: #fff;
+  --cc-scrollbarBG: hsl(275, 15%, 40%);
+
+  /* Colors. */
+  --cc-body: #0a0a0a;
+  --cc-link: hsl(275, 25%, 40%);
+  --cc-linkHover: hsl(275, 15%, 60%);
+  --cc-spoilerlink: hsl(275, 25%, 40%);
+  --cc-messagelink: hsl(275, 32%, 45%);
+  --cc-admin: #d60000;
+  --cc-mod: #7800b3;
+  --cc-postop: #101010;
+  --cc-postlink: var(--cc-link);
+  --cc-postid: hsl(275, 10%, 40%);
+  --cc-postidop: var(--cc-postid);
+  --cc-postcounter: #80796a;
+  --cc-posttime: #59554b;
+  --cc-posttimeop: #86847f;
+  --cc-postsubject: hsl(275, 15%, 38%);
+  --cc-postinfo: #5f5f5f;
+  --cc-postboard: #6e72b8;
+  --cc-postboardHover: #54578c;
+  --cc-postcatalogcounter: #6e72b8;
+  --cc-postfilebadge: #e1dde1;
+  --cc-postbacklinkpre: var(--cc-postinfo);
+  --cc-quote: #00882d;
+  --cc-spoiler: #d0c9d4;
+  --cc-modal: #000000;
+  --cc-modallinkHover: #999;
+  --cc-pagetitle: hsl(275, 15%, 38%);
+  --cc-headeritem: hsl(275, 25%, 35%);
+  --cc-tabsel: #999;
+  --cc-omit: #8a8a8a;
+  --cc-control: var(--cc-link);
+  --cc-controlHover: var(--cc-linkHover);
+  --cc-button: hsl(275, 25%, 40%);
+  --cc-buttonHover: hsl(275, 20%, 40%);
+  --cc-replyinfo: #4d4d4d;
+  --cc-replysendHover: var(--cc-buttonHover);
+  --cc-searchinput: inherit;
+  --cc-searchplaceholder: #757575;
+  --cc-pagecurrent: inherit;
+  --cc-replyboard: var(--cc-link);
+  --cc-accountformshead: #333;
+
+  /* Borders. */
+  --cc-border: 1px solid hsl(275, 10%, 50%);
+  --cc-separatorBorder: 1px solid #b2a3ba;
+  --cc-headerBorder: 1px solid #775e7c;
+  --cc-modalBorder: 1px solid #775e7c;
+  --cc-searchBorder: 1px solid hsl(275, 15%, 40%);
+  --cc-searchBorderHover: var(--cc-border);
+  --cc-postcatalogBorder: 1px dashed #2c2f63;
+  --cc-previewBorder: none;
+  --cc-replyBorder: none;
+  --cc-buttonBorder: var(--cc-border);
+  --cc-buttonBorderHover: var(--cc-border);
+  --cc-replysendBorder: 1px solid hsl(275, 25%, 40%);
+  --cc-replysendBorderHover: var(--cc-buttonBorderHover);
+  --cc-lightHBorder: linear-gradient(
+      90deg,
+      transparent,
+      #bfb4d6 10%,
+      #bfb4d6 90%,
+      transparent 100%
+    )
+    1;
+  --cc-darkHBorder: linear-gradient(
+      90deg,
+      transparent,
+      #a295bf 10%,
+      #a295bf 90%,
+      transparent 100%
+    )
+    1;
+  --cc-darkVBorder: linear-gradient(
+      transparent,
+      #a295bf 20%,
+      #a295bf 80%,
+      transparent 100%
+    )
+    1;
+
+  /* Shadows. */
+  --cc-buttonShadow: 0px 0px 2px 0px hsla(275, 30%, 30%, 0.6);
+  --cc-searchShadow: inset 0 1px 1px rgba(0, 0, 0, 0.075),
+    0 0 3px rgba(149, 92, 158, 0.9);
+  --cc-headerShadow: 0 0 2px 0 rgba(80, 64, 107, 0.8);
+  --cc-modalShadow: var(--cc-headerShadow);
+  --cc-previewShadow: 1px 1px 2px 0px hsl(275, 8%, 57%),
+    0px 0px 2px 0px hsl(275, 8%, 57%), 0 0 30px 0 hsla(0, 0%, 0%, 0.07);
+  --cc-postShadow: 1px 1px 3px 0px hsl(275, 8%, 57%),
+    0px 0px 2px 0px hsl(275, 8%, 57%);
+  --cc-postfilebadgeShadow: 1px 1px 2px #734474;
+  --cc-replyShadow: 1px 1px 3px 0px hsl(275, 8%, 57%),
+    0px 0px 2px 0px hsl(275, 8%, 57%);
+  --cc-replysendShadow: var(--cc-buttonShadow);
+}

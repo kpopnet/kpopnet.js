@@ -15,10 +15,10 @@ export default function Navbar() {
 
   return (
     <nav class="navbar" onMouseLeave={() => setShowInfo(false)}>
-      <a onClick={handleHome} class="navbar__item">
+      <a onClick={handleHome} class="link navbar__item">
         <IconHome class="icon_control" />
       </a>
-      <a onMouseOver={() => setShowInfo(true)} class="navbar__item">
+      <a onMouseOver={() => setShowInfo(true)} class="link navbar__item">
         <IconQuestion class="icon_control" />
       </a>
       <Show when={showInfo()}>
@@ -39,7 +39,7 @@ function Info() {
         <p class="navinfo__p">
           Help and tips:{" "}
           <a
-            class="navinfo__link"
+            class="link navinfo__link"
             target="_blank"
             href="https://github.com/kpopnet/kpopnet.json/wiki"
           >
@@ -49,7 +49,7 @@ function Info() {
         <p class="navinfo__p">
           Questions/issues:{" "}
           <a
-            class="navinfo__link"
+            class="link navinfo__link"
             target="_blank"
             href="https://github.com/orgs/kpopnet/discussions"
           >
@@ -59,7 +59,7 @@ function Info() {
         <p class="navinfo__p">
           Data sources:{" "}
           <a
-            class="navinfo__link"
+            class="link navinfo__link"
             target="_blank"
             href="https://selca.kastden.org/noona/"
             rel="noreferrer"

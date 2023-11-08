@@ -1,29 +1,28 @@
 .navbar {
-  // FIXME(Kagami): fix for small screens
+  /* FIXME(Kagami): fix for small screens */
   position: fixed;
   z-index: 100;
   top: 0;
   right: 0;
-  padding: 10px 10px 0 0; // should be hoverable to avoid mouseleave
+  padding: 10px 10px 0 0; /* should be hoverable to avoid mouseleave */
   display: flex;
   justify-content: right;
   align-items: flex-start;
-  // for catching mouseleave
+  /* for catching mouseleave */
   min-width: 100px;
   min-height: 100px;
 }
 
 .navbar__item {
-  @include link;
   margin-left: 10px;
   position: relative;
 }
 
 .navinfo {
-  border: $border;
-  background: $cc-bodyBG;
+  border: var(--border);
+  background: var(--cc-bodyBG);
   position: absolute;
-  top: $icon-size + 10px + 5px;
+  top: calc(var(--icon-size) + 10px + 5px);
   right: 10px;
   min-width: 450px;
   display: flex;
@@ -34,10 +33,6 @@
   margin: 0;
 }
 
-.navinfo__link {
-  @include link;
-}
-
 .navinfo__logo {
   width: 100px;
   height: 100px;
@@ -45,7 +40,7 @@
 }
 
 .navinfo__icon {
-  width: $icon-size-small;
-  height: $icon-size-small;
+  width: var(--icon-size-small);
+  height: var(--icon-size-small);
   vertical-align: middle;
 }
