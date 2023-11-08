@@ -126,6 +126,11 @@ export function getIdolGroupMember(
   return cache.idolGroupMemberMap.get(idolGroupMemberKey(idol, group));
 }
 
+// Because localeCompare is slow.
+function strcmp(s1: string, s2: string): number {
+  return s1 == s2 ? 0 : s1 > s2 ? 1 : -1;
+}
+
 // Main group goes first (if any).
 // Otherwise sort by group's debut date.
 // If unknown then by group's name.
@@ -135,8 +140,8 @@ export function getSortedIdolGroups(idol: Idol, cache: Cache): Group[] {
     const memberOfG1 = +getIdolGroupMember(idol, g1, cache)!.current;
     const memberOfG2 = +getIdolGroupMember(idol, g2, cache)!.current;
     let cmp = memberOfG2 - memberOfG1;
-    if (!cmp) cmp = (g2.debut_date || "0").localeCompare(g1.debut_date || "0");
-    if (!cmp) cmp = g2.name.localeCompare(g1.name);
+    if (!cmp) cmp = strcmp(g2.debut_date || "0", g1.debut_date || "0");
+    if (!cmp) cmp = strcmp(g2.name, g1.name);
     return cmp;
   });
   return groups;
@@ -313,7 +318,7 @@ function filterIdol(q: Query, idol: Idol, cache: Cache): boolean {
   });
 }
 
-// Sorty by debut date by default.
+// Sort by debut date by default.
 // Should be as fast as possible! ~1ms for full array right now.
 function compareIdols(i1: Idol, i2: Idol): number {
   const s1 = i1.debut_date || "0";
@@ -336,7 +341,7 @@ export function searchIdols(
   /*dev*/ const tQuery = dev ? performance.now() : 0;
   const result = profiles.idols.filter((idol) => filterIdol(q, idol, cache));
   /*dev*/ const tFilter = dev ? performance.now() : 0;
-  // result.sort(compareIdols);
+  // result.sort(compareIdols); // TODO: don't sort if query.length < 3 && result.length > 400?
   /*dev*/ const tSort = dev ? performance.now() : 0;
   /*dev*/ const tEnd = dev ? tSort : 0;
 

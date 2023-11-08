@@ -55,6 +55,7 @@ export default function SearchInput(p: SearchProps) {
   return (
     <section class="search">
       <input
+        name="search"
         ref={inputEl!}
         class="search__input"
         value={query()}
