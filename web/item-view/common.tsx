@@ -100,7 +100,7 @@ export function LinkMenu(p: { urls: string[] }) {
       onMouseOver={() => setShowMenu(true)}
       onMouseLeave={() => setShowMenu(false)}
     >
-      <IconLink control class="item__show-menu-control" />
+      <IconLink class="icon_control item__show-menu-control" />
       <Show when={showMenu()}>
         <div class="item-links">
           <For each={urls()}>
@@ -112,7 +112,7 @@ export function LinkMenu(p: { urls: string[] }) {
                 rel="noreferrer"
               >
                 {getLinkName(url)}{" "}
-                <IconExternalLink control class="item-links__control" />
+                <IconExternalLink class="icon_control item-links__control" />
               </a>
             )}
           </For>

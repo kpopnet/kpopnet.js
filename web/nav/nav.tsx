@@ -16,10 +16,10 @@ export default function Navbar() {
   return (
     <nav class="navbar" onMouseLeave={() => setShowInfo(false)}>
       <a onClick={handleHome} class="navbar__item">
-        <IconHome control />
+        <IconHome class="icon_control" />
       </a>
       <a onMouseOver={() => setShowInfo(true)} class="navbar__item">
-        <IconQuestion control />
+        <IconQuestion class="icon_control" />
       </a>
       <Show when={showInfo()}>
         <Info />
@@ -43,7 +43,7 @@ function Info() {
             target="_blank"
             href="https://github.com/kpopnet/kpopnet.json/wiki"
           >
-            <IconWiki small class="navinfo__icon" /> kpopnet/wiki
+            <IconWiki class="icon_small navinfo__icon" /> kpopnet/wiki
           </a>
         </p>
         <p class="navinfo__p">
@@ -53,7 +53,7 @@ function Info() {
             target="_blank"
             href="https://github.com/orgs/kpopnet/discussions"
           >
-            <IconGithub small class="navinfo__icon" /> kpopnet/discussions
+            <IconGithub class="icon_small navinfo__icon" /> kpopnet/discussions
           </a>
         </p>
         <p class="navinfo__p">

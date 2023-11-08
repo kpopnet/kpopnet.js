@@ -66,8 +66,7 @@ export default function SearchInput(p: SearchProps) {
       />
       <Show when={query()}>
         <IconX
-          control
-          class="search__clear-control"
+          class="icon_control search__clear-control"
           onClick={handleClearClick}
         />
       </Show>
