@@ -1,6 +1,7 @@
+@import "./tw.css";
 @import "./vars.css";
-
 @import "./reset.css";
+
 @import "./main.css";
 @import "../nav/nav.css";
 @import "../icons/icons.css";

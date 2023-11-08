@@ -1,4 +1,4 @@
-html {
+/*html {
   box-sizing: border-box;
 }
 *,
@@ -7,24 +7,28 @@ html {
   box-sizing: inherit;
 }
 
-html,
 body {
   margin: 0;
-  padding: 0;
-  height: 100%;
-}
+}*/
 
-html {
-  overflow-y: scroll;
-}
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
 
-body {
-  color: var(--body);
-  background: var(--cc-bodyBG);
-  font-family: Helvetica, sans-serif;
-  line-height: 1.4;
-}
+  html {
+    overflow-y: scroll;
+  }
 
-#index {
-  display: contents;
+  body {
+    color: var(--body);
+    background: var(--cc-bodyBG);
+    font-family: Helvetica, sans-serif;
+    line-height: 1.4;
+  }
+
+  #index {
+    display: contents;
+  }
 }

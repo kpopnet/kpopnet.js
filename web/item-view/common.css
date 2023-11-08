@@ -90,6 +90,8 @@
 }
 
 .item-links__control {
+  display: inline-block;
+  vertical-align: initial;
   width: 16px;
   height: 16px;
 }
