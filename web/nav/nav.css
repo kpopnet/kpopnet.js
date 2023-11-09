@@ -20,7 +20,7 @@
 
 .navinfo {
   border: var(--border);
-  background: var(--cc-bodyBG);
+  background: var(--body-bg);
   position: absolute;
   top: calc(var(--icon-size) + 10px + 5px);
   right: 10px;

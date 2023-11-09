@@ -1,13 +1,12 @@
 @import "./tw.css";
-@import "./vars.css";
-@import "./reset.css";
+@import "./base.css";
+@import "./utils.css";
 
 @import "./main.css";
 @import "../nav/nav.css";
 @import "../icons/icons.css";
 @import "../alerts/alerts.css";
 @import "../spinner/spinner.css";
-@import "../search-input/search-input.css";
 @import "../item-list/item-list.css";
 @import "../item-view/item-view.css";
 @import "../item-view/common.css";

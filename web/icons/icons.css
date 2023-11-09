@@ -13,8 +13,8 @@
 .icon_control {
   cursor: pointer;
   user-select: none;
-  color: var(--cc-control);
+  color: var(--control);
   &:hover {
-    color: var(--cc-controlHover);
+    color: var(--control-hover);
   }
 }

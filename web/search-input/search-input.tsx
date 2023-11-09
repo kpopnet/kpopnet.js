@@ -53,11 +53,15 @@ export default function SearchInput(p: SearchProps) {
   }, p.loading);
 
   return (
-    <section class="search">
+    <section class="relative">
       <input
         name="search"
         ref={inputEl!}
-        class="search__input"
+        class="h-[50px] w-full
+        border border-kngray-1 bg-transparent pr-[calc(theme(spacing.icon)+0.5rem)] text-center text-[30px]
+        outline-none
+        placeholder:text-kngray-1 placeholder:opacity-100
+        focus:border-control-hover"
         value={query()}
         placeholder="Search for idol or group"
         disabled={p.loading || p.disabled}
@@ -66,7 +70,8 @@ export default function SearchInput(p: SearchProps) {
       />
       <Show when={query()}>
         <IconX
-          class="icon_control search__clear-control"
+          class="icon_control
+          absolute bottom-0 right-2 top-0 m-auto"
           onClick={handleClearClick}
         />
       </Show>

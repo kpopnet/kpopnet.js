@@ -1,0 +1,10 @@
+@layer utilities {
+  .link {
+    color: var(--link);
+    text-decoration: none;
+    &:hover {
+      cursor: pointer;
+      color: var(--link-hover);
+    }
+  }
+}

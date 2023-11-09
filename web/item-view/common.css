@@ -65,7 +65,7 @@
   text-decoration: none;
   &:hover {
     cursor: pointer;
-    color: var(--cc-linkHover);
+    color: var(--link-hover);
   }
 }
 
@@ -83,7 +83,7 @@
 
 .item-links {
   position: absolute;
-  background: var(--cc-bodyBG);
+  background: var(--body-bg);
   border: var(--border);
   top: 0;
   right: 0;

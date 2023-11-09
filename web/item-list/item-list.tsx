@@ -52,6 +52,9 @@ export default function ItemList(p: { profiles: Profiles; cache: Cache }) {
     >
       <Switch>
         <Match when={idols().length}>
+          <div class="text-center mt-2 mb-cnt-next text-kngray-1 text-sm">
+            {allIdols().length} result{allIdols().length > 1 ? "s" : ""}
+          </div>
           <For each={idols()}>
             {(idol) => <IdolView idol={idol} cache={p.cache} />}
           </For>
