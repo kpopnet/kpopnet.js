@@ -18,6 +18,7 @@ export const ItemRoute = "ItemRoute"; // Symbol("ItemRoute");
 type Route = string; // typeof QueryRoute | typeof ItemRoute;
 interface GotoOpts {
   delay?: boolean /** set URL search param with delay to avoid cluttering history */;
+  noPush?: boolean /** don't save route in history */;
 }
 type RouteContextValue = [
   () => Route,
@@ -65,25 +66,26 @@ export default function Router(prop: { children: JSXElement }) {
   const debounceSetUrlParam = debounce(setUrlParam, 400);
   createEffect(
     on(view, ([r, q, o], prev) => {
-      if (prev == null) return;
+      // console.log("@@@ route", [r, q, o], prev);
+      if (prev == null || o.noPush) return;
+      if (r === prev[0] && q === prev[1]) return; // no duplicated entries
       window.scrollTo(0, 0);
       const fn = o.delay ? debounceSetUrlParam : setUrlParam;
-      // console.log("@@@ route", r, JSON.stringify(q), o, prev);
       fn(routeToUrlParam(r), q);
     })
   );
 
-  function handleNavigation(e: PopStateEvent) {
+  function handleBack(e: PopStateEvent) {
     const [r, q] = getRelevantRoute();
-    goto(r, q);
+    goto(r, q, { noPush: true });
   }
 
   onMount(() => {
-    window.addEventListener("popstate", handleNavigation);
+    window.addEventListener("popstate", handleBack);
   });
 
   onCleanup(() => {
-    window.removeEventListener("popstate", handleNavigation);
+    window.removeEventListener("popstate", handleBack);
   });
 
   return (

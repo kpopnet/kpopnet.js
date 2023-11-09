@@ -24,6 +24,7 @@ export function setUrlParam(key: string, value: string) {
   // don't escape colon https://stackoverflow.com/q/13713671
   url.search = url.searchParams.toString().replace(/%3A/g, ":");
 
+  // console.log("@@@ PUSH STATE", { key, value });
   history.pushState("", "", url);
 }
 
