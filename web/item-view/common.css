@@ -76,6 +76,11 @@
   position: relative;
 }
 
+.item__show-menu-control {
+  display: inline-block;
+  vertical-align: initial;
+}
+
 .item-links {
   position: absolute;
   background: var(--cc-bodyBG);
