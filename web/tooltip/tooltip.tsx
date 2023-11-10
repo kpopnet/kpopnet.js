@@ -14,7 +14,7 @@ export default function Tooltip(p: { show: boolean; children: JSXElement }) {
       <div
         ref={tooltipEl!}
         class="
-        absolute -top-[40px] whitespace-nowrap
+        absolute -top-[40px] left-0 whitespace-nowrap
         opacity-0 transition-opacity duration-300
         rounded-lg px-3 py-2 text-sm font-medium
         text-white shadow-sm bg-black

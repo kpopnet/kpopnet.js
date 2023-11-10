@@ -13,12 +13,17 @@ export default function Navbar() {
     goto(QueryRoute, "");
   }
 
+  // FIXME(Kagami): fix for small screens
   return (
-    <nav class="navbar" onMouseLeave={() => setShowInfo(false)}>
-      <a onClick={handleHome} class="link navbar__item">
+    <nav
+      class="fixed z-50 top-0 right-0 pt-[10px] pr-[10px]
+      flex justify-end items-start min-w-[100px] min-h-[100px]"
+      onMouseLeave={() => setShowInfo(false)}
+    >
+      <a onClick={handleHome} class="link ml-2.5">
         <IconHome class="icon_control" />
       </a>
-      <a onMouseOver={() => setShowInfo(true)} class="link navbar__item">
+      <a onMouseOver={() => setShowInfo(true)} class="link ml-2.5">
         <IconQuestion class="icon_control" />
       </a>
       <Show when={showInfo()}>
@@ -30,33 +35,37 @@ export default function Navbar() {
 
 function Info() {
   return (
-    <div class="navinfo">
-      <img class="navinfo__logo" src={logo} />
-      <div class="navinfo__text">
-        <p class="navinfo__p">
+    <div
+      class="flex items-center
+      absolute w-[450px] right-[10px] top-[calc(theme(spacing.icon)+10px+5px)]
+      border border-kngray-1 bg-body-bg"
+    >
+      <img class="w-[100px] h-[100px] mr-1" src={logo} />
+      <div>
+        <p>
           <b>kpopnet</b> web app for kpop fans
         </p>
-        <p class="navinfo__p">
+        <p>
           Help and tips:{" "}
           <a
             class="link navinfo__link"
             target="_blank"
             href="https://github.com/kpopnet/kpopnet.json/wiki"
           >
-            <IconWiki class="icon_small navinfo__icon" /> kpopnet/wiki
+            <IconWiki class="icon_small inline-block" /> kpopnet/wiki
           </a>
         </p>
-        <p class="navinfo__p">
+        <p>
           Questions/issues:{" "}
           <a
             class="link navinfo__link"
             target="_blank"
             href="https://github.com/orgs/kpopnet/discussions"
           >
-            <IconGithub class="icon_small navinfo__icon" /> kpopnet/discussions
+            <IconGithub class="icon_small inline-block" /> kpopnet/discussions
           </a>
         </p>
-        <p class="navinfo__p">
+        <p>
           Data sources:{" "}
           <a
             class="link navinfo__link"
@@ -64,7 +73,7 @@ function Info() {
             href="https://selca.kastden.org/noona/"
             rel="noreferrer"
           >
-            <img class="navinfo__icon" src={kastden} />
+            <img class="icon_small inline-block" src={kastden} />
             selca.kastden.org
           </a>
         </p>

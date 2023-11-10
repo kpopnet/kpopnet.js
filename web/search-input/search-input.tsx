@@ -1,6 +1,5 @@
-import { Show, onMount, createEffect, onCleanup, Accessor, on } from "solid-js";
+import { Show, createEffect, type Accessor, on } from "solid-js";
 
-import Spinner from "../spinner/spinner";
 import { IconX } from "../icons/icons";
 import { useRouter } from "../router/router";
 
@@ -32,7 +31,7 @@ export default function SearchInput(p: SearchProps) {
       focus();
       inputEl.select();
       window.scrollTo(0, 0);
-    }),
+    })
   );
 
   createEffect<boolean | undefined>((wasLoading) => {
@@ -47,11 +46,11 @@ export default function SearchInput(p: SearchProps) {
       <input
         name="search"
         ref={inputEl!}
-        class="h-[50px] w-full
-        border border-kngray-1 bg-transparent pr-[calc(theme(spacing.icon)+0.5rem)] text-center text-[30px]
-        outline-none
+        class="h-[50px] w-full px-[calc(theme(spacing.icon)+8px)]
+        bg-transparent text-center text-[30px]
+        border border-kngray-1 focus:border-control-hover outline-none
         placeholder:text-kngray-1 placeholder:opacity-100
-        focus:border-control-hover"
+        "
         value={query()}
         placeholder="Search for idol or group"
         disabled={p.loading || p.disabled}
@@ -64,9 +63,6 @@ export default function SearchInput(p: SearchProps) {
           absolute bottom-0 right-2 top-0 m-auto"
           onClick={handleClearClick}
         />
-      </Show>
-      <Show when={p.loading}>
-        <Spinner />
       </Show>
     </section>
   );

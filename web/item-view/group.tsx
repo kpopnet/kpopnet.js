@@ -11,9 +11,9 @@ export default function GroupView(p: { group: Group; cache: Cache }) {
   const disbandAgo = createMemo(() => getAge(p.group.disband_date || ""));
   const idols = createMemo(() => p.cache.groupIdolsMap.get(p.group.id)!);
   return (
-    <article class="item group">
+    <article class="grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-2.5 mb-cnt-next last:mb-0">
       <Preview url={p.group.thumb_url} id={p.group.id} />
-      <section class="item__info item__info_group">
+      <section class="pl-5 text-[18px]">
         <div class="item__line item__line_name">
           <span class="item__val item__val_name">
             <Searchable k="id" id={p.group.id}>
@@ -66,7 +66,7 @@ function CompanyView(p: { name: string }) {
   return (
     <For each={companies()}>
       {(c) => (
-        <span class="group__company">
+        <span class="peer peer-[]:before:content-[',_']">
           <Searchable k="c">{c}</Searchable>
         </span>
       )}
@@ -75,7 +75,7 @@ function CompanyView(p: { name: string }) {
 }
 function GroupIdolsView(p: { idols: Idol[]; group: Group; cache: Cache }) {
   return (
-    <section class="group__idols">
+    <section class="col-span-2 col-start-1 border-t border-[#d5d5d5] pt-2.5 pl-12">
       <For each={p.idols}>
         {(idol) => <IdolView idol={idol} group={p.group} cache={p.cache} />}
       </For>

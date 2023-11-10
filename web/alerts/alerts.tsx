@@ -58,17 +58,28 @@ export default function GlobalAlerts(p: { children: JSXElement }) {
   return (
     <AlertsContext.Provider value={showAlert}>
       {p.children}
-      <aside class="galerts">
+      <aside class="fixed top-[40px] right-[10px] z-[600]">
         <For each={alerts}>
           {(a) => (
-            <article classList={{ galert: true, galert_closing: a.closing }}>
-              <a class="galert__close-control" onClick={makeClose(a.id)}>
+            <article
+              class="flex min-w-[250px] max-w-[500px] mb-5 p-2.5
+              border border-[#ebccd1] rounded-md
+              text-[#a94442] bg-[#f2dede]
+              "
+              classList={{
+                "opacity-0 transition-opacity duration-1000": a.closing,
+              }}
+            >
+              <a
+                class="text-[22px] -mt-[5px] -mr-[2px] cursor-pointer select-none hover:text-[#333]"
+                onClick={makeClose(a.id)}
+              >
                 ✖
               </a>
               <Show when={a.title}>
-                <header class="galert__title">{a.title}</header>
+                <header class="font-bold text-[larger]">{a.title}</header>
               </Show>
-              <section class="galert__message">{a.message}</section>
+              <section class="break-words">{a.message}</section>
             </article>
           )}
         </For>

@@ -20,7 +20,11 @@ export function Preview(p: { id: string; url: string | null }) {
   const thumbUrl = createMemo(() => p.url || thumbFallbackUrl);
   return (
     <Searchable k="id" id={p.id}>
-      <img class="item__preview" src={thumbUrl()} loading="lazy" />
+      <img
+        class="w-[250px] h-[250px] object-contain select-none"
+        src={thumbUrl()}
+        loading="lazy"
+      />
     </Searchable>
   );
 }
@@ -53,7 +57,11 @@ export function Searchable(p: {
   }
 
   return (
-    <a onClick={handleClick} href={url()} class="item__search">
+    <a
+      onClick={handleClick}
+      href={url()}
+      class="text-body no-underline hover:cursor-pointer hover:text-link-hover"
+    >
       {resolved()}
     </a>
   );
@@ -96,23 +104,23 @@ export function LinkMenu(p: { urls: string[] }) {
   }
   return (
     <div
-      class="item__links"
+      class="self-end relative"
       onMouseOver={() => setShowMenu(true)}
       onMouseLeave={() => setShowMenu(false)}
     >
-      <IconLink class="icon_control item__show-menu-control" />
+      <IconLink class="icon_control inline-block align-baseline" />
       <Show when={showMenu()}>
-        <div class="item-links">
+        <div class="absolute bg-body-bg border border-kngray-1 top-0 right-0 py-2.5 px-4">
           <For each={urls()}>
             {(url) => (
               <a
-                class="link item-links__item"
+                class="link whitespace-nowrap"
                 href={url}
                 target="_blank"
                 rel="noreferrer"
               >
                 {getLinkName(url)}{" "}
-                <IconExternalLink class="icon_control item-links__control" />
+                <IconExternalLink class="icon_small inline-block align-baseline" />
               </a>
             )}
           </For>

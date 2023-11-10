@@ -47,8 +47,7 @@ export default function ItemList(p: { profiles: Profiles; cache: Cache }) {
 
   return (
     <section
-      class="item-list"
-      classList={{ "item-list_empty": !idols().length }}
+      classList={{ "text-center text-[30px] text-[#999]": !idols().length }}
     >
       <Switch>
         <Match when={idols().length}>
@@ -59,7 +58,9 @@ export default function ItemList(p: { profiles: Profiles; cache: Cache }) {
             {(idol) => <IdolView idol={idol} cache={p.cache} />}
           </For>
         </Match>
-        <Match when>No results</Match>
+        <Match when>
+          <div class="mt-cnt-next">No results</div>
+        </Match>
       </Switch>
     </section>
   );

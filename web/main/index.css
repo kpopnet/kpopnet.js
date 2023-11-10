@@ -1,14 +1,52 @@
-@import "./tw.css";
-@import "./base.css";
-@import "./utils.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@import "./main.css";
-@import "../nav/nav.css";
-@import "../icons/icons.css";
-@import "../alerts/alerts.css";
-@import "../spinner/spinner.css";
-@import "../item-list/item-list.css";
-@import "../item-view/item-view.css";
-@import "../item-view/common.css";
-@import "../item-view/idol.css";
-@import "../item-view/group.css";
+@layer base {
+  html,
+  body {
+    @apply h-full;
+  }
+  html {
+    @apply overflow-y-scroll;
+  }
+  body {
+    @apply text-body bg-body-bg font-sans leading-normal;
+  }
+  #index {
+    @apply contents;
+  }
+}
+
+@layer utilities {
+  .link {
+    @apply text-link no-underline hover:cursor-pointer hover:text-link-hover;
+  }
+
+  .icon,
+  .icon_control {
+    @apply w-icon h-icon;
+  }
+  .icon_small {
+    @apply w-icon-sm h-icon-sm;
+  }
+  .icon_control {
+    @apply cursor-pointer select-none text-control hover:text-control-hover;
+  }
+
+  .item__line {
+    @apply flex;
+  }
+  .item__line_name {
+    @apply mb-3 border-b-[5px] border-[#6b6c9a];
+  }
+  .item__val_name {
+    @apply flex-1 text-[30px];
+  }
+  .item__key {
+    @apply flex-[0_0_120px] text-[#bbb] break-words after:content-[':'];
+  }
+  .item__val {
+    @apply break-words;
+  }
+}

@@ -62,14 +62,20 @@ function Main() {
     document.removeEventListener("keydown", handleGlobalHotkeys);
   });
 
+  // FIXME(Kagami): mobile screen
   return (
     <>
       <Navbar />
-      <main class="main" classList={{ main_error: !!err() }}>
+      <main
+        class="flex flex-col w-[800px] min-h-full mx-auto pt-cnt-top pb-cnt-last"
+        classList={{
+          "justify-center items-center text-[30px] text-[#999]": !!err(),
+        }}
+      >
         <Switch fallback={"Invalid route"}>
           <Match when={!cache()}>
             Can't load profile data
-            <div class="main__error-info">{showError(err())}</div>
+            <div class="text-[25px]">{showError(err())}</div>
           </Match>
           <Match when={route() === ItemRoute}>
             <ItemView id={query()} cache={cache()!} />

@@ -36,9 +36,9 @@ export default function IdolView(p: {
     ? getIdolGroupMember(p.idol, p.group, p.cache)
     : null;
   return (
-    <article class="item idol">
+    <article class="grid grid-cols-[auto_1fr] gap-x-2.5 mb-cnt-next last:mb-0">
       <Preview url={p.idol.thumb_url} id={p.idol.id} />
-      <section class="item__info">
+      <section class="pl-5 text-[18px] border-l border-[#d5d5d5]">
         <div class="item__line item__line_name">
           <span class="item__val item__val_name">
             <Searchable k="id" id={p.idol.id}>
@@ -130,11 +130,11 @@ function IdolGroupsView(p: { igroups: IdolGroup[] }) {
             <IdolGroupView ig={mainGroup()!} />
           </Show>
           <Show when={otherGroups().length}>
-            <span class="idol__groups-other">
-              <For each={otherGroups()}>
-                {(ig) => <IdolGroupView ig={ig} other />}
-              </For>
-            </span>
+            {" ("}
+            <For each={otherGroups()}>
+              {(ig) => <IdolGroupView ig={ig} other />}
+            </For>
+            )
           </Show>
         </span>
       </p>
@@ -150,9 +150,8 @@ function IdolGroupView(p: { ig: IdolGroup; other?: boolean }) {
       onMouseLeave={() => setShowTooltip(false)}
       class="relative"
       classList={{
-        idol__group: true,
-        idol__group_other: p.other,
-        idol__group_inactive: !p.ig.gm.current,
+        "peer peer-[]:before:content-[',_']": p.other,
+        "line-through hover:decoration-link-hover": !p.ig.gm.current,
       }}
     >
       <Searchable k="id" id={p.ig.g.id}>
