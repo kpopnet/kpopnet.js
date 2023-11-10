@@ -1,4 +1,4 @@
-import { For, Show, createMemo } from "solid-js";
+import { For, Show, createMemo, createSignal } from "solid-js";
 import type { Group, GroupMember, Idol } from "kpopnet.json";
 
 import {
@@ -8,9 +8,14 @@ import {
 } from "../../lib/search";
 import { getAge } from "../../lib/utils";
 import { Preview, LinkMenu, Searchable, SearchableDate } from "./common";
+import Tooltip from "../tooltip/tooltip";
 
 // TODO(Kagami): cache renders, display:none in <For>?
-export default function IdolView(p: { idol: Idol; cache: Cache }) {
+export default function IdolView(p: {
+  idol: Idol;
+  group?: Group;
+  cache: Cache;
+}) {
   const age = createMemo(() => getAge(p.idol.birth_date));
   const ago = createMemo(() => getAge(p.idol.debut_date || ""));
   // Normally every idol should have it so it's required key in JSON.
@@ -27,6 +32,9 @@ export default function IdolView(p: { idol: Idol; cache: Cache }) {
       gm: getIdolGroupMember(p.idol, group, p.cache)!,
     }));
   });
+  const gmContext = p.group
+    ? getIdolGroupMember(p.idol, p.group, p.cache)
+    : null;
   return (
     <article class="item idol">
       <Preview url={p.idol.thumb_url} id={p.idol.id} />
@@ -36,6 +44,12 @@ export default function IdolView(p: { idol: Idol; cache: Cache }) {
             <Searchable k="id" id={p.idol.id}>
               {p.idol.name}
             </Searchable>
+            <Show when={gmContext?.roles}>
+              <span class="text-base text-kngray-1 align-middle">
+                {" "}
+                ({gmContext!.roles})
+              </span>
+            </Show>
           </span>
           <LinkMenu urls={p.idol.urls} />
         </div>
@@ -129,8 +143,12 @@ function IdolGroupsView(p: { igroups: IdolGroup[] }) {
 }
 
 function IdolGroupView(p: { ig: IdolGroup; other?: boolean }) {
+  const [showTooltip, setShowTooltip] = createSignal(false);
   return (
     <span
+      onMouseEnter={() => setShowTooltip(!!p.ig.gm.roles)}
+      onMouseLeave={() => setShowTooltip(false)}
+      class="relative"
       classList={{
         idol__group: true,
         idol__group_other: p.other,
@@ -140,6 +158,7 @@ function IdolGroupView(p: { ig: IdolGroup; other?: boolean }) {
       <Searchable k="id" id={p.ig.g.id}>
         {p.ig.g.name}
       </Searchable>
+      <Tooltip show={showTooltip()}>{p.ig.gm.roles}</Tooltip>
     </span>
   );
 }

@@ -56,7 +56,7 @@ export default function GroupView(p: { group: Group; cache: Cache }) {
           </p>
         </Show>
       </section>
-      <GroupIdolsView idols={idols()} cache={p.cache} />
+      <GroupIdolsView idols={idols()} group={p.group} cache={p.cache} />
     </article>
   );
 }
@@ -73,11 +73,11 @@ function CompanyView(p: { name: string }) {
     </For>
   );
 }
-function GroupIdolsView(p: { idols: Idol[]; cache: Cache }) {
+function GroupIdolsView(p: { idols: Idol[]; group: Group; cache: Cache }) {
   return (
     <section class="group__idols">
       <For each={p.idols}>
-        {(idol) => <IdolView idol={idol} cache={p.cache} />}
+        {(idol) => <IdolView idol={idol} group={p.group} cache={p.cache} />}
       </For>
     </section>
   );

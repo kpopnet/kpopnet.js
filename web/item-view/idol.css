@@ -11,4 +11,7 @@
 
 .idol__group_inactive {
   text-decoration: line-through;
+  &:hover {
+    text-decoration-color: var(--link-hover);
+  }
 }
