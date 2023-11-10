@@ -2,7 +2,7 @@ import { Match, Switch, createMemo } from "solid-js";
 
 import type { Cache } from "../../lib/search";
 import IdolView from "./idol";
-import GroupView from "./group";
+import { GroupWithIdolsView } from "./group";
 
 /** Show corresponding single item by its id */
 export default function ItemView(p: { id: string; cache: Cache }) {
@@ -16,7 +16,7 @@ export default function ItemView(p: { id: string; cache: Cache }) {
           <IdolView idol={foundIdol()!} cache={p.cache} />
         </Match>
         <Match when={foundGroup()}>
-          <GroupView group={foundGroup()!} cache={p.cache} />
+          <GroupWithIdolsView group={foundGroup()!} cache={p.cache} />
         </Match>
         <Match when>
           Not found

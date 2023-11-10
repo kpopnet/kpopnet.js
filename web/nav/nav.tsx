@@ -1,6 +1,6 @@
 import { Show, createSignal } from "solid-js";
 import { IconGithub, IconHome, IconQuestion, IconWiki } from "../icons/icons";
-import { QueryRoute, useRouter } from "../router/router";
+import { IdolQueryRoute, useRouter } from "../router/router";
 import logo from "./logo.png";
 import kastden from "./kastden.png";
 
@@ -10,7 +10,7 @@ export default function Navbar() {
 
   function handleHome(e: Event) {
     e.preventDefault();
-    goto(QueryRoute, "");
+    goto(IdolQueryRoute, "");
   }
 
   // FIXME(Kagami): fix for small screens

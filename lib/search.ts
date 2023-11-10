@@ -19,6 +19,13 @@ export interface Cache {
   idolGroupNamesMap: IdolGroupNamesMap;
 }
 
+export type Item = Idol | Group;
+export type SearchFn = (
+  query: string,
+  profiles: Profiles,
+  cache: Cache
+) => Item[];
+
 type SearchProp = [string, string];
 interface Query {
   words: string[];
@@ -222,8 +229,14 @@ function matchIdolName(idol: Idol, cache: Cache, val: string): boolean {
 }
 
 // Match all possible group names.
-function matchGroupName(idol: Idol, cache: Cache, val: string): boolean {
+function matchIdolGroupName(idol: Idol, cache: Cache, val: string): boolean {
   return cache.idolGroupNamesMap.get(idol.id)!.includes(val);
+}
+
+// Match group name.
+// TODO(Kagami): cache normalized? but there're not so many groups so not bottleneck
+function matchGroupName(group: Group, val: string): boolean {
+  return normalizeAll(group.name).includes(val);
 }
 
 // Match queries like [group name words] [idol name words]
@@ -238,12 +251,12 @@ function matchIdolOrGroupName(
 
     if (
       matchIdolName(idol, cache, chunk1) &&
-      (chunk2 ? matchGroupName(idol, cache, chunk2) : true)
+      (chunk2 ? matchIdolGroupName(idol, cache, chunk2) : true)
     )
       return true;
 
     if (
-      matchGroupName(idol, cache, chunk1) &&
+      matchIdolGroupName(idol, cache, chunk1) &&
       (chunk2 ? matchIdolName(idol, cache, chunk2) : true)
     )
       return true;
@@ -255,11 +268,15 @@ function matchIdolOrGroupName(
 // Match all idols in groups with given company name.
 // Company names aren't cached in map because this search isn't important.
 // TODO(Kagami): idol should have agency_name field too?
-function matchCompanyName(idol: Idol, cache: Cache, val: string): boolean {
+function matchIdolCompanyName(idol: Idol, cache: Cache, val: string): boolean {
   const groups = cache.idolGroupsMap.get(idol.id)!;
   return groups.some((group) => {
     return normalizeAll(group.agency_name).includes(val);
   });
+}
+
+function matchCompanyName(group: Group, val: string): boolean {
+  return normalizeAll(group.agency_name).includes(val);
 }
 
 function matchDate(idate: string | null, qdate: string): boolean {
@@ -290,10 +307,10 @@ function filterIdol(q: Query, idol: Idol, cache: Cache): boolean {
         if (matchIdolName(idol, cache, val)) return true;
         break;
       case "g":
-        if (matchGroupName(idol, cache, val)) return true;
+        if (matchIdolGroupName(idol, cache, val)) return true;
         break;
       case "c":
-        if (matchCompanyName(idol, cache, val)) return true;
+        if (matchIdolCompanyName(idol, cache, val)) return true;
         break;
       case "d":
         if (matchDate(idol.birth_date, val)) return true;
@@ -312,6 +329,36 @@ function filterIdol(q: Query, idol: Idol, cache: Cache): boolean {
         break;
       case "w":
         if (matchNum(idol.weight, val)) return true;
+        break;
+    }
+    return false;
+  });
+}
+
+function filterGroup(q: Query, group: Group, cache: Cache): boolean {
+  // Fuzzy name matching.
+  if (q.words.length && !matchGroupName(group, q.words.join(""))) return false;
+
+  // Match for exact properties if user requested.
+  return q.props.every(([key, val]) => {
+    switch (key) {
+      case "g":
+        if (matchGroupName(group, val)) return true;
+        break;
+      case "c":
+        if (matchCompanyName(group, val)) return true;
+        break;
+      case "dd":
+        if (matchDate(group.debut_date, val)) return true;
+        break;
+      case "da":
+        if (matchYAgo(group.debut_date, val)) return true;
+        break;
+      case "dbd":
+        if (matchDate(group.disband_date, val)) return true;
+        break;
+      case "dba":
+        if (matchYAgo(group.disband_date, val)) return true;
         break;
     }
     return false;
@@ -342,6 +389,39 @@ export function searchIdols(
   const result = profiles.idols.filter((idol) => filterIdol(q, idol, cache));
   /*dev*/ const tFilter = dev ? performance.now() : 0;
   // result.sort(compareIdols); // TODO: don't sort if query.length < 3 && result.length > 400?
+  /*dev*/ const tSort = dev ? performance.now() : 0;
+  /*dev*/ const tEnd = dev ? tSort : 0;
+
+  if (dev) {
+    const f = (t2: number, t1: number) => (t2 - t1).toFixed(3);
+    console.log(
+      `total:${f(tEnd, tStart)}`,
+      `query:${f(tQuery, tStart)}`,
+      `filter:${f(tFilter, tQuery)}`,
+      `sort:${f(tSort, tFilter)}`,
+      `q:${query}`
+    );
+  }
+  return result;
+}
+
+/**
+ * Find groups matching given query.
+ */
+// TODO(Kagami): Profile/optimize.
+export function searchGroups(
+  query: string,
+  profiles: Profiles,
+  cache: Cache
+): Group[] {
+  /*dev*/ const dev = import.meta.env.DEV;
+  /*dev*/ const tStart = dev ? performance.now() : 0;
+  const q = parseQuery(query);
+  /*dev*/ const tQuery = dev ? performance.now() : 0;
+  const result = profiles.groups.filter((group) =>
+    filterGroup(q, group, cache)
+  );
+  /*dev*/ const tFilter = dev ? performance.now() : 0;
   /*dev*/ const tSort = dev ? performance.now() : 0;
   /*dev*/ const tEnd = dev ? tSort : 0;
 

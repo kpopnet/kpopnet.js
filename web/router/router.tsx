@@ -13,9 +13,10 @@ import {
 import { debounce, getUrlParams, setUrlParam } from "../../lib/utils";
 
 // FIXME(Kagami): HMR seems to be breaking Symbol match.
-export const QueryRoute = "QueryRoute"; // Symbol("QueryRoute");
-export const ItemRoute = "ItemRoute"; // Symbol("ItemRoute");
-type Route = string; // typeof QueryRoute | typeof ItemRoute;
+export const IdolQueryRoute = "IdolQueryRoute";
+export const GroupQueryRoute = "GroupQueryRoute";
+export const ItemRoute = "ItemRoute";
+export type Route = string;
 interface GotoOpts {
   delay?: boolean /** set URL search param with delay to avoid cluttering history */;
   noPush?: boolean /** don't save route in history */;
@@ -23,11 +24,11 @@ interface GotoOpts {
 type RouteContextValue = [
   () => Route,
   () => string,
-  (route: Route | null, query: string, opts?: GotoOpts) => void,
+  (route: Route | null, query: string, opts?: GotoOpts) => void
 ];
 
 const RouterContext = createContext<RouteContextValue>([
-  () => QueryRoute,
+  () => IdolQueryRoute,
   () => "",
   (route: Route | null, query: string, opts: GotoOpts = {}) => {},
 ]);
@@ -36,8 +37,10 @@ export function routeToUrlParam(route: Route): string {
   switch (route) {
     case ItemRoute:
       return "id";
-    case QueryRoute:
+    case IdolQueryRoute:
       return "q";
+    case GroupQueryRoute:
+      return "gq";
     default:
       throw new Error(`Unknown route ${route.toString()}`);
   }
@@ -47,9 +50,10 @@ function getRelevantRoute(): [Route, string] {
   const params = getUrlParams();
   for (const [key, value] of params) {
     if (key === "id") return [ItemRoute, value];
-    if (key === "q") return [QueryRoute, value];
+    if (key === "q") return [IdolQueryRoute, value];
+    if (key === "gq") return [GroupQueryRoute, value];
   }
-  return [QueryRoute, ""];
+  return [IdolQueryRoute, ""];
 }
 
 export default function Router(prop: { children: JSXElement }) {
@@ -72,7 +76,7 @@ export default function Router(prop: { children: JSXElement }) {
       if (r === prev[0] && q === prev[1]) return; // no duplicated entries
       const fn = o.delay ? debounceSetUrlParam : setUrlParam;
       fn(routeToUrlParam(r), q);
-    }),
+    })
   );
 
   function handleBack(e: PopStateEvent) {

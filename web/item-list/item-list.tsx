@@ -11,19 +11,23 @@ import {
   onCleanup,
   createSignal,
 } from "solid-js";
-import type { Profiles } from "kpopnet.json";
+import type { Group, Idol, Profiles } from "kpopnet.json";
 
-import { type Cache, searchIdols } from "../../lib/search";
+import { type Cache, searchIdols, searchGroups } from "../../lib/search";
 import IdolView from "../item-view/idol";
-import { useRouter } from "../router/router";
+import GroupView from "../item-view/group";
+import { IdolQueryRoute, useRouter } from "../router/router";
 
 export default function ItemList(p: { profiles: Profiles; cache: Cache }) {
   const SHOW_PER_PAGE = 20;
-  const [_, query, __] = useRouter();
+  const [route, query, __] = useRouter();
   const [showLastX, setShowLastX] = createSignal(SHOW_PER_PAGE);
 
-  const allIdols = createMemo(() => searchIdols(query(), p.profiles, p.cache));
-  const idols = createMemo(() => allIdols().slice(0, showLastX()));
+  const searchFn = createMemo(() =>
+    route() === IdolQueryRoute ? searchIdols : searchGroups
+  );
+  const allItems = createMemo(() => searchFn()(query(), p.profiles, p.cache));
+  const items = createMemo(() => allItems().slice(0, showLastX()));
 
   function nearBottom() {
     const el = document.documentElement;
@@ -32,7 +36,7 @@ export default function ItemList(p: { profiles: Profiles; cache: Cache }) {
   }
 
   function handleScroll(e: Event) {
-    if (nearBottom() && showLastX() < allIdols().length) {
+    if (nearBottom() && showLastX() < allItems().length) {
       setShowLastX((x) => x + SHOW_PER_PAGE);
     }
   }
@@ -46,14 +50,20 @@ export default function ItemList(p: { profiles: Profiles; cache: Cache }) {
   });
 
   return (
-    <section classList={{ "text-center err": !idols().length }}>
+    <section classList={{ "text-center err": !items().length }}>
       <Switch>
-        <Match when={idols().length}>
+        <Match when={items().length}>
           <div class="text-center mt-2 mb-cnt-next text-kngray-1 text-sm">
-            {allIdols().length} result{allIdols().length > 1 ? "s" : ""}
+            {allItems().length} result{allItems().length > 1 ? "s" : ""}
           </div>
-          <For each={idols()}>
-            {(idol) => <IdolView idol={idol} cache={p.cache} />}
+          <For each={items()}>
+            {(item) =>
+              route() === IdolQueryRoute ? (
+                <IdolView idol={item as Idol} cache={p.cache} />
+              ) : (
+                <GroupView group={item as Group} cache={p.cache} />
+              )
+            }
           </For>
         </Match>
         <Match when>

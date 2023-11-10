@@ -9,9 +9,11 @@ import {
 
 import {
   ItemRoute,
-  QueryRoute,
+  IdolQueryRoute,
   routeToUrlParam,
   useRouter,
+  type Route,
+  GroupQueryRoute,
 } from "../router/router";
 import { IconExternalLink, IconLink } from "../icons/icons";
 import thumbFallbackUrl from "./no-preview.svg?url";
@@ -44,11 +46,15 @@ export function Searchable(p: {
   k: string;
   id?: string;
   q?: string;
+  gq?: boolean /** indicate group query */;
   children: JSXElement;
 }) {
   const [_, __, goto] = useRouter();
   const resolved = children(() => p.children);
-  const newRoute = () => (p.k === "id" ? ItemRoute : QueryRoute);
+  const newRoute = () => {
+    if (p.k === "id") return ItemRoute;
+    return p.gq ? GroupQueryRoute : IdolQueryRoute;
+  };
   const newQuery = () => (p.k === "id" ? p.id! : p.k + ":" + normalizeQuery());
   const urlParam = () => routeToUrlParam(newRoute());
   const url = createMemo(
@@ -78,23 +84,23 @@ export function Searchable(p: {
   );
 }
 
-export function SearchableDate(p: { k: string; q: string }) {
+export function SearchableDate(p: { k: string; q: string; gq?: boolean }) {
   const y = createMemo(() => p.q.split("-")[0]);
   const m = createMemo(() => p.q.split("-")[1]);
   const d = createMemo(() => p.q.split("-")[2]);
   return (
     <>
-      <Searchable k={p.k} q={y()}>
+      <Searchable k={p.k} q={y()} gq={p.gq}>
         {y()}
       </Searchable>
       <Show when={m() !== "00"}>
         -
-        <Searchable k={p.k} q={y() + "-" + m()}>
+        <Searchable k={p.k} q={y() + "-" + m()} gq={p.gq}>
           {m()}
         </Searchable>
         <Show when={d() !== "00"}>
           -
-          <Searchable k={p.k} q={p.q}>
+          <Searchable k={p.k} q={p.q} gq={p.gq}>
             {d()}
           </Searchable>
         </Show>

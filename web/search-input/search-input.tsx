@@ -1,7 +1,7 @@
-import { Show, createEffect, type Accessor, on } from "solid-js";
+import { Show, createEffect, type Accessor, on, createMemo } from "solid-js";
 
 import { IconX } from "../icons/icons";
-import { useRouter } from "../router/router";
+import { IdolQueryRoute, useRouter } from "../router/router";
 
 interface SearchProps {
   focus: Accessor<number>;
@@ -10,11 +10,12 @@ interface SearchProps {
 }
 
 export default function SearchInput(p: SearchProps) {
-  const [_, query, goto] = useRouter();
+  const [route, query, goto] = useRouter();
   let inputEl: HTMLInputElement;
 
   function focus() {
     inputEl.focus();
+    inputEl.selectionStart = inputEl.selectionEnd = inputEl.value.length;
   }
 
   function handleInputChange() {
@@ -27,19 +28,31 @@ export default function SearchInput(p: SearchProps) {
   }
 
   createEffect(
+    on(route, (r, prev) => {
+      if (r !== prev) {
+        focus();
+      }
+    })
+  );
+  createEffect(
+    // from hotkey
     on(p.focus, () => {
       focus();
-      inputEl.select();
+      // inputEl.select();
       window.scrollTo(0, 0);
     })
   );
 
-  createEffect<boolean | undefined>((wasLoading) => {
-    if (wasLoading && !p.loading) {
-      focus();
-    }
-    return p.loading;
-  }, p.loading);
+  // createEffect<boolean | undefined>((wasLoading) => {
+  //   if (wasLoading && !p.loading) {
+  //     focus();
+  //   }
+  //   return p.loading;
+  // }, p.loading);
+
+  const placeholder = createMemo(
+    () => `Search for ${route() === IdolQueryRoute ? "idol" : "group"}`
+  );
 
   return (
     <section class="relative">
@@ -52,7 +65,7 @@ export default function SearchInput(p: SearchProps) {
         placeholder:text-kngray-1 placeholder:opacity-100
         "
         value={query()}
-        placeholder="Search for idol or group"
+        placeholder={placeholder()}
         disabled={p.loading || p.disabled}
         spellcheck={false}
         onInput={handleInputChange}

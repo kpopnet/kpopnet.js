@@ -9,8 +9,14 @@ import SearchInput from "../search-input/search-input";
 import ItemList from "../item-list/item-list";
 import ItemView from "../item-view/item-view";
 import { type Cache, makeCache } from "../../lib/search";
-import Router, { ItemRoute, QueryRoute, useRouter } from "../router/router";
+import Router, {
+  ItemRoute,
+  IdolQueryRoute,
+  useRouter,
+  GroupQueryRoute,
+} from "../router/router";
 import Navbar from "../nav/nav";
+import Tabs from "../tabs/tabs";
 
 export default function MainContext() {
   return (
@@ -36,11 +42,13 @@ function Main() {
   function handleGlobalHotkeys(event: KeyboardEvent) {
     if (event.key == "k" && (event.ctrlKey || event.metaKey)) {
       event.preventDefault();
-      if (route() !== QueryRoute) {
-        goto(QueryRoute, "");
+      if (route() === IdolQueryRoute || route() === GroupQueryRoute) {
+        // XXX(Kagami): need to keep triggering this signal somehow...
+        setFocus(focus() + 1);
+      } else {
+        // input watches for route change itself, don't need to call manually here
+        goto(IdolQueryRoute, "");
       }
-      // XXX(Kagami): need to keep triggering this signal somehow...
-      setFocus(focus() + 1);
     }
   }
 
@@ -57,10 +65,13 @@ function Main() {
     <>
       <Navbar />
       <main
-        class="flex flex-col w-[800px] min-h-full mx-auto pt-cnt-top pb-cnt-last"
-        classList={{ "justify-center items-center err": !!err() }}
+        class="flex flex-col w-[800px] min-h-full mx-auto pb-cnt-last"
+        classList={{
+          "justify-center items-center err": !!err(),
+          "pt-cnt-top": route() === ItemRoute,
+        }}
       >
-        <Switch fallback={"Invalid route"}>
+        <Switch>
           <Match when={!cache()}>
             Can't load profile data
             <div class="err-sm">{showError(err())}</div>
@@ -68,7 +79,8 @@ function Main() {
           <Match when={route() === ItemRoute}>
             <ItemView id={query()} cache={cache()!} />
           </Match>
-          <Match when={route() === QueryRoute}>
+          <Match when>
+            <Tabs />
             <SearchInput focus={focus} />
             <ItemList profiles={profiles} cache={cache()!} />
           </Match>
