@@ -46,7 +46,9 @@ function Main() {
   function handleGlobalHotkeys(event: KeyboardEvent) {
     if (event.key == "k" && (event.ctrlKey || event.metaKey)) {
       event.preventDefault();
-      goto(QueryRoute, "");
+      if (route() !== QueryRoute) {
+        goto(QueryRoute, "");
+      }
       // XXX(Kagami): need to keep triggering this signal somehow...
       setFocus(focus() + 1);
     }

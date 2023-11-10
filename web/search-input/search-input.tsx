@@ -27,24 +27,13 @@ export default function SearchInput(p: SearchProps) {
     setTimeout(focus);
   }
 
-  function handleGlobalHotkeys(event: KeyboardEvent) {
-    if (event.key == "/") {
-      event.preventDefault();
+  createEffect(
+    on(p.focus, () => {
       focus();
       inputEl.select();
       window.scrollTo(0, 0);
-    }
-  }
-
-  onMount(() => {
-    document.addEventListener("keydown", handleGlobalHotkeys);
-  });
-
-  onCleanup(() => {
-    document.removeEventListener("keydown", handleGlobalHotkeys);
-  });
-
-  createEffect(on(p.focus, focus));
+    }),
+  );
 
   createEffect<boolean | undefined>((wasLoading) => {
     if (wasLoading && !p.loading) {
