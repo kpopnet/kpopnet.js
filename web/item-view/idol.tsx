@@ -7,7 +7,13 @@ import {
   type Cache,
 } from "../../lib/search";
 import { getAge } from "../../lib/utils";
-import { Preview, LinkMenu, Searchable, SearchableDate } from "./common";
+import {
+  Preview,
+  LinkMenu,
+  Searchable,
+  SearchableDate,
+  ItemLine,
+} from "./common";
 import Tooltip from "../tooltip/tooltip";
 
 // TODO(Kagami): cache renders, display:none in <For>?
@@ -39,8 +45,8 @@ export default function IdolView(p: {
     <article class="grid grid-cols-[auto_1fr] gap-x-2.5 mb-cnt-next last:mb-0">
       <Preview url={p.idol.thumb_url} id={p.idol.id} />
       <section class="pl-5 text-[18px] border-l border-[#d5d5d5]">
-        <div class="item__line item__line_name">
-          <span class="item__val item__val_name">
+        <div class="item__line_name">
+          <span class="item__val_name">
             <Searchable k="id" id={p.idol.id}>
               {p.idol.name}
             </Searchable>
@@ -53,55 +59,37 @@ export default function IdolView(p: {
           </span>
           <LinkMenu urls={p.idol.urls} />
         </div>
-        <p class="item__line">
-          <span class="item__key">Name</span>
-          <span class="item__val">
-            <Searchable k="n">{p.idol.name}</Searchable> (
-            <Searchable k="n">{p.idol.name_original}</Searchable>)
-          </span>
-        </p>
+        <ItemLine name="Name">
+          <Searchable k="n">{p.idol.name}</Searchable> (
+          <Searchable k="n">{p.idol.name_original}</Searchable>)
+        </ItemLine>
         <Show when={!unknownRealName()}>
-          <p class="item__line">
-            <span class="item__key">Real name</span>
-            <span class="item__val">
-              <Searchable k="n">{p.idol.real_name}</Searchable> (
-              <Searchable k="n">{p.idol.real_name_original}</Searchable>)
-            </span>
-          </p>
+          <ItemLine name="Real name">
+            <Searchable k="n">{p.idol.real_name}</Searchable> (
+            <Searchable k="n">{p.idol.real_name_original}</Searchable>)
+          </ItemLine>
         </Show>
-        <p class="item__line">
-          <span class="item__key">Birthday</span>
-          <span class="item__val">
-            <SearchableDate k="d" q={p.idol.birth_date} /> (
-            <Searchable k="a">{age()}</Searchable>)
-          </span>
-        </p>
+        <ItemLine name="Birthday">
+          <SearchableDate k="d" q={p.idol.birth_date} /> (
+          <Searchable k="a">{age()}</Searchable>)
+        </ItemLine>
         <IdolGroupsView igroups={igroups()} />
         <Show when={p.idol.debut_date}>
-          <p class="item__line">
-            <span class="item__key">Debut date</span>
-            <span class="item__val">
-              <SearchableDate k="dd" q={p.idol.debut_date!} /> (
-              <Searchable k="da">{ago()}</Searchable> year
-              {ago() === 1 ? "" : "s"} ago)
-            </span>
-          </p>
+          <ItemLine name="Debut date">
+            <SearchableDate k="dd" q={p.idol.debut_date!} /> (
+            <Searchable k="da">{ago()}</Searchable> year
+            {ago() === 1 ? "" : "s"} ago)
+          </ItemLine>
         </Show>
         <Show when={p.idol.height}>
-          <p class="item__line">
-            <span class="item__key">Height</span>
-            <span class="item__val">
-              <Searchable k="h">{p.idol.height}</Searchable> cm
-            </span>
-          </p>
+          <ItemLine name="Height">
+            <Searchable k="h">{p.idol.height}</Searchable> cm
+          </ItemLine>
         </Show>
         <Show when={p.idol.weight}>
-          <p class="item__line">
-            <span class="item__key">Weight</span>
-            <span class="item__val">
-              <Searchable k="w">{p.idol.weight}</Searchable> kg
-            </span>
-          </p>
+          <ItemLine name="Weight">
+            <Searchable k="w">{p.idol.weight}</Searchable> kg
+          </ItemLine>
         </Show>
       </section>
     </article>
@@ -123,21 +111,18 @@ function IdolGroupsView(p: { igroups: IdolGroup[] }) {
   );
   return (
     <Show when={p.igroups.length}>
-      <p class="item__line">
-        <span class="item__key">Groups</span>
-        <span class="item__val">
-          <Show when={mainGroup()}>
-            <IdolGroupView ig={mainGroup()!} />
-          </Show>
-          <Show when={otherGroups().length}>
-            {" ("}
-            <For each={otherGroups()}>
-              {(ig) => <IdolGroupView ig={ig} other />}
-            </For>
-            )
-          </Show>
-        </span>
-      </p>
+      <ItemLine name="Groups">
+        <Show when={mainGroup()}>
+          <IdolGroupView ig={mainGroup()!} />
+        </Show>
+        <Show when={otherGroups().length}>
+          {" ("}
+          <For each={otherGroups()}>
+            {(ig) => <IdolGroupView ig={ig} other />}
+          </For>
+          )
+        </Show>
+      </ItemLine>
     </Show>
   );
 }

@@ -29,6 +29,17 @@ export function Preview(p: { id: string; url: string | null }) {
   );
 }
 
+export function ItemLine(p: { name: string; children: JSXElement }) {
+  return (
+    <p class="flex">
+      <span class="flex-[0_0_120px] text-[#bbb] break-words after:content-[':']">
+        {p.name}
+      </span>
+      <span class="break-words">{p.children}</span>
+    </p>
+  );
+}
+
 export function Searchable(p: {
   k: string;
   id?: string;

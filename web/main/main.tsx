@@ -2,17 +2,9 @@
  * Application entry point.
  */
 
-import {
-  Match,
-  Show,
-  Switch,
-  createSignal,
-  onCleanup,
-  onMount,
-} from "solid-js";
+import { Match, Switch, createSignal, onCleanup, onMount } from "solid-js";
 import profiles from "kpopnet.json";
 
-import GlobalAlerts from "../alerts/alerts";
 import SearchInput from "../search-input/search-input";
 import ItemList from "../item-list/item-list";
 import ItemView from "../item-view/item-view";
@@ -23,9 +15,7 @@ import Navbar from "../nav/nav";
 export default function MainContext() {
   return (
     <Router>
-      <GlobalAlerts>
-        <Main />
-      </GlobalAlerts>
+      <Main />
     </Router>
   );
 }
@@ -68,14 +58,12 @@ function Main() {
       <Navbar />
       <main
         class="flex flex-col w-[800px] min-h-full mx-auto pt-cnt-top pb-cnt-last"
-        classList={{
-          "justify-center items-center text-[30px] text-[#999]": !!err(),
-        }}
+        classList={{ "justify-center items-center err": !!err() }}
       >
         <Switch fallback={"Invalid route"}>
           <Match when={!cache()}>
             Can't load profile data
-            <div class="text-[25px]">{showError(err())}</div>
+            <div class="err-sm">{showError(err())}</div>
           </Match>
           <Match when={route() === ItemRoute}>
             <ItemView id={query()} cache={cache()!} />

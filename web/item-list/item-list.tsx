@@ -46,9 +46,7 @@ export default function ItemList(p: { profiles: Profiles; cache: Cache }) {
   });
 
   return (
-    <section
-      classList={{ "text-center text-[30px] text-[#999]": !idols().length }}
-    >
+    <section classList={{ "text-center err": !idols().length }}>
       <Switch>
         <Match when={idols().length}>
           <div class="text-center mt-2 mb-cnt-next text-kngray-1 text-sm">
