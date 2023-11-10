@@ -1,11 +1,11 @@
-import { Show, onMount, createEffect, onCleanup, on } from "solid-js";
-import type { Setter } from "solid-js";
+import { Show, onMount, createEffect, onCleanup, Accessor, on } from "solid-js";
 
 import Spinner from "../spinner/spinner";
 import { IconX } from "../icons/icons";
 import { useRouter } from "../router/router";
 
 interface SearchProps {
+  focus: Accessor<number>;
   loading?: boolean;
   disabled?: boolean;
 }
@@ -37,13 +37,14 @@ export default function SearchInput(p: SearchProps) {
   }
 
   onMount(() => {
-    focus();
     document.addEventListener("keydown", handleGlobalHotkeys);
   });
 
   onCleanup(() => {
     document.removeEventListener("keydown", handleGlobalHotkeys);
   });
+
+  createEffect(on(p.focus, focus));
 
   createEffect<boolean | undefined>((wasLoading) => {
     if (wasLoading && !p.loading) {

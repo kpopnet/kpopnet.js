@@ -2,7 +2,14 @@
  * Application entry point.
  */
 
-import { Match, Show, Switch, createSignal } from "solid-js";
+import {
+  Match,
+  Show,
+  Switch,
+  createSignal,
+  onCleanup,
+  onMount,
+} from "solid-js";
 import profiles from "kpopnet.json";
 
 import GlobalAlerts from "../alerts/alerts";
@@ -26,13 +33,31 @@ export default function MainContext() {
 function Main() {
   const [cache, setCache] = createSignal<Cache>();
   const [err, setErr] = createSignal<any>();
-  const [route, query, _] = useRouter();
+  const [focus, setFocus] = createSignal(0);
+  const [route, query, goto] = useRouter();
 
   new Promise(() => {
     setCache(makeCache(profiles));
   }).catch((e) => {
     console.error(e);
     setErr(e);
+  });
+
+  function handleGlobalHotkeys(event: KeyboardEvent) {
+    if (event.key == "k" && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      goto(QueryRoute, "");
+      // XXX(Kagami): need to keep triggering this signal somehow...
+      setFocus(focus() + 1);
+    }
+  }
+
+  onMount(() => {
+    document.addEventListener("keydown", handleGlobalHotkeys);
+  });
+
+  onCleanup(() => {
+    document.removeEventListener("keydown", handleGlobalHotkeys);
   });
 
   return (
@@ -48,7 +73,7 @@ function Main() {
             <ItemView id={query()} cache={cache()!} />
           </Match>
           <Match when={route() === QueryRoute}>
-            <SearchInput />
+            <SearchInput focus={focus} />
             <ItemList profiles={profiles} cache={cache()!} />
           </Match>
         </Switch>

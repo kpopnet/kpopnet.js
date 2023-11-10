@@ -23,7 +23,7 @@ interface GotoOpts {
 type RouteContextValue = [
   () => Route,
   () => string,
-  (route: Route | null, query: string, opts?: GotoOpts) => void
+  (route: Route | null, query: string, opts?: GotoOpts) => void,
 ];
 
 const RouterContext = createContext<RouteContextValue>([
@@ -67,12 +67,12 @@ export default function Router(prop: { children: JSXElement }) {
   createEffect(
     on(view, ([r, q, o], prev) => {
       // console.log("@@@ route", [r, q, o], prev);
-      if (prev == null || o.noPush) return;
+      if (prev == null || o.noPush) return; // don't do anything on start or "Go Back"
+      window.scrollTo(0, 0); // scroll even if same route because user clicked something
       if (r === prev[0] && q === prev[1]) return; // no duplicated entries
-      window.scrollTo(0, 0);
       const fn = o.delay ? debounceSetUrlParam : setUrlParam;
       fn(routeToUrlParam(r), q);
-    })
+    }),
   );
 
   function handleBack(e: PopStateEvent) {
