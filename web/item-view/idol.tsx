@@ -13,15 +13,24 @@ import {
   Searchable,
   SearchableDate,
   ItemLine,
+  ItemName,
 } from "./common";
 import Tooltip from "../tooltip/tooltip";
 
-// TODO(Kagami): cache renders, display:none in <For>?
 export default function IdolView(p: {
   idol: Idol;
   group?: Group;
   cache: Cache;
 }) {
+  return (
+    <article class="flex sm:gap-x-2.5 mb-cnt-next last:mb-0">
+      <Preview url={p.idol.thumb_url} id={p.idol.id} />
+      <IdolInfoView idol={p.idol} group={p.group} cache={p.cache} />
+    </article>
+  );
+}
+
+function IdolInfoView(p: { idol: Idol; group?: Group; cache: Cache }) {
   const age = createMemo(() => getAge(p.idol.birth_date));
   const ago = createMemo(() => getAge(p.idol.debut_date || ""));
   // Normally every idol should have it so it's required key in JSON.
@@ -42,57 +51,51 @@ export default function IdolView(p: {
     ? getIdolGroupMember(p.idol, p.group, p.cache)
     : null;
   return (
-    <article class="flex gap-x-2.5 mb-cnt-next last:mb-0">
-      <Preview url={p.idol.thumb_url} id={p.idol.id} />
-      <section class="flex-1 pl-5 text-[18px] border-l border-[#d5d5d5]">
-        <div class="item__line_name">
-          <span class="item__val_name">
-            <Searchable k="id" id={p.idol.id}>
-              {p.idol.name}
-            </Searchable>
-            <Show when={gmContext?.roles}>
-              <span class="text-base text-kngray-1 align-middle">
-                {" "}
-                ({gmContext!.roles})
-              </span>
-            </Show>
+    <section
+      class="flex-1 overflow-hidden border-[#d5d5d5]
+        pl-1 sm:pl-5 text-sm sm:text-lg sm:border-l"
+    >
+      <ItemName id={p.idol.id} name={p.idol.name} urls={p.idol.urls}>
+        <Show when={gmContext?.roles}>
+          <span class="text-base text-kngray-1 align-middle">
+            {" "}
+            ({gmContext!.roles})
           </span>
-          <LinkMenu urls={p.idol.urls} />
-        </div>
-        <ItemLine name="Name">
-          <Searchable k="n">{p.idol.name}</Searchable> (
-          <Searchable k="n">{p.idol.name_original}</Searchable>)
+        </Show>
+      </ItemName>
+      <ItemLine name="Name">
+        <Searchable k="n">{p.idol.name}</Searchable> (
+        <Searchable k="n">{p.idol.name_original}</Searchable>)
+      </ItemLine>
+      <Show when={!unknownRealName()}>
+        <ItemLine name="Real name">
+          <Searchable k="n">{p.idol.real_name}</Searchable> (
+          <Searchable k="n">{p.idol.real_name_original}</Searchable>)
         </ItemLine>
-        <Show when={!unknownRealName()}>
-          <ItemLine name="Real name">
-            <Searchable k="n">{p.idol.real_name}</Searchable> (
-            <Searchable k="n">{p.idol.real_name_original}</Searchable>)
-          </ItemLine>
-        </Show>
-        <ItemLine name="Birthday">
-          <SearchableDate k="d" q={p.idol.birth_date} /> (
-          <Searchable k="a">{age()}</Searchable>)
+      </Show>
+      <ItemLine name="Birthday">
+        <SearchableDate k="d" q={p.idol.birth_date} /> (
+        <Searchable k="a">{age()}</Searchable>)
+      </ItemLine>
+      <IdolGroupsView igroups={igroups()} />
+      <Show when={p.idol.debut_date}>
+        <ItemLine name="Debut date">
+          <SearchableDate k="dd" q={p.idol.debut_date!} /> (
+          <Searchable k="da">{ago()}</Searchable> year
+          {ago() === 1 ? "" : "s"} ago)
         </ItemLine>
-        <IdolGroupsView igroups={igroups()} />
-        <Show when={p.idol.debut_date}>
-          <ItemLine name="Debut date">
-            <SearchableDate k="dd" q={p.idol.debut_date!} /> (
-            <Searchable k="da">{ago()}</Searchable> year
-            {ago() === 1 ? "" : "s"} ago)
-          </ItemLine>
-        </Show>
-        <Show when={p.idol.height}>
-          <ItemLine name="Height">
-            <Searchable k="h">{p.idol.height}</Searchable> cm
-          </ItemLine>
-        </Show>
-        <Show when={p.idol.weight}>
-          <ItemLine name="Weight">
-            <Searchable k="w">{p.idol.weight}</Searchable> kg
-          </ItemLine>
-        </Show>
-      </section>
-    </article>
+      </Show>
+      <Show when={p.idol.height}>
+        <ItemLine name="Height">
+          <Searchable k="h">{p.idol.height}</Searchable> cm
+        </ItemLine>
+      </Show>
+      <Show when={p.idol.weight}>
+        <ItemLine name="Weight">
+          <Searchable k="w">{p.idol.weight}</Searchable> kg
+        </ItemLine>
+      </Show>
+    </section>
   );
 }
 

@@ -12,7 +12,6 @@ import {
   IdolQueryRoute,
   routeToUrlParam,
   useRouter,
-  type Route,
   GroupQueryRoute,
 } from "../router/router";
 import { IconExternalLink, IconLink } from "../icons/icons";
@@ -21,9 +20,11 @@ import thumbFallbackUrl from "./no-preview.svg?url";
 export function Preview(p: { id: string; url: string | null }) {
   const thumbUrl = createMemo(() => p.url || thumbFallbackUrl);
   return (
-    <Searchable k="id" id={p.id}>
+    <Searchable k="id" id={p.id} class="flex-shrink-0">
       <img
-        class="w-[250px] h-[250px] object-contain select-none"
+        class="w-[150px] h-[150px]
+        sm:w-[250px] sm:h-[250px]
+        object-contain select-none"
         src={thumbUrl()}
         loading="lazy"
       />
@@ -31,13 +32,40 @@ export function Preview(p: { id: string; url: string | null }) {
   );
 }
 
+export function ItemName(p: {
+  id: string;
+  name: string;
+  urls: string[];
+  children?: JSXElement;
+}) {
+  return (
+    <div
+      class="flex mb-1 sm:mb-3
+      border-b-2 sm:border-b-4 border-[#6b6c9a]"
+    >
+      <span class="flex-1 text-[20px] sm:text-[30px]">
+        <Searchable k="id" id={p.id}>
+          {p.name}
+        </Searchable>
+        {p.children}
+      </span>
+      <LinkMenu urls={p.urls} />
+    </div>
+  );
+}
+
 export function ItemLine(p: { name: string; children: JSXElement }) {
   return (
     <p class="flex">
-      <span class="flex-[0_0_120px] text-[#bbb] break-words after:content-[':']">
+      <span
+        class="text-[#bbb] after:content-[':_'] after:whitespace-pre
+        flex-[0_0_80px] sm:flex-[0_0_120px]"
+      >
         {p.name}
       </span>
-      <span class="break-words">{p.children}</span>
+      <span class="whitespace-nowrap overflow-hidden text-ellipsis">
+        {p.children}
+      </span>
     </p>
   );
 }
@@ -47,6 +75,7 @@ export function Searchable(p: {
   id?: string;
   q?: string;
   gq?: boolean /** indicate group query */;
+  class?: string;
   children: JSXElement;
 }) {
   const [_, __, goto] = useRouter();
@@ -78,6 +107,7 @@ export function Searchable(p: {
       onClick={handleClick}
       href={url()}
       class="text-body no-underline hover:cursor-pointer hover:text-link-hover"
+      classList={{ [p.class ?? ""]: true }}
     >
       {resolved()}
     </a>

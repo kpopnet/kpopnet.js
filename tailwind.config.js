@@ -14,9 +14,15 @@ export default {
       spacing: {
         icon: "24px",
         "icon-sm": "16px",
-        "cnt-top": "32px",
-        "cnt-next": "48px",
-        "cnt-last": "96px",
+        "cnt-top": "var(--cnt-top)",
+        "cnt-next": "var(--cnt-next)",
+        "cnt-last": "var(--cnt-last)",
+      },
+      screens: {
+        md: "800px",
+      },
+      fontSize: {
+        lg: ["18px", "24px"],
       },
       fontFamily: {
         sans: ["Helvetica", "sans-serif"],

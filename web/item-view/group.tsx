@@ -9,6 +9,7 @@ import {
   Searchable,
   SearchableDate,
   ItemLine,
+  ItemName,
 } from "./common";
 import IdolView from "./idol";
 
@@ -40,18 +41,12 @@ function GroupInfoView(p: { group: Group; cache: Cache; withIdols?: boolean }) {
   const disbandAgo = createMemo(() => getAge(p.group.disband_date || ""));
   return (
     <section
-      class="flex-1 pl-5 text-[18px]"
-      classList={{ "border-l border-[#d5d5d5]": !p.withIdols }}
+      class="flex-1 overflow-hidden
+        pl-1 sm:pl-5 text-sm sm:text-lg"
+      classList={{ "sm:border-l border-[#d5d5d5]": !p.withIdols }}
     >
-      <div class="item__line_name">
-        <span class="item__val_name">
-          <Searchable k="id" id={p.group.id}>
-            {p.group.name}
-          </Searchable>
-        </span>
-        <LinkMenu urls={p.group.urls} />
-      </div>
-      <ItemLine name="Name">
+      <ItemName id={p.group.id} name={p.group.name} urls={p.group.urls} />
+      <ItemLine name="Group">
         <Searchable k="g" gq>
           {p.group.name}
         </Searchable>{" "}
@@ -104,7 +99,7 @@ function CompanyView(p: { name: string }) {
 }
 function GroupIdolsView(p: { idols: Idol[]; group: Group; cache: Cache }) {
   return (
-    <section class="col-span-2 col-start-1 border-t border-[#d5d5d5] pt-2.5 pl-12">
+    <section class="col-span-2 col-start-1 border-t border-[#d5d5d5] pt-2.5 sm:pl-12">
       <For each={p.idols}>
         {(idol) => <IdolView idol={idol} group={p.group} cache={p.cache} />}
       </For>

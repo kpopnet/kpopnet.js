@@ -13,22 +13,31 @@ export default function Navbar() {
     goto(IdolQueryRoute, "");
   }
 
-  // FIXME(Kagami): fix for small screens
   return (
     <nav
-      class="fixed z-50 top-0 right-0 pt-[10px] pr-[10px]
-      flex justify-end items-start min-w-[100px] min-h-[100px]"
-      onMouseLeave={() => setShowInfo(false)}
+      class="min-[1000px]:fixed min-[1000px]:top-0 min-[1000px]:right-0 z-50
+      md:w-[800px] p-[10px] mx-auto pointer-events-none
+      flex justify-end relative"
     >
-      <a onClick={handleHome} class="link ml-2.5">
-        <IconHome class="icon_control" />
-      </a>
-      <a onMouseOver={() => setShowInfo(true)} class="link ml-2.5">
-        <IconQuestion class="icon_control" />
-      </a>
-      <Show when={showInfo()}>
-        <Info />
-      </Show>
+      <div
+        // This 100x100 wrapper is for catching mouseleave event
+        class="flex justify-end items-start w-[100px] min-[1000px]:h-[100px] pointer-events-auto"
+        onMouseLeave={() => setShowInfo(false)}
+      >
+        <a onClick={handleHome} class="link ml-2.5">
+          <IconHome class="icon_control" />
+        </a>
+        <a
+          class="link ml-2.5"
+          onMouseOver={() => setShowInfo(true)}
+          onTouchStart={() => setShowInfo(!showInfo())}
+        >
+          <IconQuestion class="icon_control" />
+        </a>
+        <Show when={showInfo()}>
+          <Info />
+        </Show>
+      </div>
     </nav>
   );
 }
@@ -36,11 +45,11 @@ export default function Navbar() {
 function Info() {
   return (
     <div
-      class="flex items-center
-      absolute w-[450px] right-[10px] top-[calc(theme(spacing.icon)+10px+5px)]
+      class="flex items-center gap-x-1 pr-1 absolute
+      ml-[10px] right-[10px] top-[calc(theme(spacing.icon)+10px+5px)]
       border border-kngray-1 bg-body-bg"
     >
-      <img class="w-[100px] h-[100px] mr-1" src={logo} />
+      <img class="w-[100px] h-[100px]" src={logo} />
       <div>
         <p>
           <b>kpopnet</b> web app for kpop fans
@@ -56,7 +65,7 @@ function Info() {
           </a>
         </p>
         <p>
-          Questions/issues:{" "}
+          Questions:{" "}
           <a
             class="link navinfo__link"
             target="_blank"

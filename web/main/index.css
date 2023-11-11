@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* resolution-dependent spacing */
+@layer base {
+  :root {
+    --cnt-top: 15px;
+    --cnt-next: 25px;
+    --cnt-last: 50px;
+  }
+  @media screen(sm) {
+    :root {
+      --cnt-top: 30px;
+      --cnt-next: 50px;
+      --cnt-last: 100px;
+    }
+  }
+}
+
 @layer base {
   html,
   body {
@@ -39,12 +55,5 @@
   }
   .icon_control {
     @apply cursor-pointer select-none text-control hover:text-control-hover;
-  }
-
-  .item__line_name {
-    @apply flex mb-3 border-b-[5px] border-[#6b6c9a];
-  }
-  .item__val_name {
-    @apply flex-1 text-[30px];
   }
 }

@@ -1,4 +1,4 @@
-import { JSX, JSXElement, Show, createEffect } from "solid-js";
+import { JSXElement, Show, createEffect } from "solid-js";
 
 export default function Tooltip(p: { show: boolean; children: JSXElement }) {
   let tooltipEl: HTMLDivElement;

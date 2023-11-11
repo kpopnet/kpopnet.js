@@ -60,15 +60,15 @@ function Main() {
     document.removeEventListener("keydown", handleGlobalHotkeys);
   });
 
-  // FIXME(Kagami): mobile screen
   return (
     <>
       <Navbar />
       <main
-        class="flex flex-col w-[800px] min-h-full mx-auto pb-cnt-last"
+        class="flex flex-col min-h-full pb-cnt-last
+        md:w-[800px] px-[10px] mx-auto"
         classList={{
-          "justify-center items-center err": !!err(),
           "pt-cnt-top": route() === ItemRoute,
+          "justify-center items-center err": !!err(),
         }}
       >
         <Switch>

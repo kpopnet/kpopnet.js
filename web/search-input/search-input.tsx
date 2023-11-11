@@ -59,8 +59,9 @@ export default function SearchInput(p: SearchProps) {
       <input
         name="search"
         ref={inputEl!}
-        class="h-[50px] w-full px-[calc(theme(spacing.icon)+8px)]
-        bg-transparent text-center text-[30px]
+        class="w-full px-[calc(theme(spacing.icon)+8px)]
+        text-[20px] sm:text-[30px] h-[38px] sm:h-[50px]
+        bg-transparent text-center
         border border-kngray-1 focus:border-control-hover outline-none
         placeholder:text-kngray-1 placeholder:opacity-100
         "
@@ -73,7 +74,7 @@ export default function SearchInput(p: SearchProps) {
       <Show when={query()}>
         <IconX
           class="icon_control
-          absolute bottom-0 right-2 top-0 m-auto"
+          absolute bottom-0 right-[8px] top-0 m-auto"
           onClick={handleClearClick}
         />
       </Show>

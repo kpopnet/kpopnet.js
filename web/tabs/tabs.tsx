@@ -40,7 +40,10 @@ export default function TabsView() {
   }
 
   return (
-    <section class="flex text-[25px] text-center select-none cursor-default">
+    <section
+      class="flex text-[20px] sm:text-[25px]
+      text-center select-none cursor-default"
+    >
       <For each={tabs}>
         {(tab) => (
           <TabView
