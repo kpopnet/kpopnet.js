@@ -74,6 +74,7 @@ export default function Router(prop: { children: JSXElement }) {
       if (prev == null || o.noPush) return; // don't do anything on start or "Go Back"
       window.scrollTo(0, 0); // scroll even if same route because user clicked something
       if (r === prev[0] && q === prev[1]) return; // no duplicated entries
+      if (q === "" && prev[1] === "") return; // don't duplicate empty queries
       const fn = o.delay ? debounceSetUrlParam : setUrlParam;
       fn(routeToUrlParam(r), q);
     })

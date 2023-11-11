@@ -10,7 +10,7 @@ export default function ItemView(p: { id: string; cache: Cache }) {
   const foundGroup = createMemo(() => p.cache.groupMap.get(p.id));
   const notFound = createMemo(() => !foundIdol() && !foundGroup());
   return (
-    <section classList={{ "text-center m-auto err": notFound() }}>
+    <section id="item" classList={{ "text-center m-auto err": notFound() }}>
       <Switch>
         <Match when={foundIdol()}>
           <IdolView idol={foundIdol()!} cache={p.cache} />

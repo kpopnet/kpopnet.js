@@ -42,9 +42,9 @@ export default function IdolView(p: {
     ? getIdolGroupMember(p.idol, p.group, p.cache)
     : null;
   return (
-    <article class="grid grid-cols-[auto_1fr] gap-x-2.5 mb-cnt-next last:mb-0">
+    <article class="flex gap-x-2.5 mb-cnt-next last:mb-0">
       <Preview url={p.idol.thumb_url} id={p.idol.id} />
-      <section class="pl-5 text-[18px] border-l border-[#d5d5d5]">
+      <section class="flex-1 pl-5 text-[18px] border-l border-[#d5d5d5]">
         <div class="item__line_name">
           <span class="item__val_name">
             <Searchable k="id" id={p.idol.id}>

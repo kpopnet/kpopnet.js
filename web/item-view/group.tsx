@@ -12,71 +12,79 @@ import {
 } from "./common";
 import IdolView from "./idol";
 
-export default function GroupView(p: { group: Group; cache: Cache }) {
-  return GroupWithIdolsView({ ...p, noIdols: true });
-}
-
-export function GroupWithIdolsView(p: {
-  group: Group;
-  cache: Cache;
-  noIdols?: boolean;
-}) {
-  const debutAgo = createMemo(() => getAge(p.group.debut_date || ""));
-  const disbandAgo = createMemo(() => getAge(p.group.disband_date || ""));
+export function GroupWithIdolsView(p: { group: Group; cache: Cache }) {
   const idols = createMemo(() => p.cache.groupIdolsMap.get(p.group.id)!);
   return (
-    <article class="grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-2.5 mb-cnt-next last:mb-0">
-      <Preview url={p.group.thumb_url} id={p.group.id} />
-      <section
-        class="pl-5 text-[18px]"
-        classList={{ "border-l border-[#d5d5d5]": p.noIdols }}
-      >
-        <div class="item__line_name">
-          <span class="item__val_name">
-            <Searchable k="id" id={p.group.id}>
-              {p.group.name}
-            </Searchable>
-          </span>
-          <LinkMenu urls={p.group.urls} />
-        </div>
-        <ItemLine name="Name">
-          <Searchable k="g" gq>
-            {p.group.name}
-          </Searchable>{" "}
-          (
-          <Searchable k="g" gq>
-            {p.group.name_original}
-          </Searchable>
-          )
-        </ItemLine>
-        <ItemLine name="Company">
-          <CompanyView name={p.group.agency_name} />
-        </ItemLine>
-        <Show when={p.group.debut_date}>
-          <ItemLine name="Debut date">
-            <SearchableDate k="dd" q={p.group.debut_date!} gq /> (
-            <Searchable k="da" gq>
-              {debutAgo()}
-            </Searchable>{" "}
-            year
-            {debutAgo() === 1 ? "" : "s"} ago)
-          </ItemLine>
-        </Show>
-        <Show when={p.group.disband_date}>
-          <ItemLine name="Disband date">
-            <SearchableDate k="dbd" q={p.group.disband_date!} gq /> (
-            <Searchable k="dba" gq>
-              {disbandAgo()}
-            </Searchable>{" "}
-            year
-            {disbandAgo() === 1 ? "" : "s"} ago)
-          </ItemLine>
-        </Show>
-      </section>
-      <Show when={!p.noIdols}>
-        <GroupIdolsView idols={idols()} group={p.group} cache={p.cache} />
-      </Show>
+    <article class="flex flex-col gap-y-2.5">
+      <GroupView group={p.group} cache={p.cache} withIdols />
+      <GroupIdolsView idols={idols()} group={p.group} cache={p.cache} />
     </article>
+  );
+}
+
+function GroupView(p: { group: Group; cache: Cache; withIdols?: boolean }) {
+  return (
+    <article
+      class="flex gap-x-2.5"
+      classList={{ "mb-cnt-next last:mb-0": !p.withIdols }}
+    >
+      <Preview url={p.group.thumb_url} id={p.group.id} />
+      <GroupInfoView group={p.group} cache={p.cache} withIdols={p.withIdols} />
+    </article>
+  );
+}
+export default GroupView;
+
+function GroupInfoView(p: { group: Group; cache: Cache; withIdols?: boolean }) {
+  const debutAgo = createMemo(() => getAge(p.group.debut_date || ""));
+  const disbandAgo = createMemo(() => getAge(p.group.disband_date || ""));
+  return (
+    <section
+      class="flex-1 pl-5 text-[18px]"
+      classList={{ "border-l border-[#d5d5d5]": !p.withIdols }}
+    >
+      <div class="item__line_name">
+        <span class="item__val_name">
+          <Searchable k="id" id={p.group.id}>
+            {p.group.name}
+          </Searchable>
+        </span>
+        <LinkMenu urls={p.group.urls} />
+      </div>
+      <ItemLine name="Name">
+        <Searchable k="g" gq>
+          {p.group.name}
+        </Searchable>{" "}
+        (
+        <Searchable k="g" gq>
+          {p.group.name_original}
+        </Searchable>
+        )
+      </ItemLine>
+      <ItemLine name="Company">
+        <CompanyView name={p.group.agency_name} />
+      </ItemLine>
+      <Show when={p.group.debut_date}>
+        <ItemLine name="Debut date">
+          <SearchableDate k="dd" q={p.group.debut_date!} gq /> (
+          <Searchable k="da" gq>
+            {debutAgo()}
+          </Searchable>{" "}
+          year
+          {debutAgo() === 1 ? "" : "s"} ago)
+        </ItemLine>
+      </Show>
+      <Show when={p.group.disband_date}>
+        <ItemLine name="Disband date">
+          <SearchableDate k="dbd" q={p.group.disband_date!} gq /> (
+          <Searchable k="dba" gq>
+            {disbandAgo()}
+          </Searchable>{" "}
+          year
+          {disbandAgo() === 1 ? "" : "s"} ago)
+        </ItemLine>
+      </Show>
+    </section>
   );
 }
 

@@ -50,12 +50,12 @@ export default function ItemList(p: { profiles: Profiles; cache: Cache }) {
   });
 
   return (
-    <section classList={{ "text-center err": !items().length }}>
-      <Switch>
-        <Match when={items().length}>
-          <div class="text-center mt-2 mb-cnt-next text-kngray-1 text-sm">
-            {allItems().length} result{allItems().length > 1 ? "s" : ""}
-          </div>
+    <Switch>
+      <Match when={items().length}>
+        <div class="text-center mt-2 mb-cnt-next text-kngray-1 text-sm">
+          {allItems().length} result{allItems().length > 1 ? "s" : ""}
+        </div>
+        <section id="items">
           <For each={items()}>
             {(item) =>
               route() === IdolQueryRoute ? (
@@ -65,11 +65,13 @@ export default function ItemList(p: { profiles: Profiles; cache: Cache }) {
               )
             }
           </For>
-        </Match>
-        <Match when>
+        </section>
+      </Match>
+      <Match when>
+        <section class="text-center err">
           <div class="mt-cnt-next">No results</div>
-        </Match>
-      </Switch>
-    </section>
+        </section>
+      </Match>
+    </Switch>
   );
 }
