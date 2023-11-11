@@ -3,6 +3,7 @@ import { IconGithub, IconHome, IconQuestion, IconWiki } from "../icons/icons";
 import { IdolQueryRoute, useRouter } from "../router/router";
 import logo from "./logo.png";
 import kastden from "./kastden.png";
+import { notTouch } from "../../lib/utils";
 
 export default function Navbar() {
   const [_, __, goto] = useRouter();
@@ -29,7 +30,7 @@ export default function Navbar() {
         </a>
         <a
           class="link ml-2.5"
-          onMouseOver={() => setShowInfo(true)}
+          onMouseOver={notTouch(() => setShowInfo(true))}
           onTouchStart={() => setShowInfo(!showInfo())}
         >
           <IconQuestion class="icon_control" />

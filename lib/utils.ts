@@ -44,3 +44,20 @@ export function getAge(date: string): number {
   const years = Math.floor((now - born) / MILLISECONDS_IN_YEAR);
   return Math.max(0, years);
 }
+
+// https://stackoverflow.com/a/4819886
+export function isTouchDevice(): boolean {
+  return (
+    "ontouchstart" in window ||
+    navigator.maxTouchPoints > 0 ||
+    (navigator as any).msMaxTouchPoints > 0
+  );
+}
+
+export function notTouch(fn: Function): (...args: any[]) => void {
+  return function (...args: any[]) {
+    if (!isTouchDevice()) {
+      fn(...args);
+    }
+  };
+}

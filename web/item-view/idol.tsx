@@ -52,7 +52,7 @@ function IdolInfoView(p: { idol: Idol; group?: Group; cache: Cache }) {
     : null;
   return (
     <section
-      class="flex-1 overflow-hidden border-[#d5d5d5]
+      class="flex-1 min-w-0 border-[#d5d5d5]
         pl-1 sm:pl-5 text-sm sm:text-lg sm:border-l"
     >
       <ItemName id={p.idol.id} name={p.idol.name} urls={p.idol.urls}>
@@ -131,12 +131,10 @@ function IdolGroupsView(p: { igroups: IdolGroup[] }) {
 }
 
 function IdolGroupView(p: { ig: IdolGroup; other?: boolean }) {
-  const [showTooltip, setShowTooltip] = createSignal(false);
   return (
-    <span
-      onMouseEnter={() => setShowTooltip(!!p.ig.gm.roles)}
-      onMouseLeave={() => setShowTooltip(false)}
-      class="relative"
+    <Tooltip
+      canShow={!!p.ig.gm.roles}
+      content={p.ig.gm.roles!}
       classList={{
         "peer peer-[]:before:content-[',_']": p.other,
         "line-through hover:decoration-link-hover": !p.ig.gm.current,
@@ -145,7 +143,6 @@ function IdolGroupView(p: { ig: IdolGroup; other?: boolean }) {
       <Searchable k="id" id={p.ig.g.id}>
         {p.ig.g.name}
       </Searchable>
-      <Tooltip show={showTooltip()}>{p.ig.gm.roles}</Tooltip>
-    </span>
+    </Tooltip>
   );
 }

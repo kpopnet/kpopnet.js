@@ -1,19 +1,36 @@
-import { JSXElement, Show, createEffect } from "solid-js";
+import { Show, createEffect, createSignal, splitProps } from "solid-js";
+import type { ComponentProps, JSXElement } from "solid-js";
+import { notTouch } from "../../lib/utils";
 
-export default function Tooltip(p: { show: boolean; children: JSXElement }) {
+interface TooltipProps extends ComponentProps<"span"> {
+  canShow: boolean;
+  content: string;
+  children: JSXElement;
+}
+
+export default function Tooltip(p: TooltipProps) {
+  const [show, setShow] = createSignal(false);
+  const [_, props] = splitProps(p, ["canShow", "content", "children"]);
+  props.class = "relative " + (props.class ?? "");
   let tooltipEl: HTMLDivElement;
   createEffect(() => {
-    if (p.show) {
+    if (show()) {
       setTimeout(() => {
         tooltipEl.style.opacity = "1";
       });
     }
   });
   return (
-    <Show when={p.show}>
-      <div
-        ref={tooltipEl!}
-        class="
+    <span
+      onMouseEnter={notTouch(() => setShow(p.canShow))}
+      onMouseLeave={() => setShow(false)}
+      {...props}
+    >
+      {p.children}
+      <Show when={show()}>
+        <div
+          ref={tooltipEl!}
+          class="
         absolute -top-[40px] left-0 whitespace-nowrap
         opacity-0 transition-opacity duration-300
         rounded-lg px-3 py-2 text-sm font-medium
@@ -26,9 +43,10 @@ export default function Tooltip(p: { show: boolean; children: JSXElement }) {
         before:border-x-8
         before:border-t-8
         before:border-t-black"
-      >
-        {p.children}
-      </div>
-    </Show>
+        >
+          {p.content}
+        </div>
+      </Show>
+    </span>
   );
 }

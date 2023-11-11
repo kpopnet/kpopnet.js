@@ -41,7 +41,7 @@ export function ItemName(p: {
   return (
     <div
       class="flex mb-1 sm:mb-3
-      border-b-2 sm:border-b-4 border-[#6b6c9a]"
+        border-b-2 sm:border-b-4 border-[#6b6c9a]"
     >
       <span class="flex-1 text-[20px] sm:text-[30px]">
         <Searchable k="id" id={p.id}>
@@ -56,17 +56,20 @@ export function ItemName(p: {
 
 export function ItemLine(p: { name: string; children: JSXElement }) {
   return (
-    <p class="flex">
+    <div class="flex">
       <span
         class="text-[#bbb] after:content-[':_'] after:whitespace-pre
         flex-[0_0_80px] sm:flex-[0_0_120px]"
       >
         {p.name}
       </span>
-      <span class="whitespace-nowrap overflow-hidden text-ellipsis">
+      <span
+        // ok to hide on small screen because we won't show tooltip
+        class="max-sm:overflow-hidden max-sm:whitespace-nowrap max-sm:text-ellipsis"
+      >
         {p.children}
       </span>
-    </p>
+    </div>
   );
 }
 
@@ -155,7 +158,7 @@ export function LinkMenu(p: { urls: string[] }) {
       onMouseOver={() => setShowMenu(true)}
       onMouseLeave={() => setShowMenu(false)}
     >
-      <IconLink class="icon_control inline-block align-baseline" />
+      <IconLink class="icon_control inline-block sm:align-baseline" />
       <Show when={showMenu()}>
         <div class="absolute bg-body-bg border border-kngray-1 top-0 right-0 py-2.5 px-4">
           <For each={urls()}>

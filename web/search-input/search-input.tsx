@@ -2,6 +2,7 @@ import { Show, createEffect, type Accessor, on, createMemo } from "solid-js";
 
 import { IconX } from "../icons/icons";
 import { IdolQueryRoute, useRouter } from "../router/router";
+import { isTouchDevice } from "../../lib/utils";
 
 interface SearchProps {
   focus: Accessor<number>;
@@ -14,8 +15,11 @@ export default function SearchInput(p: SearchProps) {
   let inputEl: HTMLInputElement;
 
   function focus() {
-    inputEl.focus();
-    inputEl.selectionStart = inputEl.selectionEnd = inputEl.value.length;
+    // mobile browsers show keyboard on focus, we don't need that
+    if (!isTouchDevice()) {
+      inputEl.focus();
+      inputEl.selectionStart = inputEl.selectionEnd = inputEl.value.length;
+    }
   }
 
   function handleInputChange() {
@@ -61,7 +65,7 @@ export default function SearchInput(p: SearchProps) {
         ref={inputEl!}
         class="w-full px-[calc(theme(spacing.icon)+8px)]
         text-[20px] sm:text-[30px] h-[38px] sm:h-[50px]
-        bg-transparent text-center
+        bg-transparent text-center rounded-none
         border border-kngray-1 focus:border-control-hover outline-none
         placeholder:text-kngray-1 placeholder:opacity-100
         "

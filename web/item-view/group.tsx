@@ -41,7 +41,7 @@ function GroupInfoView(p: { group: Group; cache: Cache; withIdols?: boolean }) {
   const disbandAgo = createMemo(() => getAge(p.group.disband_date || ""));
   return (
     <section
-      class="flex-1 overflow-hidden
+      class="flex-1 min-w-0
         pl-1 sm:pl-5 text-sm sm:text-lg"
       classList={{ "sm:border-l border-[#d5d5d5]": !p.withIdols }}
     >
