@@ -1,7 +1,7 @@
 import { Show, createSignal } from "solid-js";
 import { IconGithub, IconHome, IconQuestion, IconWiki } from "../icons/icons";
 import { IdolQueryRoute, useRouter } from "../router/router";
-import logo from "./logo.png";
+import logo from "../main/logo-200.png";
 import kastden from "./kastden.png";
 import { notTouch } from "../../lib/utils";
 
