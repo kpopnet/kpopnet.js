@@ -21,6 +21,9 @@ export interface Cache {
 
 export type Item = Idol | Group;
 
+/** [field, 1=asc/-1=desc] */
+export type SortProp = [string, number];
+
 type SearchProp = [string, string];
 interface Query {
   words: string[];
@@ -362,14 +365,6 @@ function filterGroup(q: Query, group: Group, cache: Cache): boolean {
   });
 }
 
-// Sort by debut date by default.
-// Should be as fast as possible! ~1ms for full array right now.
-function compareIdols(i1: Idol, i2: Idol): number {
-  const s1 = i1.debut_date || "0";
-  const s2 = i2.debut_date || "0";
-  return s1 == s2 ? 0 : s1 > s2 ? -1 : 1;
-}
-
 function filterOrCopy<T>(
   arr: T[],
   fn: FilterFn<T>,
@@ -381,12 +376,58 @@ function filterOrCopy<T>(
   return arr.filter((item) => fn(q, item, cache));
 }
 
+// Sorted by default in kpopnet.json
+const defaultIdolSorts: SortProp[] = [
+  ["birth_date", -1],
+  ["real_name", -1],
+];
+const defaultGroupSorts: SortProp[] = [
+  ["debut_date", -1],
+  ["name", -1],
+];
+
+function sameSorts(arr1: SortProp[], arr2: SortProp[]): boolean {
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i][0] !== arr2[i][0] || arr1[i][1] !== arr2[i][1]) return false;
+  }
+  console.log("@@@ same sorts");
+  return true;
+}
+
+function makeCompareFn(sorts: SortProp[]) {
+  return (i1: Item, i2: Item) => {
+    for (const [field, dir] of sorts) {
+      const v1 = (i1 as any)[field];
+      const v2 = (i2 as any)[field];
+      // TODO(Kagami): is it fast to compare null with string/number?
+      // TODO(Kagami): create compare fn (strcmp vs minus) for fields? will v8 inline it?
+      const cmp = v1 === v2 ? 0 : v1 > v2 ? 1 : -1;
+      if (cmp) return cmp * dir;
+    }
+    return 0;
+  };
+}
+
+// don't sort if not necessary because might be slow
+function sortIfNeeded(
+  items: Item[],
+  sorts: SortProp[],
+  defaultSorts: SortProp[]
+) {
+  console.log("@@@ got sorts", JSON.stringify(sorts));
+  if (sameSorts(sorts, defaultSorts)) return;
+  console.log("!!! need to sort");
+  items.sort(makeCompareFn(sorts));
+}
+
 /**
  * Find idols matching given query.
  */
 // TODO(Kagami): Profile/optimize.
 export function searchIdols(
   query: string,
+  sorts: SortProp[],
   profiles: Profiles,
   cache: Cache
 ): Idol[] {
@@ -396,7 +437,7 @@ export function searchIdols(
   /*dev*/ const tQuery = dev ? performance.now() : 0;
   const result = filterOrCopy(profiles.idols, filterIdol, q, cache);
   /*dev*/ const tFilter = dev ? performance.now() : 0;
-  // result.sort(compareIdols); // TODO: don't sort if query.length < 3 && result.length > 400?
+  sortIfNeeded(result, sorts, defaultIdolSorts);
   /*dev*/ const tSort = dev ? performance.now() : 0;
   /*dev*/ const tEnd = dev ? tSort : 0;
 
@@ -419,6 +460,7 @@ export function searchIdols(
 // TODO(Kagami): Profile/optimize.
 export function searchGroups(
   query: string,
+  sorts: SortProp[],
   profiles: Profiles,
   cache: Cache
 ): Group[] {
@@ -428,6 +470,7 @@ export function searchGroups(
   /*dev*/ const tQuery = dev ? performance.now() : 0;
   const result = filterOrCopy(profiles.groups, filterGroup, q, cache);
   /*dev*/ const tFilter = dev ? performance.now() : 0;
+  sortIfNeeded(result, sorts, defaultGroupSorts);
   /*dev*/ const tSort = dev ? performance.now() : 0;
   /*dev*/ const tEnd = dev ? tSort : 0;
 

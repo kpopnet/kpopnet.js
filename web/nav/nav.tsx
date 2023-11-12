@@ -1,5 +1,5 @@
 import { Show, createSignal } from "solid-js";
-import { IconGithub, IconHome, IconQuestion, IconWiki } from "../icons/icons";
+import { IconChat, IconHome, IconQuestion, IconWiki } from "../icons/icons";
 import { IdolQueryRoute, useRouter } from "../router/router";
 import logo from "../main/logo-200.png";
 import kastden from "./kastden.png";
@@ -72,7 +72,7 @@ function Info() {
             target="_blank"
             href="https://github.com/orgs/kpopnet/discussions"
           >
-            <IconGithub class="icon_small inline-block" /> kpopnet/discussions
+            <IconChat class="icon_small inline-block" /> kpopnet/discussions
           </a>
         </p>
         <p>

@@ -34,7 +34,7 @@
   }
 }
 
-@layer utilities {
+@layer base {
   .link {
     @apply text-link no-underline hover:cursor-pointer hover:text-link-hover;
   }
@@ -47,8 +47,10 @@
   }
 
   .icon,
+  .icon_small,
+  .mobile_icon_large,
   .icon_control {
-    @apply w-icon h-icon;
+    @apply w-icon h-icon select-none;
   }
   .icon_small {
     @apply w-icon-sm h-icon-sm;
@@ -57,6 +59,6 @@
     @apply max-sm:w-icon-lg max-sm:h-icon-lg;
   }
   .icon_control {
-    @apply cursor-pointer select-none text-control hover:text-control-hover;
+    @apply cursor-pointer text-control hover:text-control-hover;
   }
 }

@@ -1,5 +1,5 @@
 export function debounce(callback: Function, interval: number) {
-  let debounceTimeoutId: number | undefined;
+  let debounceTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
   return function (...args: any[]) {
     clearTimeout(debounceTimeoutId);
@@ -60,4 +60,40 @@ export function notTouch(fn: Function): (...args: any[]) => void {
       fn(...args);
     }
   };
+}
+
+export function reorderArray<T>(
+  arr: T[],
+  fromIndex: number,
+  toIndex: number
+): T[] {
+  if (fromIndex === toIndex) return arr.slice();
+  const minIndex = Math.min(fromIndex, toIndex);
+  const maxIndex = Math.max(fromIndex, toIndex);
+  const arrBefore = arr.slice(0, minIndex);
+  const arrBetween = arr.slice(minIndex + 1, maxIndex);
+  const arrAfter = arr.slice(maxIndex + 1);
+  const newArr = [];
+  if (toIndex < fromIndex) {
+    // [before items] to [between items] from [after items]
+    // [before items] from to [between items] [after items]
+    newArr.push(
+      ...arrBefore,
+      arr[fromIndex],
+      arr[toIndex],
+      ...arrBetween,
+      ...arrAfter
+    );
+  } else {
+    // [before items] from [between items] to [after items]
+    // [before items] [between items] to from [after items]
+    newArr.push(
+      ...arrBefore,
+      ...arrBetween,
+      arr[toIndex],
+      arr[fromIndex],
+      ...arrAfter
+    );
+  }
+  return newArr;
 }
