@@ -360,6 +360,9 @@ function filterGroup(q: Query, group: Group, cache: Cache): boolean {
       case "dba":
         if (matchYAgo(group.disband_date, val)) return true;
         break;
+      case "m":
+        if (matchNum(group.members.length, val)) return true;
+        break;
     }
     return false;
   });
@@ -376,34 +379,36 @@ function filterOrCopy<T>(
   return arr.filter((item) => fn(q, item, cache));
 }
 
-// Sorted by default in kpopnet.json
-const defaultIdolSorts: SortProp[] = [
-  ["birth_date", -1],
-  ["real_name", -1],
-];
-const defaultGroupSorts: SortProp[] = [
-  ["debut_date", -1],
-  ["name", -1],
-];
+const defaultIdolSorts: SortProp[] = [["birth_date", -1]];
+const defaultGroupSorts: SortProp[] = [["debut_date", -1]];
 
 function sameSorts(arr1: SortProp[], arr2: SortProp[]): boolean {
+  if (arr1.length === 0 || arr2.length === 0) return true; // disabled all sorts -> as default
   if (arr1.length !== arr2.length) return false;
   for (let i = 0; i < arr1.length; i++) {
     if (arr1[i][0] !== arr2[i][0] || arr1[i][1] !== arr2[i][1]) return false;
   }
-  console.log("@@@ same sorts");
   return true;
 }
 
 function makeCompareFn(sorts: SortProp[]) {
-  return (i1: Item, i2: Item) => {
+  const A_TOTOP = -1;
+  const A_TOBOTTOM = 1;
+  const B_TOBOTTOM = -1;
+  return (ia: Item, ib: Item) => {
     for (const [field, dir] of sorts) {
-      const v1 = (i1 as any)[field];
-      const v2 = (i2 as any)[field];
-      // TODO(Kagami): is it fast to compare null with string/number?
-      // TODO(Kagami): create compare fn (strcmp vs minus) for fields? will v8 inline it?
-      const cmp = v1 === v2 ? 0 : v1 > v2 ? 1 : -1;
-      if (cmp) return cmp * dir;
+      const a = (ia as any)[field];
+      const b = (ib as any)[field];
+      if (a === b) continue;
+      // move unknown values to bottom
+      if (a === null) return A_TOBOTTOM;
+      if (b === null) return B_TOBOTTOM;
+      // XXX(Kagami): array of members comparison work because
+      // [{}].toString() -> "[object Object]"
+      // [{},{}].toString() -> "[object Object],[object Object]"
+      // It's better to compare by `.length` property but extra properly lookup might be slower?
+      const cmp = a > b ? A_TOBOTTOM : A_TOTOP;
+      return cmp * dir;
     }
     return 0;
   };
@@ -415,9 +420,8 @@ function sortIfNeeded(
   sorts: SortProp[],
   defaultSorts: SortProp[]
 ) {
-  console.log("@@@ got sorts", JSON.stringify(sorts));
   if (sameSorts(sorts, defaultSorts)) return;
-  console.log("!!! need to sort");
+  if (import.meta.env.DEV) console.log("!!! need to sort");
   items.sort(makeCompareFn(sorts));
 }
 

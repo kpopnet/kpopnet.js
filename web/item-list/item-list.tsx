@@ -4,7 +4,6 @@
 
 import {
   type JSX,
-  type JSXElement,
   Switch,
   Match,
   For,
@@ -13,21 +12,18 @@ import {
   onCleanup,
   createSignal,
   Show,
+  batch,
+  on,
 } from "solid-js";
 import { type SetStoreFunction, createStore } from "solid-js/store";
 import type { Group, Idol, Profiles } from "kpopnet.json";
 
-import {
-  type Cache,
-  type SortProp,
-  searchIdols,
-  searchGroups,
-} from "../../lib/search";
+import { type Cache, searchIdols, searchGroups } from "../../lib/search";
 import IdolView from "../item-view/idol";
 import GroupView from "../item-view/group";
 import { IdolQueryRoute, useRouter } from "../router/router";
 import {
-  IconAllOff,
+  IconOff,
   IconRevert,
   IconSave,
   IconSort,
@@ -35,19 +31,37 @@ import {
   IconSortUp,
 } from "../icons/icons";
 import { reorderArray } from "../../lib/utils";
+import {
+  type SortType,
+  getDefaultSorts,
+  loadSorts,
+  removeSorts,
+  saveSorts,
+  toSortProps,
+} from "./sort";
 
-export default function ItemList(p: { profiles: Profiles; cache: Cache }) {
+// Recreate ItemList when switch between idols/groups tab because we need to create store.
+export default function ItemListWrapper(p: {
+  profiles: Profiles;
+  cache: Cache;
+}) {
+  const [route, _, __] = useRouter();
+  return createMemo(
+    on(route, () => <ItemList profiles={p.profiles} cache={p.cache} />)
+  );
+}
+
+export function ItemList(p: { profiles: Profiles; cache: Cache }) {
   const SHOW_PER_PAGE = 20;
-  const [route, query, __] = useRouter();
+  const [route, query, _] = useRouter();
   const [showLastX, setShowLastX] = createSignal(SHOW_PER_PAGE);
-
-  const defaultSorts = route() === IdolQueryRoute ? IDOL_SORTS : GROUP_SORTS;
-  const [sorts, setSorts] = createStore<SortType[]>(defaultSorts);
+  const [sorts, setSorts] = createStore<SortType[]>(loadSorts(route()));
 
   const searchFn = route() === IdolQueryRoute ? searchIdols : searchGroups;
-  const allItems = createMemo(() =>
-    searchFn(query(), toSortProps(sorts), p.profiles, p.cache)
-  );
+  const allItems = createMemo(() => {
+    setShowLastX(SHOW_PER_PAGE); // reset on query change
+    return searchFn(query(), toSortProps(sorts), p.profiles, p.cache);
+  });
   const items = createMemo(() => allItems().slice(0, showLastX()));
 
   function nearBottom() {
@@ -97,45 +111,24 @@ export default function ItemList(p: { profiles: Profiles; cache: Cache }) {
   );
 }
 
-interface SortType {
-  id: string;
-  name: string;
-  enabled: boolean;
-  reversed: boolean;
-}
-
-function toSortProps(sorts: SortType[]): SortProp[] {
-  return sorts.filter((s) => s.enabled).map((s) => [s.id, s.reversed ? -1 : 1]);
-}
-
-// NOTE(Kagami): default sorts should be in sync with lib/search.ts and kpopnet.json!
-const IDOL_SORTS: SortType[] = [
-  { id: "birth_date", name: "Birth date", enabled: true, reversed: true },
-  { id: "real_name", name: "Name", enabled: true, reversed: true },
-  { id: "debut_date", name: "Debut date", enabled: false, reversed: true },
-  { id: "height", name: "Height", enabled: false, reversed: false },
-  { id: "weight", name: "Weight", enabled: false, reversed: false },
-];
-const GROUP_SORTS: SortType[] = [
-  { id: "debut_date", name: "Debut date", enabled: true, reversed: true },
-  { id: "name", name: "Group", enabled: true, reversed: true },
-];
-
 function ItemSort(p: {
   sorts: SortType[];
   setSorts: SetStoreFunction<SortType[]>;
-  children: JSXElement;
+  children: JSX.Element;
 }) {
-  const [show, setShow] = createSignal(true);
+  const [route, _, __] = useRouter();
+  const [show, setShow] = createSignal(false);
 
   function updateSort(id: string, enabled: boolean, reversed: boolean) {
-    const wasEnabled = p.sorts.find((s) => s.id === id)!.enabled;
-    p.setSorts((s) => s.id === id, { enabled, reversed });
-    // bump new enabled sort to the top
-    if (!wasEnabled && enabled) {
+    batch(() => {
       const fromIndex = p.sorts.findIndex((s) => s.id === id);
-      p.setSorts(reorderArray(p.sorts, fromIndex, 0));
-    }
+      const wasEnabled = p.sorts[fromIndex].enabled;
+      p.setSorts(fromIndex, { enabled, reversed });
+      if (!wasEnabled && enabled) {
+        // bump new enabled sort to the top
+        p.setSorts(reorderArray(p.sorts, fromIndex, 0));
+      }
+    });
   }
 
   function setNewOrder(fromId: string, toId: string) {
@@ -145,14 +138,23 @@ function ItemSort(p: {
     p.setSorts(reorderArray(p.sorts, fromIndex, toIndex));
   }
 
-  // const handleGlobalClick = () => setShow(false);
-  // onMount(() => document.addEventListener("click", handleGlobalClick));
-  // onCleanup(() => document.removeEventListener("click", handleGlobalClick));
+  function handleReset() {
+    p.setSorts(getDefaultSorts(route()));
+    removeSorts(route());
+  }
+
+  function handleAllOff() {
+    p.setSorts(() => true, { enabled: false });
+  }
+
+  function handleSave() {
+    saveSorts(route(), p.sorts);
+  }
 
   return (
     <div
       class="relative text-center mt-2 mb-cnt-next text-kngray-1"
-      // onClick={(e) => e.stopImmediatePropagation()}
+      classList={{ "mb-4": show() }}
     >
       <span>{p.children}</span>
       <IconSort
@@ -161,25 +163,23 @@ function ItemSort(p: {
         onClick={(e) => setShow(!show())}
       />
       <Show when={show()}>
-        <div class="absolute z-10 w-full">
-          <div class="rounded-lg shadow w-60 mx-auto mt-1 p-2 bg-gray-50 text-gray-700">
-            <div class="flex justify-center gap-x-2">
-              <IconRevert class="icon_control" />
-              <IconAllOff class="icon_control" />
-              <IconSave class="icon_control" />
-            </div>
-            <ul class="space-y-1">
-              <For each={p.sorts}>
-                {(sort) => (
-                  <SortLine
-                    sort={sort}
-                    updateSort={updateSort}
-                    setNewOrder={setNewOrder}
-                  />
-                )}
-              </For>
-            </ul>
+        <div class="border border-kngray-1 w-60 mx-auto mt-1 p-2 bg-transparent text-gray-700">
+          <div class="flex justify-center gap-x-4 mb-2">
+            <IconOff class="icon_control" onClick={handleAllOff} />
+            <IconRevert class="icon_control" onClick={handleReset} />
+            <IconSave class="icon_control" onClick={handleSave} />
           </div>
+          <ul class="space-y-1">
+            <For each={p.sorts}>
+              {(sort) => (
+                <SortLine
+                  sort={sort}
+                  updateSort={updateSort}
+                  setNewOrder={setNewOrder}
+                />
+              )}
+            </For>
+          </ul>
         </div>
       </Show>
     </div>
@@ -195,7 +195,7 @@ function SortLine(p: {
 }) {
   return (
     <li
-      class="flex items-center gap-x-1 cursor-grab"
+      class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-grab"
       draggable="true"
       onDragStart={(e) => {
         e.dataTransfer!.setData("text", p.sort.id);
@@ -210,30 +210,28 @@ function SortLine(p: {
         p.setNewOrder(fromId, toId);
       }}
     >
-      <div class="flex-1 text-left p-2 rounded hover:bg-gray-200">
-        <label
-          class="relative align-middle inline-flex cursor-pointer select-none"
-          {...nonDraggable()}
-        >
-          <input
-            type="checkbox"
-            class="hidden peer"
-            checked={p.sort.enabled}
-            onChange={() =>
-              p.updateSort(p.sort.id, !p.sort.enabled, p.sort.reversed)
-            }
-          />
-          <div
-            class="w-9 h-5 bg-gray-300 rounded-full peer
+      <label
+        class="relative flex cursor-pointer select-none"
+        {...nonDraggable()}
+      >
+        <input
+          type="checkbox"
+          class="hidden peer"
+          checked={p.sort.enabled}
+          onChange={() =>
+            p.updateSort(p.sort.id, !p.sort.enabled, p.sort.reversed)
+          }
+        />
+        <div
+          class="w-9 h-5 bg-gray-300 rounded-full peer
             peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:bg-link-hover
             after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white
             after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"
-          />
-          <span class="ms-3 text-sm font-medium text-gray-900">
-            {p.sort.name}
-          </span>
-        </label>
-      </div>
+        />
+        <span class="ms-3 text-sm font-medium text-gray-900">
+          {p.sort.name}
+        </span>
+      </label>
       <SortDirection sort={p.sort} updateSort={p.updateSort} />
     </li>
   );

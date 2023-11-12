@@ -11,4 +11,4 @@ export { default as IconSortDown } from "bootstrap-icons/icons/sort-down-alt.svg
 export { default as IconSortUp } from "bootstrap-icons/icons/sort-up-alt.svg";
 export { default as IconRevert } from "bootstrap-icons/icons/arrow-counterclockwise.svg";
 export { default as IconSave } from "bootstrap-icons/icons/floppy.svg";
-export { default as IconAllOff } from "bootstrap-icons/icons/toggle-off.svg";
+export { default as IconOff } from "bootstrap-icons/icons/toggle-off.svg";

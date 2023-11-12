@@ -10,8 +10,13 @@ interface TooltipProps extends ComponentProps<"span"> {
 
 export default function Tooltip(p: TooltipProps) {
   const [show, setShow] = createSignal(false);
-  const [_, props] = splitProps(p, ["canShow", "content", "children"]);
-  props.class = "relative " + (props.class ?? "");
+  const [local, other] = splitProps(p, [
+    "class",
+    "classList",
+    "canShow",
+    "content",
+    "children",
+  ]);
   let tooltipEl: HTMLDivElement;
   createEffect(() => {
     if (show()) {
@@ -24,7 +29,9 @@ export default function Tooltip(p: TooltipProps) {
     <span
       onMouseEnter={notTouch(() => setShow(p.canShow))}
       onMouseLeave={() => setShow(false)}
-      {...props}
+      class="relative"
+      classList={{ ...local.classList, [local.class || ""]: true }}
+      {...other}
     >
       {p.children}
       <Show when={show()}>

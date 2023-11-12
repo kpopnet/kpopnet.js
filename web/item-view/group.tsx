@@ -79,6 +79,13 @@ function GroupInfoView(p: { group: Group; cache: Cache; withIdols?: boolean }) {
           {disbandAgo() === 1 ? "" : "s"} ago)
         </ItemLine>
       </Show>
+      <Show when={p.group.members.length}>
+        <ItemLine name="Members">
+          <Searchable k="m" gq>
+            {p.group.members.length}
+          </Searchable>{" "}
+        </ItemLine>
+      </Show>
     </section>
   );
 }

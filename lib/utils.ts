@@ -67,7 +67,7 @@ export function reorderArray<T>(
   fromIndex: number,
   toIndex: number
 ): T[] {
-  if (fromIndex === toIndex) return arr.slice();
+  if (fromIndex === toIndex) return arr;
   const minIndex = Math.min(fromIndex, toIndex);
   const maxIndex = Math.max(fromIndex, toIndex);
   const arrBefore = arr.slice(0, minIndex);
