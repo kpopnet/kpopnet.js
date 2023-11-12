@@ -20,17 +20,14 @@ export interface Cache {
 }
 
 export type Item = Idol | Group;
-export type SearchFn = (
-  query: string,
-  profiles: Profiles,
-  cache: Cache
-) => Item[];
 
 type SearchProp = [string, string];
 interface Query {
   words: string[];
   props: SearchProp[];
 }
+
+type FilterFn<T> = (query: Query, item: T, cache: Cache) => boolean;
 
 // TODO(Kagami): alt names
 function getNormIdolNames(idol: Idol): string {
@@ -373,6 +370,17 @@ function compareIdols(i1: Idol, i2: Idol): number {
   return s1 == s2 ? 0 : s1 > s2 ? -1 : 1;
 }
 
+function filterOrCopy<T>(
+  arr: T[],
+  fn: FilterFn<T>,
+  q: Query,
+  cache: Cache
+): T[] {
+  // should be a bit faster for cold run
+  if (!q.words.length && !q.props.length) return arr.slice();
+  return arr.filter((item) => fn(q, item, cache));
+}
+
 /**
  * Find idols matching given query.
  */
@@ -386,7 +394,7 @@ export function searchIdols(
   /*dev*/ const tStart = dev ? performance.now() : 0;
   const q = parseQuery(query);
   /*dev*/ const tQuery = dev ? performance.now() : 0;
-  const result = profiles.idols.filter((idol) => filterIdol(q, idol, cache));
+  const result = filterOrCopy(profiles.idols, filterIdol, q, cache);
   /*dev*/ const tFilter = dev ? performance.now() : 0;
   // result.sort(compareIdols); // TODO: don't sort if query.length < 3 && result.length > 400?
   /*dev*/ const tSort = dev ? performance.now() : 0;
@@ -418,9 +426,7 @@ export function searchGroups(
   /*dev*/ const tStart = dev ? performance.now() : 0;
   const q = parseQuery(query);
   /*dev*/ const tQuery = dev ? performance.now() : 0;
-  const result = profiles.groups.filter((group) =>
-    filterGroup(q, group, cache)
-  );
+  const result = filterOrCopy(profiles.groups, filterGroup, q, cache);
   /*dev*/ const tFilter = dev ? performance.now() : 0;
   /*dev*/ const tSort = dev ? performance.now() : 0;
   /*dev*/ const tEnd = dev ? tSort : 0;

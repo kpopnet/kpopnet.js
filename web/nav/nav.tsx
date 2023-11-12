@@ -25,15 +25,15 @@ export default function Navbar() {
         class="flex justify-end items-start w-[100px] min-[1000px]:h-[100px] pointer-events-auto"
         onMouseLeave={() => setShowInfo(false)}
       >
-        <a onClick={handleHome} class="link ml-2.5">
-          <IconHome class="icon_control" />
+        <a onClick={handleHome} class="link">
+          <IconHome class="icon_control mobile_icon_large" />
         </a>
         <a
-          class="link ml-2.5"
+          class="link ml-3"
           onMouseOver={notTouch(() => setShowInfo(true))}
           onTouchStart={() => setShowInfo(!showInfo())}
         >
-          <IconQuestion class="icon_control" />
+          <IconQuestion class="icon_control mobile_icon_large" />
         </a>
         <Show when={showInfo()}>
           <Info />

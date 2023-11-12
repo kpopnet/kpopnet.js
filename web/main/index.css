@@ -53,6 +53,9 @@
   .icon_small {
     @apply w-icon-sm h-icon-sm;
   }
+  .mobile_icon_large {
+    @apply max-sm:w-icon-lg max-sm:h-icon-lg;
+  }
   .icon_control {
     @apply cursor-pointer select-none text-control hover:text-control-hover;
   }

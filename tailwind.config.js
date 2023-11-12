@@ -14,6 +14,7 @@ export default {
       spacing: {
         icon: "24px",
         "icon-sm": "16px",
+        "icon-lg": "32px",
         "cnt-top": "var(--cnt-top)",
         "cnt-next": "var(--cnt-next)",
         "cnt-last": "var(--cnt-last)",

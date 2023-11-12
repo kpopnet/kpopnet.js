@@ -23,9 +23,8 @@ export default function ItemList(p: { profiles: Profiles; cache: Cache }) {
   const [route, query, __] = useRouter();
   const [showLastX, setShowLastX] = createSignal(SHOW_PER_PAGE);
 
-  const searchFn = createMemo(() =>
-    route() === IdolQueryRoute ? searchIdols : searchGroups
-  );
+  const searchFn = () =>
+    route() === IdolQueryRoute ? searchIdols : searchGroups;
   const allItems = createMemo(() => searchFn()(query(), p.profiles, p.cache));
   const items = createMemo(() => allItems().slice(0, showLastX()));
 
