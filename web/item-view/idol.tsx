@@ -14,6 +14,7 @@ import {
   SearchableDate,
   ItemLine,
   ItemName,
+  NameAliasView,
 } from "./common";
 import Tooltip from "../tooltip/tooltip";
 
@@ -73,6 +74,7 @@ function IdolInfoView(p: { idol: Idol; group?: Group; cache: Cache }) {
           <Searchable k="n">{p.idol.real_name_original}</Searchable>)
         </ItemLine>
       </Show>
+      <NameAliasView alias={p.idol.name_alias} />
       <ItemLine name="Birthday">
         <SearchableDate k="d" q={p.idol.birth_date} /> (
         <Searchable k="a">{age()}</Searchable>)

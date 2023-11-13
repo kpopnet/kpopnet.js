@@ -179,3 +179,22 @@ export function LinkMenu(p: { urls: string[] }) {
     </div>
   );
 }
+
+export function NameAliasView(p: { alias: string | null; gq?: boolean }) {
+  const names = () => p.alias!.split(",").map((c) => c.trim());
+  return (
+    <Show when={p.alias}>
+      <ItemLine name="Other names">
+        <For each={names()}>
+          {(name) => (
+            <span class="peer peer-[]:before:content-[',_']">
+              <Searchable k={p.gq ? "g" : "n"} gq={p.gq}>
+                {name}
+              </Searchable>
+            </span>
+          )}
+        </For>
+      </ItemLine>
+    </Show>
+  );
+}

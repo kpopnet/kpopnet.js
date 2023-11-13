@@ -32,13 +32,13 @@ interface Query {
 
 type FilterFn<T> = (query: Query, item: T, cache: Cache) => boolean;
 
-// TODO(Kagami): alt names
 function getNormIdolNames(idol: Idol): string {
   return [
     normalizeAll(idol.name),
     normalizeAll(idol.real_name_original),
     normalizeAll(idol.real_name),
     normalizeAll(idol.name_original),
+    ...normalizeCommaWords(idol.name_alias),
   ].join(" ");
 }
 
@@ -52,6 +52,7 @@ function getNormIdolGroupNames(
   idolGroupsMap.get(idol.id)!.forEach((g) => {
     names.push(normalizeAll(g.name));
     names.push(normalizeAll(g.name_original));
+    names.push(...normalizeCommaWords(g.name_alias));
   });
   return names.join(" ");
 }
@@ -166,6 +167,13 @@ function normalizeWords(s: string): string[] {
   return s.split(/\s+/);
 }
 
+// Normalize words separated by comma.
+function normalizeCommaWords(s: string | null): string[] {
+  if (!s) return [];
+  s = s.replace(/[^\p{L}\d,]/gu, "").toLowerCase();
+  return s.split(/,/);
+}
+
 function pushProp(props: SearchProp[], key: string, val: string) {
   // heavily normalize only name prop queries
   if (key === "n" || key === "g" || key === "c") {
@@ -236,7 +244,10 @@ function matchIdolGroupName(idol: Idol, cache: Cache, val: string): boolean {
 // Match group name.
 // TODO(Kagami): cache normalized? but there're not so many groups so not bottleneck
 function matchGroupName(group: Group, val: string): boolean {
-  return normalizeAll(group.name).includes(val);
+  return (
+    normalizeAll(group.name).includes(val) ||
+    normalizeCommaWords(group.name_alias).join(" ").includes(val)
+  );
 }
 
 // Match queries like [group name words] [idol name words]
@@ -490,3 +501,8 @@ export function searchGroups(
   }
   return result;
 }
+
+// https://stackoverflow.com/a/54116079
+export const exportedForTesting = {
+  normalizeCommaWords,
+};

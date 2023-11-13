@@ -48,7 +48,7 @@ export default function ItemListWrapper(p: {
   const [route, _, __] = useRouter();
   return createMemo(
     on(route, () => <ItemList profiles={p.profiles} cache={p.cache} />)
-  );
+  ) as unknown as JSX.Element;
 }
 
 export function ItemList(p: { profiles: Profiles; cache: Cache }) {

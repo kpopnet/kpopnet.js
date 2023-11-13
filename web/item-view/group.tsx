@@ -10,6 +10,7 @@ import {
   SearchableDate,
   ItemLine,
   ItemName,
+  NameAliasView,
 } from "./common";
 import IdolView from "./idol";
 
@@ -56,6 +57,7 @@ function GroupInfoView(p: { group: Group; cache: Cache; withIdols?: boolean }) {
         </Searchable>
         )
       </ItemLine>
+      <NameAliasView alias={p.group.name_alias} gq />
       <ItemLine name="Company">
         <CompanyView name={p.group.agency_name} />
       </ItemLine>
@@ -104,6 +106,7 @@ function CompanyView(p: { name: string }) {
     </For>
   );
 }
+
 function GroupIdolsView(p: { idols: Idol[]; group: Group; cache: Cache }) {
   return (
     <section class="col-span-2 col-start-1 border-t border-[#d5d5d5] pt-2.5 sm:pl-12">
