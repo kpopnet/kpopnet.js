@@ -4,6 +4,7 @@
 
 import {
   type JSX,
+  type JSXElement,
   Switch,
   Match,
   For,
@@ -12,16 +13,19 @@ import {
   onCleanup,
   createSignal,
   Show,
-  batch,
   on,
 } from "solid-js";
-import { type SetStoreFunction, createStore } from "solid-js/store";
 import type { Group, Idol, Profiles } from "kpopnet.json";
 
 import { type Cache, searchIdols, searchGroups } from "../../lib/search";
 import IdolView from "../item-view/idol";
 import GroupView from "../item-view/group";
-import { IdolQueryRoute, useRouter } from "../router/router";
+import {
+  type Route,
+  IdolQueryRoute,
+  useRouter,
+  routeToItemType,
+} from "../router/router";
 import {
   IconOff,
   IconRevert,
@@ -33,34 +37,39 @@ import {
 import { reorderArray } from "../../lib/utils";
 import {
   type SortType,
-  getDefaultSorts,
   loadSorts,
   removeSorts,
   saveSorts,
-  toSortProps,
-} from "./sort";
+  sortsToProps,
+  getDefaultSortsCopy,
+} from "../../lib/sort";
 
-// Recreate ItemList when switch between idols/groups tab because we need to create store.
+// Recreate ItemList on route change to reset all previous state.
 export default function ItemListWrapper(p: {
   profiles: Profiles;
   cache: Cache;
 }) {
-  const [route, _, __] = useRouter();
+  const [view, _] = useRouter();
   return createMemo(
-    on(route, () => <ItemList profiles={p.profiles} cache={p.cache} />)
+    on(view.route, () => <ItemList profiles={p.profiles} cache={p.cache} />)
   ) as unknown as JSX.Element;
 }
 
-export function ItemList(p: { profiles: Profiles; cache: Cache }) {
+function ItemList(p: { profiles: Profiles; cache: Cache }) {
   const SHOW_PER_PAGE = 20;
-  const [route, query, _] = useRouter();
+  const [view, _] = useRouter();
   const [showLastX, setShowLastX] = createSignal(SHOW_PER_PAGE);
-  const [sorts, setSorts] = createStore<SortType[]>(loadSorts(route()));
 
-  const searchFn = route() === IdolQueryRoute ? searchIdols : searchGroups;
   const allItems = createMemo(() => {
     setShowLastX(SHOW_PER_PAGE); // reset on query change
-    return searchFn(query(), toSortProps(sorts), p.profiles, p.cache);
+    const searchFn =
+      view.route() === IdolQueryRoute ? searchIdols : searchGroups;
+    return searchFn(
+      view.query(),
+      sortsToProps(view.sorts()),
+      p.profiles,
+      p.cache
+    );
   });
   const items = createMemo(() => allItems().slice(0, showLastX()));
 
@@ -87,13 +96,13 @@ export function ItemList(p: { profiles: Profiles; cache: Cache }) {
   return (
     <Switch>
       <Match when={items().length}>
-        <ItemSort sorts={sorts} setSorts={setSorts}>
+        <ItemSort>
           {allItems().length} result{allItems().length > 1 ? "s" : ""}
         </ItemSort>
         <section id="items">
           <For each={items()}>
             {(item) =>
-              route() === IdolQueryRoute ? (
+              view.route() === IdolQueryRoute ? (
                 <IdolView idol={item as Idol} cache={p.cache} />
               ) : (
                 <GroupView group={item as Group} cache={p.cache} />
@@ -111,44 +120,47 @@ export function ItemList(p: { profiles: Profiles; cache: Cache }) {
   );
 }
 
-function ItemSort(p: {
-  sorts: SortType[];
-  setSorts: SetStoreFunction<SortType[]>;
-  children: JSX.Element;
-}) {
-  const [route, _, __] = useRouter();
+function ItemSort(p: { children: JSXElement }) {
+  const [view, setView] = useRouter();
   const [show, setShow] = createSignal(false);
 
   function updateSort(id: string, enabled: boolean, reversed: boolean) {
-    batch(() => {
-      const fromIndex = p.sorts.findIndex((s) => s.id === id);
-      const wasEnabled = p.sorts[fromIndex].enabled;
-      p.setSorts(fromIndex, { enabled, reversed });
-      if (!wasEnabled && enabled) {
-        // bump new enabled sort to the top
-        p.setSorts(reorderArray(p.sorts, fromIndex, 0));
-      }
-    });
+    let sorts = view.sorts();
+    const fromIndex = sorts.findIndex((s) => s.id === id);
+    const wasEnabled = sorts[fromIndex].enabled;
+    // TODO(Kagami): use Store for fine-grained updates?
+    sorts = sorts.map((s) => (s.id !== id ? s : { ...s, enabled, reversed }));
+    if (!wasEnabled && enabled) {
+      // bump new enabled sort to the top
+      sorts = reorderArray(sorts, fromIndex, 0);
+    }
+    setView({ sorts });
   }
 
   function setNewOrder(fromId: string, toId: string) {
     if (fromId === toId) return;
-    const fromIndex = p.sorts.findIndex((s) => s.id === fromId);
-    const toIndex = p.sorts.findIndex((s) => s.id === toId);
-    p.setSorts(reorderArray(p.sorts, fromIndex, toIndex));
+    let sorts = view.sorts();
+    const fromIndex = sorts.findIndex((s) => s.id === fromId);
+    const toIndex = sorts.findIndex((s) => s.id === toId);
+    sorts = reorderArray(sorts, fromIndex, toIndex);
+    setView({ sorts });
   }
 
   function handleReset() {
-    p.setSorts(getDefaultSorts(route()));
-    removeSorts(route());
+    const type = routeToItemType(view.route());
+    const sorts = getDefaultSortsCopy(type);
+    setView({ sorts });
+    removeSorts(type);
   }
 
   function handleAllOff() {
-    p.setSorts(() => true, { enabled: false });
+    let sorts = view.sorts();
+    sorts = sorts.map((s) => ({ ...s, enabled: false }));
+    setView({ sorts });
   }
 
   function handleSave() {
-    saveSorts(route(), p.sorts);
+    saveSorts(routeToItemType(view.route()), view.sorts());
   }
 
   return (
@@ -170,7 +182,7 @@ function ItemSort(p: {
             <IconSave class="icon_control" onClick={handleSave} />
           </div>
           <ul class="space-y-1">
-            <For each={p.sorts}>
+            <For each={view.sorts()}>
               {(sort) => (
                 <SortLine
                   sort={sort}
@@ -215,6 +227,7 @@ function SortLine(p: {
         {...nonDraggable()}
       >
         <input
+          name="sort"
           type="checkbox"
           class="hidden peer"
           checked={p.sort.enabled}
@@ -244,14 +257,9 @@ function SortDirection(p: { sort: SortType; updateSort: UpdateSortFn }) {
       onClick={() => p.updateSort(p.sort.id, p.sort.enabled, !p.sort.reversed)}
       {...nonDraggable()}
     >
-      <Switch>
-        <Match when={!p.sort.reversed}>
-          <IconSortDown class="icon" />
-        </Match>
-        <Match when={p.sort.reversed}>
-          <IconSortUp class="icon" />
-        </Match>
-      </Switch>
+      <Show when={p.sort.reversed} fallback={<IconSortDown class="icon" />}>
+        <IconSortUp class="icon" />
+      </Show>
     </a>
   );
 }

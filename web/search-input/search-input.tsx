@@ -11,7 +11,7 @@ interface SearchProps {
 }
 
 export default function SearchInput(p: SearchProps) {
-  const [route, query, goto] = useRouter();
+  const [view, setView] = useRouter();
   let inputEl: HTMLInputElement;
 
   function focus() {
@@ -23,16 +23,16 @@ export default function SearchInput(p: SearchProps) {
   }
 
   function handleInputChange() {
-    goto(null, inputEl.value, { delay: true });
+    setView({ query: inputEl.value, delay: true });
   }
 
   function handleClearClick() {
-    goto(null, "");
+    setView({ query: "" });
     setTimeout(focus);
   }
 
   createEffect(
-    on(route, (r, prev) => {
+    on(view.route, (r, prev) => {
       if (r !== prev) {
         focus();
       }
@@ -55,7 +55,7 @@ export default function SearchInput(p: SearchProps) {
   // }, p.loading);
 
   const placeholder = createMemo(
-    () => `Search for ${route() === IdolQueryRoute ? "idol" : "group"}`
+    () => `Search for ${view.route() === IdolQueryRoute ? "idol" : "group"}`
   );
 
   return (
@@ -69,13 +69,13 @@ export default function SearchInput(p: SearchProps) {
         border border-kngray-1 focus:border-control-hover outline-none
         placeholder:text-kngray-1 placeholder:opacity-100
         "
-        value={query()}
+        value={view.query()}
         placeholder={placeholder()}
         disabled={p.loading || p.disabled}
         spellcheck={false}
         onInput={handleInputChange}
       />
-      <Show when={query()}>
+      <Show when={view.query()}>
         <IconX
           class="icon_control
           absolute bottom-0 right-[8px] top-0 m-auto"

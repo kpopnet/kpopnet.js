@@ -1,4 +1,6 @@
 import type { Idol, Group, Profiles, GroupMember } from "kpopnet.json";
+
+import { type SortProp, defaultIdolProps, defaultGroupProps } from "./sort";
 import { getAge } from "./utils";
 
 export type IdolMap = Map<string, Idol>;
@@ -20,9 +22,6 @@ export interface Cache {
 }
 
 export type Item = Idol | Group;
-
-/** [field, 1=asc/-1=desc] */
-export type SortProp = [string, number];
 
 type SearchProp = [string, string];
 interface Query {
@@ -390,9 +389,6 @@ function filterOrCopy<T>(
   return arr.filter((item) => fn(q, item, cache));
 }
 
-const defaultIdolSorts: SortProp[] = [["birth_date", -1]];
-const defaultGroupSorts: SortProp[] = [["debut_date", -1]];
-
 function sameSorts(arr1: SortProp[], arr2: SortProp[]): boolean {
   if (arr1.length === 0 || arr2.length === 0) return true; // disabled all sorts -> as default
   if (arr1.length !== arr2.length) return false;
@@ -452,7 +448,7 @@ export function searchIdols(
   /*dev*/ const tQuery = dev ? performance.now() : 0;
   const result = filterOrCopy(profiles.idols, filterIdol, q, cache);
   /*dev*/ const tFilter = dev ? performance.now() : 0;
-  sortIfNeeded(result, sorts, defaultIdolSorts);
+  sortIfNeeded(result, sorts, defaultIdolProps);
   /*dev*/ const tSort = dev ? performance.now() : 0;
   /*dev*/ const tEnd = dev ? tSort : 0;
 
@@ -485,7 +481,7 @@ export function searchGroups(
   /*dev*/ const tQuery = dev ? performance.now() : 0;
   const result = filterOrCopy(profiles.groups, filterGroup, q, cache);
   /*dev*/ const tFilter = dev ? performance.now() : 0;
-  sortIfNeeded(result, sorts, defaultGroupSorts);
+  sortIfNeeded(result, sorts, defaultGroupProps);
   /*dev*/ const tSort = dev ? performance.now() : 0;
   /*dev*/ const tEnd = dev ? tSort : 0;
 

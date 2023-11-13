@@ -6,12 +6,12 @@ import kastden from "./kastden.png";
 import { notTouch } from "../../lib/utils";
 
 export default function Navbar() {
-  const [_, __, goto] = useRouter();
+  const [_, setView] = useRouter();
   const [showInfo, setShowInfo] = createSignal(false);
 
   function handleHome(e: Event) {
     e.preventDefault();
-    goto(IdolQueryRoute, "");
+    setView({ route: IdolQueryRoute, query: "" });
   }
 
   return (

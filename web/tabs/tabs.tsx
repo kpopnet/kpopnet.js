@@ -28,7 +28,7 @@ function TabView(p: { tab: Tab; active: boolean; onClick: () => void }) {
 }
 
 export default function TabsView() {
-  const [route, query, goto] = useRouter();
+  const [view, setView] = useRouter();
   const tabs: Tab[] = [
     { name: "Idols", route: IdolQueryRoute },
     { name: "Groups", route: GroupQueryRoute },
@@ -36,7 +36,7 @@ export default function TabsView() {
 
   function setActive(tab: Tab) {
     // keep current query because it might be useful in other context
-    goto(tab.route, query());
+    setView({ route: tab.route });
   }
 
   return (
@@ -48,7 +48,7 @@ export default function TabsView() {
         {(tab) => (
           <TabView
             tab={tab}
-            active={tab.route === route()}
+            active={tab.route === view.route()}
             onClick={() => setActive(tab)}
           />
         )}

@@ -21,5 +21,6 @@ export default defineConfig({
     target: "esnext",
     assetsDir: "static",
     assetsInlineLimit: 0,
+    chunkSizeWarningLimit: 700,
   },
 });

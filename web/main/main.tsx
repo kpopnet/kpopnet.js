@@ -30,7 +30,7 @@ function Main() {
   const [cache, setCache] = createSignal<Cache>();
   const [err, setErr] = createSignal<any>();
   const [focus, setFocus] = createSignal(0);
-  const [route, query, goto] = useRouter();
+  const [view, setView] = useRouter();
 
   new Promise(() => {
     setCache(makeCache(profiles));
@@ -42,12 +42,12 @@ function Main() {
   function handleGlobalHotkeys(event: KeyboardEvent) {
     if (event.key == "k" && (event.ctrlKey || event.metaKey)) {
       event.preventDefault();
-      if (route() === IdolQueryRoute || route() === GroupQueryRoute) {
+      if (view.route() === IdolQueryRoute || view.route() === GroupQueryRoute) {
         // XXX(Kagami): need to keep triggering this signal somehow...
         setFocus(focus() + 1);
       } else {
         // input watches for route change itself, don't need to call manually here
-        goto(IdolQueryRoute, "");
+        setView({ route: IdolQueryRoute, query: "" });
       }
     }
   }
@@ -67,7 +67,7 @@ function Main() {
         class="flex flex-col min-h-full pb-cnt-last
         md:w-[800px] px-[10px] mx-auto"
         classList={{
-          "pt-cnt-top": route() === ItemRoute,
+          "pt-cnt-top": view.route() === ItemRoute,
           "justify-center items-center err": !!err(),
         }}
       >
@@ -76,8 +76,8 @@ function Main() {
             Can't load profile data
             <div class="err-sm">{showError(err())}</div>
           </Match>
-          <Match when={route() === ItemRoute}>
-            <ItemView id={query()} cache={cache()!} />
+          <Match when={view.route() === ItemRoute}>
+            <ItemView id={view.query()} cache={cache()!} />
           </Match>
           <Match when>
             <Tabs />

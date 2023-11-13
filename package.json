@@ -8,7 +8,8 @@
     "start": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "test": "node --test --import=./test/register.js test/**/*.spec.*"
+    "test": "node --test --import=./test/register.js test/**/*.spec.*",
+    "test:type": "tsc -p ts-type.json"
   },
   "repository": {
     "type": "git",

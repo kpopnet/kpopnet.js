@@ -81,7 +81,7 @@ export function Searchable(p: {
   class?: string;
   children: JSXElement;
 }) {
-  const [_, __, goto] = useRouter();
+  const [_, setView] = useRouter();
   const resolved = children(() => p.children);
   const newRoute = () => {
     if (p.k === "id") return ItemRoute;
@@ -102,7 +102,7 @@ export function Searchable(p: {
 
   function handleClick(e: MouseEvent) {
     e.preventDefault();
-    goto(newRoute(), newQuery());
+    setView({ route: newRoute(), query: newQuery() });
   }
 
   return (
