@@ -10,12 +10,12 @@ export default function Navbar() {
   return (
     <nav
       class="min-[1000px]:fixed min-[1000px]:top-0 min-[1000px]:right-0 z-50
-      md:w-[800px] p-[10px] mx-auto pointer-events-none
+      md:w-[800px] mx-auto pointer-events-none
       flex justify-end relative"
     >
       <div
         // This 100x100 wrapper is for catching mouseleave event
-        class="flex justify-end items-start w-[100px] min-[1000px]:h-[100px] pointer-events-auto"
+        class="flex justify-end items-start w-[100px] min-[1000px]:h-[100px] p-[10px] pointer-events-auto"
         onMouseLeave={() => setShowInfo(false)}
       >
         <a href="/" class="link">
@@ -39,8 +39,10 @@ export default function Navbar() {
 function Info() {
   return (
     <div
-      class="flex items-center gap-x-1 pr-1 absolute
-      ml-[10px] right-[10px] top-[calc(theme(spacing.icon)+10px+5px)]
+      class="flex items-center gap-x-1 pr-1 absolute z-50
+      ml-[10px] right-[10px]
+      top-[calc(theme(spacing.icon-lg)+10px+5px)]
+      sm:top-[calc(theme(spacing.icon)+10px+5px)]
       border border-kngray-1 bg-body-bg"
     >
       <img class="w-[100px] h-[100px]" src={logo} />

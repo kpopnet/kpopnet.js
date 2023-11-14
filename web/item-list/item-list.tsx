@@ -164,8 +164,8 @@ function ItemSort(p: { children: JSXElement }) {
 
   return (
     <div
-      class="relative text-center mt-2 mb-cnt-next text-kngray-1"
-      classList={{ "mb-4": show() }}
+      class="relative text-center mt-2 text-kngray-1"
+      classList={{ "mb-cnt-next": !show(), "mb-4": show() }}
     >
       <span>{p.children}</span>
       <IconSort
