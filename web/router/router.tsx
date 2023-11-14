@@ -18,9 +18,13 @@ import {
   deserializeSorts,
   serializeIfChanged,
 } from "../../lib/sort";
-import { debounce, getUrlParams, setUrlParams } from "../../lib/utils";
+import {
+  debounce,
+  fixMissedUrlParam,
+  getUrlParams,
+  setUrlParams,
+} from "../../lib/utils";
 
-// TODO(Kagami): better to use Symbol but issue with HMR
 export type Route = "IdolQueryRoute" | "GroupQueryRoute" | "ItemRoute";
 export const IdolQueryRoute: Route = "IdolQueryRoute";
 export const GroupQueryRoute: Route = "GroupQueryRoute";
@@ -137,10 +141,12 @@ export default function Router(prop: { children: JSXElement }) {
   const setFn = (d: boolean) => (d ? debounceSetUrlParams : setUrlParams);
   createEffect(
     on(viewSig, ({ route, query, sorts, delay, noPush }, prev) => {
-      if (prev == null || noPush) return; // don't do anything on start or "Go Back"
+      if (noPush) return; // don't do anything on "Go Back"
+      const sq = serializeRouteSorts(route, sorts);
+      if (!prev && sq) fixMissedUrlParam("s", sq); // put sort settings from localStorage to URL
+      if (!prev) return; // don't do anything else on start
       if (route === ItemRoute) window.scrollTo(0, 0); // scroll even if same item because user clicked something
       const prevsq = serializeRouteSorts(prev.route, prev.sorts);
-      const sq = serializeRouteSorts(route, sorts);
       if (route === prev.route && query === prev.query && sq === prevsq) return; // no duplicated entries
       setFn(delay)(routeToUrlParam(route), query, "s", sq);
     })

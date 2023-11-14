@@ -28,6 +28,14 @@ export function setUrlParams(k1: string, v1: string, k2: string, v2: string) {
   history.pushState("", "", url);
 }
 
+export function fixMissedUrlParam(k: string, v: string) {
+  const url = new URL(location.href);
+  if (url.searchParams.has(k)) return;
+  url.searchParams.set(k, v);
+  url.search = url.searchParams.toString().replace(/%3A/g, ":");
+  history.replaceState("", "", url);
+}
+
 const MILLISECONDS_IN_YEAR = 1000 * 365 * 24 * 60 * 60;
 
 function fixZeroedDate(date: string): string {

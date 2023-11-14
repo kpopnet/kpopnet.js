@@ -13,11 +13,16 @@ import {
   onCleanup,
   createSignal,
   Show,
-  on,
+  createComputed,
 } from "solid-js";
-import type { Group, Idol, Profiles } from "kpopnet.json";
+import type { Profiles } from "kpopnet.json";
 
-import { type Cache, searchIdols, searchGroups } from "../../lib/search";
+import {
+  type Cache,
+  type Item,
+  searchIdols,
+  searchGroups,
+} from "../../lib/search";
 import IdolView from "../item-view/idol";
 import GroupView from "../item-view/group";
 import { IdolQueryRoute, useRouter, routeToItemType } from "../router/router";
@@ -38,6 +43,7 @@ import {
   getDefaultSortsCopy,
   isDefaultSorts,
 } from "../../lib/sort";
+import { ShowTransition } from "../animation/animation";
 
 // Recreate ItemList on route change to reset all previous state.
 export default function ItemListWrapper(p: {
@@ -45,28 +51,36 @@ export default function ItemListWrapper(p: {
   cache: Cache;
 }) {
   const [view, _] = useRouter();
-  return createMemo(
-    on(view.route, () => <ItemList profiles={p.profiles} cache={p.cache} />)
-  ) as unknown as JSX.Element;
+  return (
+    <Switch>
+      <Match when={view.route() === IdolQueryRoute}>
+        <ItemList {...p} />
+      </Match>
+      <Match when>
+        <ItemList {...p} />
+      </Match>
+    </Switch>
+  );
 }
 
 function ItemList(p: { profiles: Profiles; cache: Cache }) {
-  const SHOW_PER_PAGE = 20;
   const [view, _] = useRouter();
-  const [showLastX, setShowLastX] = createSignal(SHOW_PER_PAGE);
 
-  const allItems = createMemo(() => {
-    setShowLastX(SHOW_PER_PAGE); // reset on query change
-    const searchFn =
-      view.route() === IdolQueryRoute ? searchIdols : searchGroups;
-    return searchFn(
-      view.query(),
-      sortsToProps(view.sorts()),
-      p.profiles,
-      p.cache
-    );
+  const SHOW_PER_PAGE = 20;
+  const [showLastX, setShowLastX] = createSignal(SHOW_PER_PAGE);
+  const [items, setItems] = createSignal<Item[]>([]);
+
+  const searchFn = view.route() === IdolQueryRoute ? searchIdols : searchGroups;
+  const allItems = createMemo(() =>
+    searchFn(view.query(), sortsToProps(view.sorts()), p.profiles, p.cache)
+  );
+  createComputed((prev) => {
+    if (prev && allItems() !== prev) {
+      setShowLastX(SHOW_PER_PAGE);
+    }
+    setItems(allItems().slice(0, showLastX()));
+    return allItems();
   });
-  const items = createMemo(() => allItems().slice(0, showLastX()));
 
   function nearBottom() {
     const el = document.documentElement;
@@ -88,6 +102,7 @@ function ItemList(p: { profiles: Profiles; cache: Cache }) {
     document.removeEventListener("scroll", handleScroll);
   });
 
+  const ItemView = createItemView();
   return (
     <Switch>
       <Match when={items().length}>
@@ -96,13 +111,7 @@ function ItemList(p: { profiles: Profiles; cache: Cache }) {
         </ItemSort>
         <section id="items">
           <For each={items()}>
-            {(item) =>
-              view.route() === IdolQueryRoute ? (
-                <IdolView idol={item as Idol} cache={p.cache} />
-              ) : (
-                <GroupView group={item as Group} cache={p.cache} />
-              )
-            }
+            {(item) => <ItemView item={item} cache={p.cache} />}
           </For>
         </section>
       </Match>
@@ -113,6 +122,16 @@ function ItemList(p: { profiles: Profiles; cache: Cache }) {
       </Match>
     </Switch>
   );
+}
+
+function createItemView() {
+  const [view, _] = useRouter();
+  const ItemView = view.route() === IdolQueryRoute ? IdolView : GroupView;
+  const itemKey = view.route() === IdolQueryRoute ? "idol" : "group";
+  return (p: { item: Item; cache: Cache }) => {
+    const itemProp = { [itemKey]: p.item } as any;
+    return <ItemView {...itemProp} cache={p.cache} />;
+  };
 }
 
 function ItemSort(p: { children: JSXElement }) {
@@ -174,8 +193,11 @@ function ItemSort(p: { children: JSXElement }) {
         classList={{ "text-link": nonDefaultSorts() }}
         onClick={(e) => setShow(!show())}
       />
-      <Show when={show()}>
-        <div class="border border-kngray-1 w-60 mx-auto mt-1 p-2 bg-transparent text-gray-700">
+      <ShowTransition when={show}>
+        <div
+          class="border border-kngray-1 w-60 mx-auto mt-1 p-2 bg-transparent text-gray-700
+            transition-opacity duration-300 opacity-0"
+        >
           <div class="flex justify-center gap-x-4 mb-2">
             <IconOff class="icon_control" onClick={handleAllOff} />
             <IconRevert class="icon_control" onClick={handleReset} />
@@ -193,7 +215,7 @@ function ItemSort(p: { children: JSXElement }) {
             </For>
           </ul>
         </div>
-      </Show>
+      </ShowTransition>
     </div>
   );
 }
