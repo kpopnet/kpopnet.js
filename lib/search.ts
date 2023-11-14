@@ -1,6 +1,11 @@
 import type { Idol, Group, Profiles, GroupMember } from "kpopnet.json";
 
-import { type SortProp, defaultIdolProps, defaultGroupProps } from "./sort";
+import {
+  type SortProp,
+  defaultIdolProps,
+  defaultGroupProps,
+  sameSorts,
+} from "./sort";
 import { getAge } from "./utils";
 
 export type IdolMap = Map<string, Idol>;
@@ -387,15 +392,6 @@ function filterOrCopy<T>(
   // should be a bit faster for cold run
   if (!q.words.length && !q.props.length) return arr.slice();
   return arr.filter((item) => fn(q, item, cache));
-}
-
-function sameSorts(arr1: SortProp[], arr2: SortProp[]): boolean {
-  if (arr1.length === 0 || arr2.length === 0) return true; // disabled all sorts -> as default
-  if (arr1.length !== arr2.length) return false;
-  for (let i = 0; i < arr1.length; i++) {
-    if (arr1[i][0] !== arr2[i][0] || arr1[i][1] !== arr2[i][1]) return false;
-  }
-  return true;
 }
 
 function makeCompareFn(sorts: SortProp[]) {

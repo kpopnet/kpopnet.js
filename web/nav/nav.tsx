@@ -1,18 +1,11 @@
 import { Show, createSignal } from "solid-js";
 import { IconChat, IconHome, IconQuestion, IconWiki } from "../icons/icons";
-import { IdolQueryRoute, useRouter } from "../router/router";
 import logo from "../main/logo-200.png";
 import kastden from "./kastden.png";
 import { notTouch } from "../../lib/utils";
 
 export default function Navbar() {
-  const [_, setView] = useRouter();
   const [showInfo, setShowInfo] = createSignal(false);
-
-  function handleHome(e: Event) {
-    e.preventDefault();
-    setView({ route: IdolQueryRoute, query: "" });
-  }
 
   return (
     <nav
@@ -25,7 +18,7 @@ export default function Navbar() {
         class="flex justify-end items-start w-[100px] min-[1000px]:h-[100px] pointer-events-auto"
         onMouseLeave={() => setShowInfo(false)}
       >
-        <a onClick={handleHome} class="link">
+        <a href="/" class="link">
           <IconHome class="icon_control mobile_icon_large" />
         </a>
         <a

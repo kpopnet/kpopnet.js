@@ -16,8 +16,9 @@ import {
   type SortItemType,
   loadSorts,
   deserializeSorts,
+  serializeIfChanged,
 } from "../../lib/sort";
-import { debounce, getUrlParams, setUrlParam } from "../../lib/utils";
+import { debounce, getUrlParams, setUrlParams } from "../../lib/utils";
 
 // TODO(Kagami): better to use Symbol but issue with HMR
 export type Route = "IdolQueryRoute" | "GroupQueryRoute" | "ItemRoute";
@@ -49,7 +50,14 @@ const RouterContext = createContext<RouterContextValue>(
 
 // Use separated abstraction for sort module because router is specific to web app
 export function routeToItemType(route: Route): SortItemType {
-  return route === IdolQueryRoute ? "idol" : "group";
+  switch (route) {
+    case IdolQueryRoute:
+      return "idol";
+    case GroupQueryRoute:
+      return "group";
+    default:
+      throw new Error(`No sorts for route ${route.toString()}`);
+  }
 }
 
 export function routeToUrlParam(route: Route): string {
@@ -65,6 +73,14 @@ export function routeToUrlParam(route: Route): string {
   }
 }
 
+function queryRoute(route: Route): boolean {
+  return route === IdolQueryRoute || route === GroupQueryRoute;
+}
+
+function loadRouteSorts(route: Route): SortType[] {
+  return queryRoute(route) ? loadSorts(routeToItemType(route)) : [];
+}
+
 // Infer current view from the URL
 function createView(): View {
   // default view
@@ -75,20 +91,29 @@ function createView(): View {
 
   const params = getUrlParams();
   let val: string | null = null;
-  if ((val = params.get("id"))) {
+  if ((val = params.get("id")) != null) {
     [route, query] = [ItemRoute, val];
-  } else if ((val = params.get("q"))) {
+  } else if ((val = params.get("q")) != null) {
     [route, query] = [IdolQueryRoute, val];
-  } else if ((val = params.get("gq"))) {
+  } else if ((val = params.get("gq")) != null) {
     [route, query] = [GroupQueryRoute, val];
   }
-  // sort in URL overwrites localStorage sorts
-  if ((val = params.get("s"))) {
-    sorts = deserializeSorts(routeToItemType(route), val);
-  } else {
-    sorts = loadSorts(routeToItemType(route));
+
+  if (queryRoute(route)) {
+    // sort in URL overwrites localStorage sorts
+    if ((val = params.get("s"))) {
+      sorts = deserializeSorts(routeToItemType(route), val);
+    } else {
+      sorts = loadRouteSorts(route);
+    }
   }
+
   return { route, query, sorts, delay, noPush };
+}
+
+function serializeRouteSorts(route: Route, sorts: SortType[]): string {
+  if (!queryRoute(route)) return "";
+  return serializeIfChanged(routeToItemType(route), sorts);
 }
 
 export default function Router(prop: { children: JSXElement }) {
@@ -98,32 +123,31 @@ export default function Router(prop: { children: JSXElement }) {
     query: createMemo(() => viewSig().query),
     sorts: createMemo(() => viewSig().sorts),
   };
-  function setView(opts: SetView) {
+  function setViewDefaults(opts: SetView) {
     const defOpts: SetView = { delay: false, noPush: false }; // reset opts
+    // Reset sorts on route change
     if (opts.route && viewSig().route !== opts.route && !opts.sorts) {
-      // reset sorts on route change
-      defOpts.sorts = loadSorts(routeToItemType(opts.route));
+      defOpts.sorts = loadRouteSorts(opts.route);
     }
     setViewSig({ ...viewSig(), ...defOpts, ...opts });
   }
-  const context: RouterContextValue = [getView, setView];
+  const context: RouterContextValue = [getView, setViewDefaults];
 
-  const debounceSetUrlParam = debounce(setUrlParam, 400);
+  const debounceSetUrlParams = debounce(setUrlParams, 400);
+  const setFn = (d: boolean) => (d ? debounceSetUrlParams : setUrlParams);
   createEffect(
-    on(viewSig, ({ route: r, query: q, sorts: s, delay, noPush }, prev) => {
-      // console.log("@@@ route", [r, q, o], prev);
+    on(viewSig, ({ route, query, sorts, delay, noPush }, prev) => {
       if (prev == null || noPush) return; // don't do anything on start or "Go Back"
-      window.scrollTo(0, 0); // scroll even if same route because user clicked something
-      // FIXME: handle sorts without push?
-      if (r === prev.route && q === prev.query) return; // no duplicated entries
-      if (q === "" && prev.query === "") return; // don't duplicate empty queries
-      const fn = delay ? debounceSetUrlParam : setUrlParam;
-      fn(routeToUrlParam(r), q);
+      if (route === ItemRoute) window.scrollTo(0, 0); // scroll even if same item because user clicked something
+      const prevsq = serializeRouteSorts(prev.route, prev.sorts);
+      const sq = serializeRouteSorts(route, sorts);
+      if (route === prev.route && query === prev.query && sq === prevsq) return; // no duplicated entries
+      setFn(delay)(routeToUrlParam(route), query, "s", sq);
     })
   );
 
   function handleBack(e: PopStateEvent) {
-    setView({ ...createView(), noPush: true });
+    setViewSig({ ...createView(), noPush: true });
   }
 
   onMount(() => {

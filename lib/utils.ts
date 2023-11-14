@@ -1,7 +1,6 @@
-export function debounce(callback: Function, interval: number) {
+export function debounce<A extends Function>(callback: A, interval: number): A {
   let debounceTimeoutId: ReturnType<typeof setTimeout> | undefined;
-
-  return function (...args: any[]) {
+  return <any>function (...args: any[]) {
     clearTimeout(debounceTimeoutId);
     debounceTimeoutId = setTimeout(() => callback(...args), interval);
   };
@@ -12,19 +11,20 @@ export function getUrlParams(): URLSearchParams {
   return url.searchParams;
 }
 
-export function setUrlParam(key: string, value: string) {
+export function setUrlParams(k1: string, v1: string, k2: string, v2: string) {
   const url = new URL(location.href);
-
-  for (const key of url.searchParams.keys()) {
-    url.searchParams.delete(key);
+  url.search = "";
+  if (v1 || k1 === "gq") {
+    // q=default, gq=need to save group route
+    url.searchParams.set(k1, v1);
   }
-  if (value) {
-    url.searchParams.set(key, value);
+  if (v2) {
+    url.searchParams.set(k2, v2);
   }
   // don't escape colon https://stackoverflow.com/q/13713671
   url.search = url.searchParams.toString().replace(/%3A/g, ":");
 
-  // console.log("@@@ PUSH STATE", { key, value });
+  if (import.meta.env.DEV) console.log("PUSH STATE", { k1, v1, k2, v2 });
   history.pushState("", "", url);
 }
 

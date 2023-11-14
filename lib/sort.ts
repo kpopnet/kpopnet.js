@@ -17,6 +17,15 @@ export function sortsToProps(sorts: SortType[]): SortProp[] {
   return sorts.filter((s) => s.enabled).map((s) => [s.id, s.reversed ? -1 : 1]);
 }
 
+export function sameSorts(arr1: SortProp[], arr2: SortProp[]): boolean {
+  if (arr1.length === 0 || arr2.length === 0) return true; // disabled all sorts -> as default
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i][0] !== arr2[i][0] || arr1[i][1] !== arr2[i][1]) return false;
+  }
+  return true;
+}
+
 // NOTE(Kagami): default sorts should be in sync with lib/search.ts and kpopnet.json!
 // NOTE(Kagami): actually kpopnet.json uses 2 keys but the second one is just a
 // fallback, so we use just one to avoid UI clutter.
@@ -63,6 +72,11 @@ export function getDefaultSortsCopy(type: SortItemType): SortType[] {
   return structuredClone(sorts);
 }
 
+export function isDefaultSorts(type: SortItemType, sorts: SortType[]): boolean {
+  const defaultProps = type === "idol" ? defaultIdolProps : defaultGroupProps;
+  return sameSorts(defaultProps, sortsToProps(sorts));
+}
+
 function getFieldMaps(type: SortItemType) {
   return type === "idol" ? idolFieldMaps : groupFieldMaps;
 }
@@ -105,7 +119,15 @@ export function serializeSorts(type: SortItemType, sorts: SortType[]): string {
   return sorts
     .filter((s) => s.enabled)
     .map((s) => `${fMap.get(s.id)}:${s.reversed ? 1 : 0}`)
-    .join("+");
+    .join(" ");
+}
+
+export function serializeIfChanged(
+  type: SortItemType,
+  sorts: SortType[]
+): string {
+  if (isDefaultSorts(type, sorts)) return "";
+  return serializeSorts(type, sorts);
 }
 
 export function deserializeSorts(type: SortItemType, s: string): SortType[] {
@@ -113,7 +135,7 @@ export function deserializeSorts(type: SortItemType, s: string): SortType[] {
   const defaultSorts = getDefaultSortsCopy(type);
   const defaultSortsMap = new Map(defaultSorts.map((s) => [s.id, s]));
   const sorts: SortType[] = [];
-  for (const chunk of s.trim().split(/\+/)) {
+  for (const chunk of s.trim().split(/\s+/)) {
     if (!chunk.includes(":")) continue;
     const [id, reversed] = chunk.split(":");
     if (!(reversed === "0" || reversed === "1")) continue;

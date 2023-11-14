@@ -20,12 +20,7 @@ import type { Group, Idol, Profiles } from "kpopnet.json";
 import { type Cache, searchIdols, searchGroups } from "../../lib/search";
 import IdolView from "../item-view/idol";
 import GroupView from "../item-view/group";
-import {
-  type Route,
-  IdolQueryRoute,
-  useRouter,
-  routeToItemType,
-} from "../router/router";
+import { IdolQueryRoute, useRouter, routeToItemType } from "../router/router";
 import {
   IconOff,
   IconRevert,
@@ -37,11 +32,11 @@ import {
 import { reorderArray } from "../../lib/utils";
 import {
   type SortType,
-  loadSorts,
   removeSorts,
   saveSorts,
   sortsToProps,
   getDefaultSortsCopy,
+  isDefaultSorts,
 } from "../../lib/sort";
 
 // Recreate ItemList on route change to reset all previous state.
@@ -124,6 +119,11 @@ function ItemSort(p: { children: JSXElement }) {
   const [view, setView] = useRouter();
   const [show, setShow] = createSignal(false);
 
+  const sortItemType = () => routeToItemType(view.route());
+  const nonDefaultSorts = createMemo(
+    () => !isDefaultSorts(sortItemType(), view.sorts())
+  );
+
   function updateSort(id: string, enabled: boolean, reversed: boolean) {
     let sorts = view.sorts();
     const fromIndex = sorts.findIndex((s) => s.id === id);
@@ -147,10 +147,9 @@ function ItemSort(p: { children: JSXElement }) {
   }
 
   function handleReset() {
-    const type = routeToItemType(view.route());
-    const sorts = getDefaultSortsCopy(type);
+    const sorts = getDefaultSortsCopy(sortItemType());
     setView({ sorts });
-    removeSorts(type);
+    removeSorts(sortItemType());
   }
 
   function handleAllOff() {
@@ -160,7 +159,7 @@ function ItemSort(p: { children: JSXElement }) {
   }
 
   function handleSave() {
-    saveSorts(routeToItemType(view.route()), view.sorts());
+    saveSorts(sortItemType(), view.sorts());
   }
 
   return (
@@ -172,6 +171,7 @@ function ItemSort(p: { children: JSXElement }) {
       <IconSort
         class="icon inline-block ml-1 hover:text-link-hover
           cursor-pointer align-top"
+        classList={{ "text-link": nonDefaultSorts() }}
         onClick={(e) => setShow(!show())}
       />
       <Show when={show()}>
