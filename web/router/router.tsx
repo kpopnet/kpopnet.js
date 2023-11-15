@@ -77,7 +77,7 @@ export function routeToUrlParam(route: Route): string {
   }
 }
 
-function queryRoute(route: Route): boolean {
+export function queryRoute(route: Route): boolean {
   return route === IdolQueryRoute || route === GroupQueryRoute;
 }
 

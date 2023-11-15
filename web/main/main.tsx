@@ -14,6 +14,7 @@ import Router, {
   IdolQueryRoute,
   useRouter,
   GroupQueryRoute,
+  queryRoute,
 } from "../router/router";
 import Navbar from "../nav/nav";
 import Tabs from "../tabs/tabs";
@@ -39,9 +40,10 @@ function Main() {
     setErr(e);
   });
 
-  function handleGlobalHotkeys(event: KeyboardEvent) {
-    if (event.key == "k" && (event.ctrlKey || event.metaKey)) {
-      event.preventDefault();
+  function handleGlobalHotkeys(e: KeyboardEvent) {
+    const cmdOrCtrl = e.ctrlKey || e.metaKey;
+    if (e.key === "k" && cmdOrCtrl) {
+      e.preventDefault();
       if (view.route() === IdolQueryRoute || view.route() === GroupQueryRoute) {
         // XXX(Kagami): need to keep triggering this signal somehow...
         setFocus(focus() + 1);
@@ -49,6 +51,13 @@ function Main() {
         // input watches for route change itself, don't need to call manually here
         setView({ route: IdolQueryRoute, query: "" });
       }
+    } else if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && cmdOrCtrl) {
+      e.preventDefault();
+      if (!queryRoute(view.route())) return;
+      const route =
+        view.route() === IdolQueryRoute ? GroupQueryRoute : IdolQueryRoute;
+      // keep current query because it might be useful in other context
+      setView({ route });
     }
   }
 
