@@ -12,7 +12,7 @@
   @media screen(sm) {
     :root {
       --cnt-top: 30px;
-      --cnt-next: 50px;
+      --cnt-next: 30px;
       --cnt-last: 100px;
     }
   }

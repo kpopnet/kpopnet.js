@@ -9,18 +9,18 @@ import {
 import { getAge } from "./utils";
 
 export type IdolMap = Map<string, Idol>;
-export type GroupMap = Map<string, Group>;
 export type IdolGroupsMap = Map<string, Group[]>;
-export type GroupIdolsMap = Map<string, Idol[]>;
 export type IdolGroupMemberMap = Map<string, GroupMember>;
+export type GroupMap = Map<string, Group>;
+export type GroupUnitsMap = Map<string, Group[]>;
 export type IdolNamesMap = Map<string, string>;
 export type IdolGroupNamesMap = Map<string, string>;
 export interface Cache {
   idolMap: IdolMap;
-  groupMap: GroupMap;
   idolGroupsMap: IdolGroupsMap;
-  // groupIdolsMap: GroupIdolsMap;
   idolGroupMemberMap: IdolGroupMemberMap;
+  groupMap: GroupMap;
+  groupUnitsMap: GroupUnitsMap;
   // concatenated normalized names for faster search
   idolNamesMap: IdolNamesMap;
   idolGroupNamesMap: IdolGroupNamesMap;
@@ -81,12 +81,13 @@ export function makeCache(profiles: Profiles): Cache {
   });
 
   const groupMap: GroupMap = new Map();
+  const groupUnitsMap: GroupUnitsMap = new Map();
   profiles.groups.forEach((group) => {
     // Object.freeze(group);
     groupMap.set(group.id, group);
+    groupUnitsMap.set(group.id, []);
   });
 
-  // const groupIdolsMap: GroupIdolsMap = new Map();
   const idolGroupMemberMap: IdolGroupMemberMap = new Map();
   profiles.groups.forEach((group) => {
     const groupIdols: Idol[] = [];
@@ -96,7 +97,10 @@ export function makeCache(profiles: Profiles): Cache {
       groupIdols.push(idol);
       idolGroupMemberMap.set(idolGroupMemberKey(idol, group), member);
     });
-    // groupIdolsMap.set(group.id, groupIdols);
+    if (group.parent_id) {
+      const parentGroup = groupMap.get(group.parent_id)!;
+      groupUnitsMap.get(parentGroup.id)!.push(group);
+    }
   });
 
   const idolGroupsMap: IdolGroupsMap = new Map();
@@ -121,10 +125,10 @@ export function makeCache(profiles: Profiles): Cache {
 
   return {
     idolMap,
-    groupMap,
     idolGroupsMap,
-    // groupIdolsMap,
     idolGroupMemberMap,
+    groupMap,
+    groupUnitsMap,
     idolNamesMap,
     idolGroupNamesMap,
   };

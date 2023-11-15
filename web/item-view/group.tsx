@@ -1,4 +1,4 @@
-import { For, Show, createMemo, createSignal } from "solid-js";
+import { For, type JSXElement, Show, createMemo, createSignal } from "solid-js";
 import type { Group, GroupMember, Idol } from "kpopnet.json";
 
 import { type Cache } from "../../lib/search";
@@ -16,8 +16,9 @@ import { IconSection } from "../icons/icons";
 
 export function GroupWithIdolsView(p: { group: Group; cache: Cache }) {
   return (
-    <article class="flex flex-col gap-y-6">
+    <article class="flex flex-col gap-y-cnt-next">
       <GroupView group={p.group} cache={p.cache} withIdols />
+      <GroupUnitsView group={p.group} cache={p.cache} />
       <GroupIdolsView group={p.group} cache={p.cache} />
     </article>
   );
@@ -42,6 +43,9 @@ function GroupInfoView(p: { group: Group; cache: Cache; withIdols?: boolean }) {
   const numActiveMembers = createMemo(
     () => p.group.members.filter((m) => m.current).length
   );
+  const parentName = createMemo(() =>
+    p.group.parent_id ? p.cache.groupMap.get(p.group.parent_id)!.name : ""
+  );
   return (
     <section
       class="flex-1 min-w-0
@@ -60,6 +64,13 @@ function GroupInfoView(p: { group: Group; cache: Cache; withIdols?: boolean }) {
         )
       </ItemLine>
       <NameAliasView alias={p.group.name_alias} gq />
+      <Show when={p.group.parent_id}>
+        <ItemLine name="Main group">
+          <Searchable k="id" id={p.group.parent_id!}>
+            {parentName()}
+          </Searchable>
+        </ItemLine>
+      </Show>
       <ItemLine name="Company">
         <CompanyView name={p.group.agency_name} />
       </ItemLine>
@@ -113,6 +124,19 @@ function CompanyView(p: { name: string }) {
   );
 }
 
+function GroupUnitsView(p: { group: Group; cache: Cache }) {
+  const units = createMemo(() => p.cache.groupUnitsMap.get(p.group.id)!);
+  return (
+    <Show when={units().length}>
+      <GroupSection name={` Subunits (${units().length})`} collapsed>
+        <For each={units()}>
+          {(group) => <GroupView group={group} cache={p.cache} />}
+        </For>
+      </GroupSection>
+    </Show>
+  );
+}
+
 function GroupIdolsView(p: { group: Group; cache: Cache }) {
   const mToI = (m: GroupMember) => ({ i: p.cache.idolMap.get(m.id)!, gm: m });
   const activeMembers = createMemo(() =>
@@ -125,7 +149,7 @@ function GroupIdolsView(p: { group: Group; cache: Cache }) {
     <>
       <Show when={activeMembers().length}>
         <GroupIdolsSection
-          name="Current members"
+          name="Members"
           gidols={activeMembers()}
           cache={p.cache}
         />
@@ -151,7 +175,21 @@ function GroupIdolsSection(p: {
   gidols: GroupIdol[];
   cache: Cache;
 }) {
-  const [show, setShow] = createSignal(true);
+  return (
+    <GroupSection name={` ${p.name} (${p.gidols.length})`}>
+      <For each={p.gidols}>
+        {({ i, gm }) => <IdolView idol={i} member={gm} cache={p.cache} />}
+      </For>
+    </GroupSection>
+  );
+}
+
+function GroupSection(p: {
+  collapsed?: boolean;
+  name: string;
+  children: JSXElement;
+}) {
+  const [show, setShow] = createSignal(!p.collapsed);
   return (
     <section class="border-t-2 border-dashed border-[#d5d5d5] ">
       <div class="text-[25px]">
@@ -159,17 +197,10 @@ function GroupIdolsSection(p: {
           class="icon_text_control w-[45px] h-[45px] inline-block"
           onClick={() => setShow(!show())}
         />
-        <span class="align-middle text-neutral-400 select-none">
-          {" "}
-          {p.name} ({p.gidols.length})
-        </span>
+        <span class="align-middle text-neutral-400 select-none">{p.name}</span>
       </div>
       <Show when={show()}>
-        <div class="sm:ml-12 mt-4">
-          <For each={p.gidols}>
-            {({ i, gm }) => <IdolView idol={i} member={gm} cache={p.cache} />}
-          </For>
-        </div>
+        <div class="sm:ml-12 mt-4">{p.children}</div>
       </Show>
     </section>
   );
