@@ -66,7 +66,7 @@ export default function ItemListWrapper(p: {
 function ItemList(p: { profiles: Profiles; cache: Cache }) {
   const [view, _] = useRouter();
 
-  const SHOW_PER_PAGE = 20;
+  const SHOW_PER_PAGE = 15;
   const [showLastX, setShowLastX] = createSignal(SHOW_PER_PAGE);
   const [items, setItems] = createSignal<Item[]>([]);
 
@@ -102,7 +102,8 @@ function ItemList(p: { profiles: Profiles; cache: Cache }) {
     document.removeEventListener("scroll", handleScroll);
   });
 
-  const ItemView = createItemView();
+  const ItemView = view.route() === IdolQueryRoute ? IdolView : GroupView;
+  const itemKey = view.route() === IdolQueryRoute ? "idol" : "group";
   return (
     <Switch>
       <Match when={items().length}>
@@ -111,7 +112,10 @@ function ItemList(p: { profiles: Profiles; cache: Cache }) {
         </ItemSort>
         <section id="items">
           <For each={items()}>
-            {(item) => <ItemView item={item} cache={p.cache} />}
+            {(item) => {
+              const itemProp = { [itemKey]: item } as any;
+              return <ItemView {...itemProp} cache={p.cache} />;
+            }}
           </For>
         </section>
       </Match>
@@ -122,16 +126,6 @@ function ItemList(p: { profiles: Profiles; cache: Cache }) {
       </Match>
     </Switch>
   );
-}
-
-function createItemView() {
-  const [view, _] = useRouter();
-  const ItemView = view.route() === IdolQueryRoute ? IdolView : GroupView;
-  const itemKey = view.route() === IdolQueryRoute ? "idol" : "group";
-  return (p: { item: Item; cache: Cache }) => {
-    const itemProp = { [itemKey]: p.item } as any;
-    return <ItemView {...itemProp} cache={p.cache} />;
-  };
 }
 
 function ItemSort(p: { children: JSXElement }) {

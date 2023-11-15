@@ -19,7 +19,7 @@ export interface Cache {
   idolMap: IdolMap;
   groupMap: GroupMap;
   idolGroupsMap: IdolGroupsMap;
-  groupIdolsMap: GroupIdolsMap;
+  // groupIdolsMap: GroupIdolsMap;
   idolGroupMemberMap: IdolGroupMemberMap;
   // concatenated normalized names for faster search
   idolNamesMap: IdolNamesMap;
@@ -86,17 +86,7 @@ export function makeCache(profiles: Profiles): Cache {
     groupMap.set(group.id, group);
   });
 
-  const idolGroupsMap: IdolGroupsMap = new Map();
-  profiles.idols.forEach((idol) => {
-    const idolGroups: Group[] = [];
-    idol.groups.forEach((id) => {
-      if (!groupMap.has(id)) throw new Error(`Invalid group ID: ${id}`);
-      idolGroups.push(groupMap.get(id)!);
-    });
-    idolGroupsMap.set(idol.id, idolGroups);
-  });
-
-  const groupIdolsMap: GroupIdolsMap = new Map();
+  // const groupIdolsMap: GroupIdolsMap = new Map();
   const idolGroupMemberMap: IdolGroupMemberMap = new Map();
   profiles.groups.forEach((group) => {
     const groupIdols: Idol[] = [];
@@ -106,7 +96,18 @@ export function makeCache(profiles: Profiles): Cache {
       groupIdols.push(idol);
       idolGroupMemberMap.set(idolGroupMemberKey(idol, group), member);
     });
-    groupIdolsMap.set(group.id, groupIdols);
+    // groupIdolsMap.set(group.id, groupIdols);
+  });
+
+  const idolGroupsMap: IdolGroupsMap = new Map();
+  profiles.idols.forEach((idol) => {
+    const idolGroups: Group[] = [];
+    idol.groups.forEach((id) => {
+      if (!groupMap.has(id)) throw new Error(`Invalid group ID: ${id}`);
+      idolGroups.push(groupMap.get(id)!);
+    });
+    idolGroups.sort(makeCompareIdolGroupsFn(idol, idolGroupMemberMap));
+    idolGroupsMap.set(idol.id, idolGroups);
   });
 
   const idolNamesMap: IdolNamesMap = new Map();
@@ -122,7 +123,7 @@ export function makeCache(profiles: Profiles): Cache {
     idolMap,
     groupMap,
     idolGroupsMap,
-    groupIdolsMap,
+    // groupIdolsMap,
     idolGroupMemberMap,
     idolNamesMap,
     idolGroupNamesMap,
@@ -146,17 +147,20 @@ function strcmp(s1: string, s2: string): number {
 // Main group goes first (if any).
 // Otherwise sort by group's debut date.
 // If unknown then by group's name.
-export function getSortedIdolGroups(idol: Idol, cache: Cache): Group[] {
-  const groups = Array.from(cache.idolGroupsMap.get(idol.id)!);
-  groups.sort((g1, g2) => {
-    const memberOfG1 = +getIdolGroupMember(idol, g1, cache)!.current;
-    const memberOfG2 = +getIdolGroupMember(idol, g2, cache)!.current;
+function makeCompareIdolGroupsFn(
+  idol: Idol,
+  idolGroupMemberMap: IdolGroupMemberMap
+) {
+  const getGM = (g: Group) =>
+    idolGroupMemberMap.get(idolGroupMemberKey(idol, g));
+  return (g1: Group, g2: Group) => {
+    const memberOfG1 = +getGM(g1)!.current;
+    const memberOfG2 = +getGM(g2)!.current;
     let cmp = memberOfG2 - memberOfG1;
     if (!cmp) cmp = strcmp(g2.debut_date || "0", g1.debut_date || "0");
     if (!cmp) cmp = strcmp(g2.name, g1.name);
     return cmp;
-  });
-  return groups;
+  };
 }
 
 // Remove symbols which doesn't make sense for fuzzy search.
@@ -250,6 +254,7 @@ function matchIdolGroupName(idol: Idol, cache: Cache, val: string): boolean {
 function matchGroupName(group: Group, val: string): boolean {
   return (
     normalizeAll(group.name).includes(val) ||
+    normalizeAll(group.name_original).includes(val) ||
     normalizeCommaWords(group.name_alias).join(" ").includes(val)
   );
 }

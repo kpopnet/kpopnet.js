@@ -1,7 +1,6 @@
 import {
   type JSXElement,
   type Accessor,
-  Show,
   createEffect,
   children,
   createMemo,
@@ -20,5 +19,5 @@ export function ShowTransition(p: {
       });
     }
   });
-  return <Show when={p.when()}>{resolved()}</Show>;
+  return <>{resolved()}</>;
 }

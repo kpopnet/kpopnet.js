@@ -49,7 +49,8 @@
   .icon,
   .icon_small,
   .mobile_icon_large,
-  .icon_control {
+  .icon_control,
+  .icon_text_control {
     @apply w-icon h-icon select-none;
   }
   .icon_small {
@@ -60,5 +61,8 @@
   }
   .icon_control {
     @apply cursor-pointer text-control hover:text-control-hover;
+  }
+  .icon_text_control {
+    @apply cursor-pointer text-kngray-1 hover:text-control-hover;
   }
 }

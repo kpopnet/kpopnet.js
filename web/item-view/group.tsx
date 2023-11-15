@@ -1,11 +1,10 @@
-import { For, Show, createMemo } from "solid-js";
-import type { Group, Idol } from "kpopnet.json";
+import { For, Show, createMemo, createSignal } from "solid-js";
+import type { Group, GroupMember, Idol } from "kpopnet.json";
 
 import { type Cache } from "../../lib/search";
 import { getAge } from "../../lib/utils";
 import {
   Preview,
-  LinkMenu,
   Searchable,
   SearchableDate,
   ItemLine,
@@ -13,13 +12,13 @@ import {
   NameAliasView,
 } from "./common";
 import IdolView from "./idol";
+import { IconSection } from "../icons/icons";
 
 export function GroupWithIdolsView(p: { group: Group; cache: Cache }) {
-  const idols = createMemo(() => p.cache.groupIdolsMap.get(p.group.id)!);
   return (
-    <article class="flex flex-col gap-y-2.5">
+    <article class="flex flex-col gap-y-6">
       <GroupView group={p.group} cache={p.cache} withIdols />
-      <GroupIdolsView idols={idols()} group={p.group} cache={p.cache} />
+      <GroupIdolsView group={p.group} cache={p.cache} />
     </article>
   );
 }
@@ -40,6 +39,9 @@ export default GroupView;
 function GroupInfoView(p: { group: Group; cache: Cache; withIdols?: boolean }) {
   const debutAgo = createMemo(() => getAge(p.group.debut_date || ""));
   const disbandAgo = createMemo(() => getAge(p.group.disband_date || ""));
+  const numActiveMembers = createMemo(
+    () => p.group.members.filter((m) => m.current).length
+  );
   return (
     <section
       class="flex-1 min-w-0
@@ -85,7 +87,11 @@ function GroupInfoView(p: { group: Group; cache: Cache; withIdols?: boolean }) {
         <ItemLine name="Members">
           <Searchable k="m" gq>
             {p.group.members.length}
-          </Searchable>{" "}
+          </Searchable>
+          <Show when={p.group.members.length !== numActiveMembers()}>
+            {" "}
+            ({numActiveMembers()} active)
+          </Show>
         </ItemLine>
       </Show>
     </section>
@@ -107,12 +113,64 @@ function CompanyView(p: { name: string }) {
   );
 }
 
-function GroupIdolsView(p: { idols: Idol[]; group: Group; cache: Cache }) {
+function GroupIdolsView(p: { group: Group; cache: Cache }) {
+  const mToI = (m: GroupMember) => ({ i: p.cache.idolMap.get(m.id)!, gm: m });
+  const activeMembers = createMemo(() =>
+    p.group.members.filter((m) => m.current).map(mToI)
+  );
+  const formerMembers = createMemo(() =>
+    p.group.members.filter((m) => !m.current).map(mToI)
+  );
   return (
-    <section class="col-span-2 col-start-1 border-t border-[#d5d5d5] pt-2.5 sm:pl-12">
-      <For each={p.idols}>
-        {(idol) => <IdolView idol={idol} group={p.group} cache={p.cache} />}
-      </For>
+    <>
+      <Show when={activeMembers().length}>
+        <GroupIdolsSection
+          name="Current members"
+          gidols={activeMembers()}
+          cache={p.cache}
+        />
+      </Show>
+      <Show when={formerMembers().length}>
+        <GroupIdolsSection
+          name="Former members"
+          gidols={formerMembers()}
+          cache={p.cache}
+        />
+      </Show>
+    </>
+  );
+}
+
+interface GroupIdol {
+  i: Idol;
+  gm: GroupMember;
+}
+
+function GroupIdolsSection(p: {
+  name: string;
+  gidols: GroupIdol[];
+  cache: Cache;
+}) {
+  const [show, setShow] = createSignal(true);
+  return (
+    <section class="border-t-2 border-dashed border-[#d5d5d5] ">
+      <div class="text-[25px]">
+        <IconSection
+          class="icon_text_control w-[45px] h-[45px] inline-block"
+          onClick={() => setShow(!show())}
+        />
+        <span class="align-middle text-neutral-400 select-none">
+          {" "}
+          {p.name} ({p.gidols.length})
+        </span>
+      </div>
+      <Show when={show()}>
+        <div class="sm:ml-12 mt-4">
+          <For each={p.gidols}>
+            {({ i, gm }) => <IdolView idol={i} member={gm} cache={p.cache} />}
+          </For>
+        </div>
+      </Show>
     </section>
   );
 }

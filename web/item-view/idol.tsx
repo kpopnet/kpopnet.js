@@ -1,15 +1,10 @@
-import { For, Show, createMemo, createSignal } from "solid-js";
+import { For, Show, createMemo } from "solid-js";
 import type { Group, GroupMember, Idol } from "kpopnet.json";
 
-import {
-  getSortedIdolGroups,
-  getIdolGroupMember,
-  type Cache,
-} from "../../lib/search";
+import { getIdolGroupMember, type Cache } from "../../lib/search";
 import { getAge } from "../../lib/utils";
 import {
   Preview,
-  LinkMenu,
   Searchable,
   SearchableDate,
   ItemLine,
@@ -20,18 +15,18 @@ import Tooltip from "../tooltip/tooltip";
 
 export default function IdolView(p: {
   idol: Idol;
-  group?: Group;
+  member?: GroupMember;
   cache: Cache;
 }) {
   return (
     <article class="flex sm:gap-x-2.5 mb-cnt-next last:mb-0">
       <Preview url={p.idol.thumb_url} id={p.idol.id} />
-      <IdolInfoView idol={p.idol} group={p.group} cache={p.cache} />
+      <IdolInfoView idol={p.idol} member={p.member} cache={p.cache} />
     </article>
   );
 }
 
-function IdolInfoView(p: { idol: Idol; group?: Group; cache: Cache }) {
+function IdolInfoView(p: { idol: Idol; member?: GroupMember; cache: Cache }) {
   const age = createMemo(() => getAge(p.idol.birth_date));
   const ago = createMemo(() => getAge(p.idol.debut_date || ""));
   // Normally every idol should have it so it's required key in JSON.
@@ -42,25 +37,21 @@ function IdolInfoView(p: { idol: Idol; group?: Group; cache: Cache }) {
       p.idol.real_name_original.startsWith("unknown_")
   );
   const igroups = createMemo(() => {
-    const sorted = getSortedIdolGroups(p.idol, p.cache);
-    return sorted.map((group) => ({
+    return p.cache.idolGroupsMap.get(p.idol.id)!.map((group) => ({
       g: group,
       gm: getIdolGroupMember(p.idol, group, p.cache)!,
     }));
   });
-  const gmContext = p.group
-    ? getIdolGroupMember(p.idol, p.group, p.cache)
-    : null;
   return (
     <section
       class="flex-1 min-w-0 border-[#d5d5d5]
         pl-1 sm:pl-5 text-sm sm:text-lg sm:border-l"
     >
       <ItemName id={p.idol.id} name={p.idol.name} urls={p.idol.urls}>
-        <Show when={gmContext?.roles}>
+        <Show when={p.member?.roles}>
           <span class="text-base text-kngray-1 align-middle">
             {" "}
-            ({gmContext!.roles})
+            ({p.member!.roles})
           </span>
         </Show>
       </ItemName>
@@ -106,7 +97,6 @@ interface IdolGroup {
   gm: GroupMember;
 }
 
-// TODO(Kagami): show roles/current info
 function IdolGroupsView(p: { igroups: IdolGroup[] }) {
   const mainGroup = createMemo(() =>
     p.igroups.length && p.igroups[0].gm.current ? p.igroups[0] : null
