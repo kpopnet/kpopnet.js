@@ -167,7 +167,7 @@ export function LinkMenu(p: { urls: string[] }) {
                 class="link whitespace-nowrap"
                 href={url}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
               >
                 {getLinkName(url)}{" "}
                 <IconExternalLink class="icon_small inline-block align-baseline" />

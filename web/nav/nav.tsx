@@ -3,6 +3,7 @@ import { IconChat, IconHome, IconQuestion, IconWiki } from "../icons/icons";
 import logo from "../main/logo-200.png";
 import kastden from "./kastden.png";
 import { notTouch } from "../../lib/utils";
+import { ShowTransition } from "../animation/animation";
 
 export default function Navbar() {
   const [showInfo, setShowInfo] = createSignal(false);
@@ -28,9 +29,9 @@ export default function Navbar() {
         >
           <IconQuestion class="icon_control mobile_icon_large" />
         </a>
-        <Show when={showInfo()}>
+        <ShowTransition when={showInfo}>
           <Info />
-        </Show>
+        </ShowTransition>
       </div>
     </nav>
   );
@@ -43,7 +44,8 @@ function Info() {
       ml-[10px] right-[10px]
       top-[calc(theme(spacing.icon-lg)+10px+5px)]
       sm:top-[calc(theme(spacing.icon)+10px+5px)]
-      border border-kngray-1 bg-body-bg"
+      border border-kngray-1 bg-body-bg
+      transition-opacity duration-300 opacity-0"
     >
       <img class="w-[100px] h-[100px]" src={logo} />
       <div>
@@ -54,8 +56,9 @@ function Info() {
           Help and tips:{" "}
           <a
             class="link navinfo__link"
-            target="_blank"
             href="https://github.com/kpopnet/kpopnet.json/wiki"
+            target="_blank"
+            rel="noopener noreferrer"
           >
             <IconWiki class="icon_small inline-block" /> kpopnet/wiki
           </a>
@@ -64,8 +67,9 @@ function Info() {
           Questions:{" "}
           <a
             class="link navinfo__link"
-            target="_blank"
             href="https://github.com/orgs/kpopnet/discussions"
+            target="_blank"
+            rel="noopener noreferrer"
           >
             <IconChat class="icon_small inline-block" /> kpopnet/discussions
           </a>
@@ -74,9 +78,9 @@ function Info() {
           Data sources:{" "}
           <a
             class="link navinfo__link"
-            target="_blank"
             href="https://selca.kastden.org/noona/"
-            rel="noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
           >
             <img class="icon_small inline-block" src={kastden} />
             selca.kastden.org

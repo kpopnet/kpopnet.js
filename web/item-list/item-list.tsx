@@ -185,7 +185,7 @@ function ItemSort(p: { children: JSXElement }) {
         class="icon inline-block ml-1 hover:text-link-hover
           cursor-pointer align-top"
         classList={{ "text-link": nonDefaultSorts() }}
-        onClick={(e) => setShow(!show())}
+        onClick={() => setShow(!show())}
       />
       <ShowTransition when={show}>
         <div
