@@ -1,11 +1,11 @@
-import { Match, Switch, createMemo } from "solid-js";
+import { type JSXElement, Match, Switch, createMemo } from "solid-js";
 
 import type { Cache } from "../../lib/search";
 import IdolView from "./idol";
 import { GroupWithIdolsView } from "./group";
 
 /** Show corresponding single item by its id */
-export default function ItemView(p: { id: string; cache: Cache }) {
+export function ItemView(p: { id: string; cache: Cache }) {
   const foundIdol = createMemo(() => p.cache.idolMap.get(p.id));
   const foundGroup = createMemo(() => p.cache.groupMap.get(p.id));
   const notFound = createMemo(() => !foundIdol() && !foundGroup());
@@ -25,4 +25,11 @@ export default function ItemView(p: { id: string; cache: Cache }) {
       </Switch>
     </section>
   );
+}
+// Recreate ItemView on route change to reset all previous state.
+export default function ItemViewWrapper(p: { id: string; cache: Cache }) {
+  return createMemo(() => {
+    p.id;
+    return <ItemView {...p} />;
+  }) as unknown as JSXElement;
 }

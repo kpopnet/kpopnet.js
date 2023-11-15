@@ -51,16 +51,10 @@ export default function ItemListWrapper(p: {
   cache: Cache;
 }) {
   const [view, _] = useRouter();
-  return (
-    <Switch>
-      <Match when={view.route() === IdolQueryRoute}>
-        <ItemList {...p} />
-      </Match>
-      <Match when>
-        <ItemList {...p} />
-      </Match>
-    </Switch>
-  );
+  return createMemo(() => {
+    view.route();
+    return <ItemList {...p} />;
+  }) as unknown as JSXElement;
 }
 
 function ItemList(p: { profiles: Profiles; cache: Cache }) {
