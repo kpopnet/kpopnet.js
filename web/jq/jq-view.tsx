@@ -6,6 +6,7 @@ import {
   Match,
   JSXElement,
   createEffect,
+  Show,
 } from "solid-js";
 import type { Profiles } from "kpopnet.json";
 
@@ -18,6 +19,7 @@ import {
   IconCollapse,
   IconColored,
   IconExpand,
+  IconHelp,
   IconMonochrome,
   IconQuote,
   IconRaw,
@@ -26,26 +28,37 @@ import {
 import { showError } from "../../lib/utils";
 import Tooltip from "../tooltip/tooltip";
 import ToggleIcon, { type ToggleProps } from "../icons/toggle";
+import { ShowTransition } from "../animation/animation";
+import JQHelp from "./jq-help";
 
 export default function JQView(p: {
   focus: Accessor<number>;
   profiles: Profiles;
   cache: Cache;
 }) {
-  const [view, _] = useRouter();
+  const [view, setView] = useRouter();
   const [getJQ, setJQ] = createSignal<JQ>();
   const [loadingErr, setLoadingErr] = createSignal<any>();
-  const loading = () => !loadingErr() && !getJQ();
   const [running, setRunning] = createSignal(false);
   const [runningErr, setRunningErr] = createSignal<any>();
   const [output, setOutput] = createSignal("");
   const [options, setOptions] = createSignal<JQOptions>(JQOptsStorage.load());
+  const [showHelp, setShowHelp] = createSignal(!view.query());
+
+  const loading = () => !loadingErr() && !getJQ();
+  const empptyOutput = () =>
+    !loadingErr() && !running() && !runningErr() && !output();
 
   function toggleFn(name: string) {
     return () => {
       setOptions((prev: any) => ({ ...prev, [name]: !prev[name] }));
       JQOptsStorage.save(options());
     };
+  }
+
+  function handleReset() {
+    setView({ query: "", replace: true });
+    setOptions(JQOptsStorage.clear());
   }
 
   onMount(async () => {
@@ -56,6 +69,18 @@ export default function JQView(p: {
     }
   });
 
+  // run after jq load and on query change
+  createEffect((prev) => {
+    if (!getJQ()) return;
+    if (prev !== view.query()) {
+      search();
+      if (!view.query()) {
+        setShowHelp(true);
+      }
+    }
+    return view.query();
+  });
+  // run on option change
   createEffect((prev) => {
     if (prev !== options()) search();
     return options();
@@ -68,6 +93,7 @@ export default function JQView(p: {
     const q = view.query();
     if (!q) return setOutput("");
     setRunning(true);
+    setShowHelp(false);
     try {
       setOutput(await jq.run(q, options()));
     } catch (err) {
@@ -92,9 +118,14 @@ export default function JQView(p: {
         loading={loading()}
         loadingErr={!!loadingErr()}
         running={running()}
-        onSearch={search}
       />
       <div class="flex my-3 gap-x-3 w-full justify-center">
+        <TooltipIcon tooltip="Show help">
+          <IconHelp
+            class="icon_control"
+            onClick={() => setShowHelp(!showHelp())}
+          />
+        </TooltipIcon>
         <ToggleTooltipIcon
           tooltip="Compact/Full"
           active={options().compact}
@@ -116,71 +147,80 @@ export default function JQView(p: {
           off={IconColored}
           onClick={toggleFn("monochrome")}
         />
-        <TooltipIcon tooltip="Reset settings">
-          <IconRevert
-            class="icon_control"
-            onClick={() => setOptions(JQOptsStorage.clear())}
-          />
+        <TooltipIcon tooltip="Reset and clear">
+          <IconRevert class="icon_control" onClick={handleReset} />
         </TooltipIcon>
       </div>
-      <Switch>
-        <Match when={loadingErr()}>
-          <JQOutput>
-            Loading error
-            <div class="err-sm">{showError(loadingErr())}</div>
-          </JQOutput>
-        </Match>
-        <Match when={runningErr()}>
-          <JQOutput>
-            Runtime error
-            <div class="err-sm">{showError(runningErr())}</div>
-          </JQOutput>
-        </Match>
-        <Match when={running()}>
-          <JQOutput>Running...</JQOutput>
-        </Match>
-        <Match when={loading() || !view.query()}>
-          <JQHelp />
-        </Match>
-        <Match when={options().monochrome}>
-          <JQOutput>
-            <div textContent={output()} />
-          </JQOutput>
-        </Match>
-        <Match when>
-          <JQOutput>
-            <div innerHTML={output()} />
-          </JQOutput>
-        </Match>
-      </Switch>
+      <ShowTransition when={showHelp}>
+        <JQHelp />
+      </ShowTransition>
+      <Show when={!empptyOutput()}>
+        <JQOutput>
+          <Switch>
+            <Match when={loadingErr()}>
+              Loading error
+              <div class="err-sm">{showError(loadingErr())}</div>
+            </Match>
+            <Match when={runningErr()}>
+              Runtime error
+              <div class="err-sm">{showError(runningErr())}</div>
+            </Match>
+            <Match when={running()}>Running...</Match>
+            <Match when={options().monochrome}>
+              <div textContent={output()} />
+            </Match>
+            <Match when>
+              <div innerHTML={output()} />
+            </Match>
+          </Switch>
+        </JQOutput>
+      </Show>
     </>
   );
 }
 
 function JQOutput(p: { children: JSXElement }) {
-  return (
-    <article
-      class="ansi whitespace-pre-wrap
-      p-[9px] min-h-[100px]
-      border border-kngray-1"
-    >
-      {p.children}
-    </article>
-  );
-}
+  const [resizing, setResizing] = createSignal(false);
+  const [height, setHeight] = createSignal<number>();
+  const pxIfSet = (n: number | undefined) => (n != null ? n + "px" : undefined);
+  let outputEl: HTMLElement;
+  let startY = 0;
+  let startH = 0;
+  function handleMouseDown(e: MouseEvent) {
+    if (resizing()) return;
+    startY = e.clientY;
+    startH = outputEl.getBoundingClientRect().height;
+    setResizing(true);
 
-function JQHelp() {
+    document.body.addEventListener("mousemove", handleGlobalMove);
+    document.body.addEventListener("mouseup", function handleMouseUp() {
+      setResizing(false);
+      document.body.removeEventListener("mousemove", handleGlobalMove);
+      document.body.removeEventListener("mouseup", handleMouseUp);
+    });
+  }
+  function handleGlobalMove(e: MouseEvent) {
+    setHeight(startH + e.clientY - startY);
+  }
   return (
-    <div class="text-center">
-      <p>Apply complicated JQ quieries to the profiles data</p>
-      <a
-        class="link"
-        href="https://jqlang.github.io/jq/manual/"
-        target="_blank"
-        rel="noopener noreferrer"
+    <div class="relative">
+      <div
+        class="absolute z-10 left-0 right-0 -bottom-[5px] h-[10px] cursor-ns-resize"
+        onMouseDown={handleMouseDown}
+      />
+      <article
+        ref={outputEl!}
+        class="ansi whitespace-pre-wrap relative
+          p-[9px] min-h-[100px] overflow-y-auto
+          border border-kngray-1"
+        style={{
+          "user-select": resizing() ? "none" : undefined,
+          height: pxIfSet(height()),
+          "max-height": pxIfSet(height()) ?? "300px",
+        }}
       >
-        JQ Manual
-      </a>
+        {p.children}
+      </article>
     </div>
   );
 }

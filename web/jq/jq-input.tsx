@@ -17,7 +17,6 @@ interface InputProps {
   loading: boolean;
   loadingErr: boolean;
   running: boolean;
-  onSearch: () => void;
 }
 
 export default function JQInput(p: InputProps) {
@@ -49,9 +48,6 @@ export default function JQInput(p: InputProps) {
     const query = value().trim();
     if (!query) return;
     setView({ query, replace: true });
-    // XXX(Kagami): JQView doesn't track Router to be able to run same query
-    // multiple times. Not sure if that's necessary.
-    p.onSearch();
     qStorage.pushLine(value());
   }
 
@@ -82,7 +78,7 @@ export default function JQInput(p: InputProps) {
 
   createEffect(() => {
     // track deps when to focus
-    view.route();
+    view.query();
     if (!p.loading && !p.running) {
       focus();
     }
@@ -94,15 +90,14 @@ export default function JQInput(p: InputProps) {
       window.scrollTo(0, 0);
     }
   });
-
-  createEffect((wasLoading) => {
-    if (wasLoading && !p.loading) {
-      if (!p.loadingErr) {
-        p.onSearch(); // trigger JQ run
-      }
+  createEffect((prev) => {
+    // track url change
+    if (view.query() !== prev) {
+      setFix(view.query());
+      qStorage.setLast(view.query());
     }
-    return p.loading;
-  }, p.loading);
+    return view.query();
+  }, view.query());
 
   onMount(() => {
     fixHeight();

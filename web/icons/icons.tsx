@@ -21,3 +21,4 @@ export { default as IconQuote } from "bootstrap-icons/icons/quote.svg";
 export { default as IconRaw } from "bootstrap-icons/icons/filetype-raw.svg";
 export { default as IconColored } from "bootstrap-icons/icons/palette.svg";
 export { default as IconMonochrome } from "bootstrap-icons/icons/palette-fill.svg";
+export { default as IconHelp } from "bootstrap-icons/icons/info-circle.svg";

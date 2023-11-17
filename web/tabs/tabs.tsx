@@ -53,7 +53,6 @@ export default function TabsView() {
   }
 
   function handleGlobalHotkeys(e: KeyboardEvent) {
-    if (view.route() === JQRoute) return; // XXX: useful in textarea
     const cmdOrCtrl = e.ctrlKey || e.metaKey;
     if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && cmdOrCtrl) {
       e.preventDefault();
