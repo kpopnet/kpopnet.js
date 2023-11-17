@@ -55,7 +55,7 @@ function Info() {
         <p>
           Help and tips:{" "}
           <a
-            class="link navinfo__link"
+            class="link"
             href="https://github.com/kpopnet/kpopnet.json/wiki"
             target="_blank"
             rel="noopener noreferrer"
@@ -66,7 +66,7 @@ function Info() {
         <p>
           Questions:{" "}
           <a
-            class="link navinfo__link"
+            class="link"
             href="https://github.com/orgs/kpopnet/discussions"
             target="_blank"
             rel="noopener noreferrer"
@@ -77,7 +77,7 @@ function Info() {
         <p>
           Data sources:{" "}
           <a
-            class="link navinfo__link"
+            class="link"
             href="https://selca.kastden.org/noona/"
             target="_blank"
             rel="noopener noreferrer"

@@ -1,9 +1,10 @@
-import { For } from "solid-js";
+import { For, createMemo, onCleanup, onMount } from "solid-js";
 
 import {
   type Route,
   GroupQueryRoute,
   IdolQueryRoute,
+  JQRoute,
   useRouter,
 } from "../router/router";
 
@@ -12,12 +13,20 @@ interface Tab {
   route: Route;
 }
 
-function TabView(p: { tab: Tab; active: boolean; onClick: () => void }) {
+function TabView(p: {
+  tab: Tab;
+  idx: number;
+  activeIdx: number;
+  active: boolean;
+  onClick: () => void;
+}) {
   return (
     <a
       onClick={p.onClick}
-      class="px-4 py-1 transition-[flex] duration-100 text-gray-500"
+      class="px-4 py-1 transition-[flex] duration-100 text-gray-500 border-kngray-1"
       classList={{
+        "border-l": p.activeIdx > p.idx || p.activeIdx < p.idx - 1,
+        "last:border-r": !p.active,
         "flex-1": p.active,
         "cursor-pointer text-link hover:text-link-hover bg-[#ddd]": !p.active,
       }}
@@ -32,12 +41,40 @@ export default function TabsView() {
   const tabs: Tab[] = [
     { name: "Idols", route: IdolQueryRoute },
     { name: "Groups", route: GroupQueryRoute },
+    { name: "JQ", route: JQRoute },
   ];
+  const tabRoutes = tabs.map((tab) => tab.route);
+  const activeIdx = createMemo(() => tabRoutes.indexOf(view.route()));
 
-  function setActive(tab: Tab) {
-    // keep current query because it might be useful in other context
-    setView({ route: tab.route });
+  function setActive({ route }: Tab) {
+    const clearQuery = route === JQRoute || view.route() === JQRoute;
+    const query = clearQuery ? "" : view.query();
+    setView({ route, query });
   }
+
+  function handleGlobalHotkeys(e: KeyboardEvent) {
+    if (view.route() === JQRoute) return; // XXX: useful in textarea
+    const cmdOrCtrl = e.ctrlKey || e.metaKey;
+    if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && cmdOrCtrl) {
+      e.preventDefault();
+      const shift = e.key === "ArrowRight" ? 1 : -1;
+      let nextIdx = tabRoutes.indexOf(view.route()) + shift;
+      if (nextIdx < 0) {
+        nextIdx = tabRoutes.length - 1;
+      } else if (nextIdx >= tabRoutes.length) {
+        nextIdx = 0;
+      }
+      setActive(tabs[nextIdx]);
+    }
+  }
+
+  onMount(() => {
+    document.addEventListener("keydown", handleGlobalHotkeys);
+  });
+
+  onCleanup(() => {
+    document.removeEventListener("keydown", handleGlobalHotkeys);
+  });
 
   return (
     <section
@@ -45,10 +82,12 @@ export default function TabsView() {
       text-center select-none cursor-default"
     >
       <For each={tabs}>
-        {(tab) => (
+        {(tab, i) => (
           <TabView
             tab={tab}
-            active={tab.route === view.route()}
+            idx={i()}
+            activeIdx={activeIdx()}
+            active={activeIdx() === i()}
             onClick={() => setActive(tab)}
           />
         )}

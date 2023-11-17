@@ -25,6 +25,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           kpopnet: ["kpopnet.json"],
+          aioli: ["@biowasm/aioli", "ansi_up"],
         },
       },
     },

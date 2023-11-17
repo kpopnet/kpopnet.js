@@ -11,11 +11,17 @@ export function getUrlParams(): URLSearchParams {
   return url.searchParams;
 }
 
-export function setUrlParams(k1: string, v1: string, k2: string, v2: string) {
+export function setUrlParams(
+  k1: string,
+  v1: string,
+  k2: string,
+  v2: string,
+  replace = false
+) {
   const url = new URL(location.href);
-  url.search = "";
-  if (v1 || k1 === "gq") {
-    // q=default, gq=need to save group route
+  url.search = ""; // clear all previous params
+  if (v1 || k1 !== "q") {
+    // q=default, otherwise need to save route
     url.searchParams.set(k1, v1);
   }
   if (v2) {
@@ -24,8 +30,9 @@ export function setUrlParams(k1: string, v1: string, k2: string, v2: string) {
   // don't escape colon https://stackoverflow.com/q/13713671
   url.search = url.searchParams.toString().replace(/%3A/g, ":");
 
-  if (import.meta.env.DEV) console.log("PUSH STATE", { k1, v1, k2, v2 });
-  history.pushState("", "", url);
+  if (import.meta.env.DEV && !replace)
+    console.log("PUSH STATE", { k1, v1, k2, v2 });
+  history[replace ? "replaceState" : "pushState"]("", "", url);
 }
 
 export function fixMissedUrlParam(k: string, v: string) {
@@ -104,4 +111,32 @@ export function reorderArray<T>(
     );
   }
   return newArr;
+}
+
+export function logTimes(
+  info: string,
+  startTime: number,
+  ...times: (string | number)[]
+) {
+  const format = (t2: number, t1: number) => (t2 - t1).toFixed(3);
+  const arr: string[] = [];
+  let prevTime = startTime;
+  let time = 0;
+  for (let i = 0; i < times.length; i += 2) {
+    const name = times[i] as string;
+    if (i + 1 < times.length) {
+      time = times[i + 1] as number;
+      arr.push(`${name}:${format(time, prevTime)}`);
+      prevTime = time;
+    } else {
+      arr.push(name);
+    }
+  }
+  const endTime = time;
+  arr.unshift(`total:${format(endTime, startTime)}`);
+  console.log(`[${info}] ` + arr.join(" "));
+}
+
+export function showError(err: any): string {
+  return err?.message || `Unknown error "${err}"`;
 }

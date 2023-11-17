@@ -1,11 +1,19 @@
-import { Show, createEffect, createSignal, splitProps } from "solid-js";
+import { createSignal, splitProps } from "solid-js";
 import type { ComponentProps, JSXElement } from "solid-js";
+
 import { notTouch } from "../../lib/utils";
+import { ShowTransition } from "../animation/animation";
 
 interface TooltipProps extends ComponentProps<"span"> {
-  canShow: boolean;
+  canShow?: boolean;
   content: string;
   children: JSXElement;
+  top?: number;
+  left?: number;
+}
+
+function px(n: number) {
+  return n + "px";
 }
 
 export default function Tooltip(p: TooltipProps) {
@@ -17,28 +25,20 @@ export default function Tooltip(p: TooltipProps) {
     "content",
     "children",
   ]);
-  let tooltipEl: HTMLDivElement;
-  createEffect(() => {
-    if (show()) {
-      setTimeout(() => {
-        tooltipEl.style.opacity = "1";
-      });
-    }
-  });
   return (
     <span
-      onMouseEnter={notTouch(() => setShow(p.canShow))}
+      onMouseEnter={notTouch(() => setShow(p.canShow ?? true))}
       onMouseLeave={() => setShow(false)}
       class="relative"
       classList={{ ...local.classList, [local.class || ""]: true }}
       {...other}
     >
       {p.children}
-      <Show when={show()}>
+      <ShowTransition when={show}>
         <div
-          ref={tooltipEl!}
+          style={{ top: px((p.top ?? 0) - 40), left: px(p.left ?? 0) }}
           class="
-        absolute -top-[40px] left-0 whitespace-nowrap
+        absolute whitespace-nowrap
         opacity-0 transition-opacity duration-300
         rounded-lg px-3 py-2 text-sm font-medium
         text-white shadow-sm bg-black
@@ -53,7 +53,7 @@ export default function Tooltip(p: TooltipProps) {
         >
           {p.content}
         </div>
-      </Show>
+      </ShowTransition>
     </span>
   );
 }

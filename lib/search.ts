@@ -6,7 +6,7 @@ import {
   defaultGroupProps,
   sameSorts,
 } from "./sort";
-import { getAge } from "./utils";
+import { getAge, logTimes } from "./utils";
 
 export type IdolMap = Map<string, Idol>;
 export type IdolGroupsMap = Map<string, Group[]>;
@@ -24,6 +24,10 @@ export interface Cache {
   // concatenated normalized names for faster search
   idolNamesMap: IdolNamesMap;
   idolGroupNamesMap: IdolGroupNamesMap;
+  // to use in web app
+  // don't set types to separate web app from lib
+  // TODO(Kagami): extend in web app?
+  custom: { [key: string]: any };
 }
 
 export type Item = Idol | Group;
@@ -71,7 +75,8 @@ function idolGroupMemberKey(idol: Idol, group: Group): string {
 // safe to use `map.get(id)!` later.
 // TODO(Kagami): 3ms right now. Should we be worried?
 export function makeCache(profiles: Profiles): Cache {
-  if (import.meta.env.DEV) console.time("makeCache");
+  /*dev*/ const dev = import.meta.env.DEV;
+  /*dev*/ const tStart = dev ? performance.now() : 0;
 
   const idolMap: IdolMap = new Map();
   profiles.idols.forEach((idol) => {
@@ -121,7 +126,8 @@ export function makeCache(profiles: Profiles): Cache {
     idolGroupNamesMap.set(idol.id, getNormIdolGroupNames(idol, idolGroupsMap));
   });
 
-  if (import.meta.env.DEV) console.timeEnd("makeCache");
+  /*dev*/ const tCache = dev ? performance.now() : 0;
+  if (dev) logTimes("cache", tStart, "cache", tCache);
 
   return {
     idolMap,
@@ -131,6 +137,7 @@ export function makeCache(profiles: Profiles): Cache {
     groupUnitsMap,
     idolNamesMap,
     idolGroupNamesMap,
+    custom: {},
   };
 }
 
@@ -455,18 +462,20 @@ export function searchIdols(
   /*dev*/ const tFilter = dev ? performance.now() : 0;
   sortIfNeeded(result, sorts, defaultIdolProps);
   /*dev*/ const tSort = dev ? performance.now() : 0;
-  /*dev*/ const tEnd = dev ? tSort : 0;
 
-  if (dev) {
-    const f = (t2: number, t1: number) => (t2 - t1).toFixed(3);
-    console.log(
-      `total:${f(tEnd, tStart)}`,
-      `query:${f(tQuery, tStart)}`,
-      `filter:${f(tFilter, tQuery)}`,
-      `sort:${f(tSort, tFilter)}`,
+  if (dev)
+    logTimes(
+      "search",
+      tStart,
+      "query",
+      tQuery,
+      "filter",
+      tFilter,
+      "sort",
+      tSort,
       `q:${query}`
     );
-  }
+
   return result;
 }
 
@@ -488,18 +497,20 @@ export function searchGroups(
   /*dev*/ const tFilter = dev ? performance.now() : 0;
   sortIfNeeded(result, sorts, defaultGroupProps);
   /*dev*/ const tSort = dev ? performance.now() : 0;
-  /*dev*/ const tEnd = dev ? tSort : 0;
 
-  if (dev) {
-    const f = (t2: number, t1: number) => (t2 - t1).toFixed(3);
-    console.log(
-      `total:${f(tEnd, tStart)}`,
-      `query:${f(tQuery, tStart)}`,
-      `filter:${f(tFilter, tQuery)}`,
-      `sort:${f(tSort, tFilter)}`,
+  if (dev)
+    logTimes(
+      "search",
+      tStart,
+      "query",
+      tQuery,
+      "filter",
+      tFilter,
+      "sort",
+      tSort,
       `q:${query}`
     );
-  }
+
   return result;
 }
 

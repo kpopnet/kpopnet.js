@@ -1,4 +1,4 @@
-import { Show, createEffect, type Accessor, on, createMemo } from "solid-js";
+import { type Accessor, Show, createEffect, on, createMemo } from "solid-js";
 
 import { IconX } from "../icons/icons";
 import { IdolQueryRoute, useRouter } from "../router/router";
@@ -54,8 +54,8 @@ export default function SearchInput(p: SearchProps) {
   //   return p.loading;
   // }, p.loading);
 
-  const placeholder = createMemo(
-    () => `Search for ${view.route() === IdolQueryRoute ? "idol" : "group"}`
+  const placeholder = createMemo(() =>
+    view.route() === IdolQueryRoute ? "Search for idol" : "Search for group"
   );
 
   return (

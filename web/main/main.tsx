@@ -5,7 +5,7 @@
 import { Match, Switch, createSignal, onCleanup, onMount } from "solid-js";
 import profiles from "kpopnet.json";
 
-import SearchInput from "../search-input/search-input";
+import SearchInput from "../input/search-input";
 import ItemList from "../item-list/item-list";
 import ItemView from "../item-view/item-view";
 import { type Cache, makeCache } from "../../lib/search";
@@ -13,11 +13,12 @@ import Router, {
   ItemRoute,
   IdolQueryRoute,
   useRouter,
-  GroupQueryRoute,
   queryRoute,
 } from "../router/router";
 import Navbar from "../nav/nav";
 import Tabs from "../tabs/tabs";
+import JQView from "../jq/jq-view";
+import { showError } from "../../lib/utils";
 
 export default function MainContext() {
   return (
@@ -44,20 +45,12 @@ function Main() {
     const cmdOrCtrl = e.ctrlKey || e.metaKey;
     if (e.key === "k" && cmdOrCtrl) {
       e.preventDefault();
-      if (view.route() === IdolQueryRoute || view.route() === GroupQueryRoute) {
-        // XXX(Kagami): need to keep triggering this signal somehow...
-        setFocus(focus() + 1);
-      } else {
-        // input watches for route change itself, don't need to call manually here
+      if (view.route() === ItemRoute) {
+        // inputs watch for route change themselves, don't need to call manually here
         setView({ route: IdolQueryRoute, query: "" });
+      } else {
+        setFocus(focus() + 1); // trigger update
       }
-    } else if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && cmdOrCtrl) {
-      e.preventDefault();
-      if (!queryRoute(view.route())) return;
-      const route =
-        view.route() === IdolQueryRoute ? GroupQueryRoute : IdolQueryRoute;
-      // keep current query because it might be useful in other context
-      setView({ route });
     }
   }
 
@@ -90,15 +83,18 @@ function Main() {
           </Match>
           <Match when>
             <Tabs />
-            <SearchInput focus={focus} />
-            <ItemList profiles={profiles} cache={cache()!} />
+            <Switch>
+              <Match when={queryRoute(view.route())}>
+                <SearchInput focus={focus} />
+                <ItemList profiles={profiles} cache={cache()!} />
+              </Match>
+              <Match when>
+                <JQView focus={focus} profiles={profiles} cache={cache()!} />
+              </Match>
+            </Switch>
           </Match>
         </Switch>
       </main>
     </>
   );
-}
-
-function showError(err: any): string {
-  return err?.message || `Unknown error "${err}"`;
 }

@@ -66,3 +66,26 @@
     @apply cursor-pointer text-kngray-1 hover:text-control-hover;
   }
 }
+
+/* solarized theme for terminal colors */
+/* prettier-ignore */
+.ansi {
+  color:                           #657b83;
+  /* background-color:                #fdf6e3; */
+  /* .ansi-black-fg          { color: #eee8d5; } */
+  .ansi-red-fg            { color: #dc322f; }
+  .ansi-green-fg          { color: #859900; }
+  .ansi-yellow-fg         { color: #b58900; }
+  .ansi-blue-fg           { color: #268bd2; }
+  .ansi-magenta-fg        { color: #d33682; }
+  .ansi-cyan-fg           { color: #2aa198; }
+  .ansi-white-fg          { color: #073642; }
+  .ansi-bright-black-fg   { color: #fdf6e3; }
+  .ansi-bright-red-fg     { color: #cb4b16; }
+  .ansi-bright-green-fg   { color: #93a1a1; }
+  .ansi-bright-yellow-fg  { color: #839496; }
+  .ansi-bright-blue-fg    { color: #657b83; }
+  .ansi-bright-magenta-fg { color: #6c71c4; }
+  .ansi-bright-cyan-fg    { color: #586e75; }
+  .ansi-bright-white-fg   { color: #002b36; }
+}
