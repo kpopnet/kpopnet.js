@@ -9,7 +9,7 @@ export default function JQHelp() {
         flex flex-col gap-y-2"
     >
       <p class="text-center text-[20px] text-zinc-500">
-        Apply JQ filters to the profiles data
+        Apply JQ filter to the profiles data
       </p>
       <p class="flex justify-center gap-x-5">
         <Link
@@ -28,6 +28,10 @@ export default function JQHelp() {
       <p class="text-center text-[20px] text-zinc-500">Try example queries</p>
       <ul class="space-y-1 list-disc ml-[10px]">
         <Query text="First 5 idols" query=".idols[0:5]" />
+        <Query
+          text="Average height"
+          query="[.idols[].height | select(. != null)] | add/length"
+        />
         <Query
           text="Common names"
           query=".idols | group_by(.real_name_original)[] | select(length>=3) | map({id})"

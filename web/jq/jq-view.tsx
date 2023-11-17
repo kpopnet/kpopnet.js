@@ -119,15 +119,15 @@ export default function JQView(p: {
         loadingErr={!!loadingErr()}
         running={running()}
       />
-      <div class="flex my-3 gap-x-3 w-full justify-center">
-        <TooltipIcon tooltip="Show help">
+      <div class="flex my-3 gap-x-3 justify-center">
+        <TooltipIcon tooltip="Help">
           <IconHelp
             class="icon_control"
             onClick={() => setShowHelp(!showHelp())}
           />
         </TooltipIcon>
         <ToggleTooltipIcon
-          tooltip="Compact/Full"
+          tooltip="Full/Compact"
           active={options().compact}
           on={IconCollapse}
           off={IconExpand}
@@ -181,8 +181,8 @@ export default function JQView(p: {
 
 function JQOutput(p: { children: JSXElement }) {
   const [resizing, setResizing] = createSignal(false);
-  const [height, setHeight] = createSignal<number>();
-  const pxIfSet = (n: number | undefined) => (n != null ? n + "px" : undefined);
+  const [height, setHeight] = createSignal(300);
+  const px = (n: number) => n + "px";
   let outputEl: HTMLElement;
   let startY = 0;
   let startH = 0;
@@ -211,12 +211,12 @@ function JQOutput(p: { children: JSXElement }) {
       <article
         ref={outputEl!}
         class="ansi whitespace-pre-wrap relative
-          p-[9px] min-h-[100px] overflow-y-auto
+          p-[9px] min-h-[50px] overflow-y-auto
           border border-kngray-1"
         style={{
           "user-select": resizing() ? "none" : undefined,
-          height: pxIfSet(height()),
-          "max-height": pxIfSet(height()) ?? "300px",
+          height: px(height()),
+          "max-height": px(height()),
         }}
       >
         {p.children}

@@ -43,7 +43,7 @@ class JQHandler {
     let output = await this.aioli.exec("jq", cliOpts);
     /*dev*/ const tRun = dev ? performance.now() : 0;
 
-    output = output.slice(0, 10_000); // FIXME: don't show too much in UI
+    output = output.slice(0, 50_000); // FIXME: don't show too much in UI
     const ansi_up = new this.AnsiCtor(); // FIXME: breakes output when reusing
     ansi_up.use_classes = true;
     output = opts.monochrome ? output : ansi_up.ansi_to_html(output);
