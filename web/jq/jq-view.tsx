@@ -9,10 +9,11 @@ import {
 } from "solid-js";
 import type { Profiles } from "kpopnet.json";
 
-import type { Cache } from "../../lib/search";
 import { type JQ, type JQOptions, initJQ } from "./jq";
+import JQInput from "./jq-input";
+import { JQOptsStorage } from "./jq-storage";
+import type { Cache } from "../../lib/search";
 import { useRouter } from "../router/router";
-import SearchArea from "./search-area";
 import {
   IconCollapse,
   IconColored,
@@ -38,14 +39,12 @@ export default function JQView(p: {
   const [running, setRunning] = createSignal(false);
   const [runningErr, setRunningErr] = createSignal<any>();
   const [output, setOutput] = createSignal("");
-  const [options, setOptions] = createSignal<JQOptions>(
-    JQOptionsStorage.load()
-  );
+  const [options, setOptions] = createSignal<JQOptions>(JQOptsStorage.load());
 
   function toggleFn(name: string) {
     return () => {
       setOptions((prev: any) => ({ ...prev, [name]: !prev[name] }));
-      JQOptionsStorage.save(options());
+      JQOptsStorage.save(options());
     };
   }
 
@@ -79,19 +78,16 @@ export default function JQView(p: {
   }
 
   async function loadJQ() {
-    let jq: JQ;
-    if (p.cache.custom.jq) {
-      jq = p.cache.custom.jq;
-    } else {
-      jq = await initJQ(p.profiles);
-      p.cache.custom.jq = jq;
-    }
+    if (p.cache.custom.jq) return p.cache.custom.jq;
+
+    const jq = await initJQ(p.profiles);
+    p.cache.custom.jq = jq;
     return jq;
   }
 
   return (
     <>
-      <SearchArea
+      <JQInput
         focus={p.focus}
         loading={loading()}
         loadingErr={!!loadingErr()}
@@ -123,7 +119,7 @@ export default function JQView(p: {
         <TooltipIcon tooltip="Reset settings">
           <IconRevert
             class="icon_control"
-            onClick={() => setOptions(JQOptionsStorage.clear())}
+            onClick={() => setOptions(JQOptsStorage.clear())}
           />
         </TooltipIcon>
       </div>
@@ -165,7 +161,7 @@ function JQOutput(p: { children: JSXElement }) {
   return (
     <article
       class="ansi whitespace-pre-wrap
-      h-[300px] p-[9px] overflow-y-scroll break-words
+      p-[9px] min-h-[100px]
       border border-kngray-1"
     >
       {p.children}
@@ -203,42 +199,4 @@ function ToggleTooltipIcon(p: ToggleProps & { tooltip: string }) {
       <ToggleIcon class="icon_control" {...p} />
     </TooltipIcon>
   );
-}
-
-class JQOptionsStorage {
-  static JQ_OPTS_KEY = "KN_JQ_OPTS";
-  static JQ_OPTS_DEFAULT: JQOptions = { raw: true };
-
-  static defaults(): JQOptions {
-    return structuredClone(this.JQ_OPTS_DEFAULT);
-  }
-
-  static load(): JQOptions {
-    const defaults = this.defaults();
-    try {
-      const val = localStorage.getItem(this.JQ_OPTS_KEY);
-      if (!val) return defaults;
-      return JSON.parse(val);
-    } catch (err) {
-      console.error(err);
-    }
-    return defaults;
-  }
-
-  static save(opts: JQOptions) {
-    try {
-      localStorage.setItem(this.JQ_OPTS_KEY, JSON.stringify(opts));
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  static clear(): JQOptions {
-    try {
-      localStorage.removeItem(this.JQ_OPTS_KEY);
-    } catch (err) {
-      console.error(err);
-    }
-    return this.defaults();
-  }
 }

@@ -10,8 +10,9 @@ import Spinner from "../spinner/spinner";
 import { useRouter } from "../router/router";
 import { isTouchDevice } from "../../lib/utils";
 import { IconSearch } from "../icons/icons";
+import { JQQueryStorage } from "./jq-storage";
 
-interface SearchProps {
+interface InputProps {
   focus: Accessor<number>;
   loading: boolean;
   loadingErr: boolean;
@@ -19,9 +20,10 @@ interface SearchProps {
   onSearch: () => void;
 }
 
-export default function SearchArea(p: SearchProps) {
+export default function JQInput(p: InputProps) {
   const [view, setView] = useRouter();
-  const [value, setValue] = createSignal<string>(view.query());
+  const qStorage = new JQQueryStorage(view.query());
+  const [value, setValue] = createSignal(qStorage.last());
   const disabled = () => p.loading || p.running;
   let inputEl: HTMLTextAreaElement;
 
@@ -38,26 +40,44 @@ export default function SearchArea(p: SearchProps) {
     const newHeight = inputEl.scrollHeight + 2; // border
     inputEl.style.height = newHeight + "px";
   }
+  function setFix(q: string) {
+    setValue(q);
+    fixHeight();
+  }
 
   function search() {
     const query = value().trim();
+    if (!query) return;
     setView({ query, replace: true });
     // XXX(Kagami): JQView doesn't track Router to be able to run same query
     // multiple times. Not sure if that's necessary.
     p.onSearch();
+    qStorage.pushLine(value());
   }
 
+  function cursorAtStart() {
+    return true; //inputEl.selectionStart === 0;
+  }
+  function cursorAtEnd() {
+    return true; //inputEl.selectionEnd === inputEl.value.length;
+  }
   function handleKeyDown(e: KeyboardEvent) {
-    // TODO(Kagami): arrows
     const cmdOrCtrl = e.ctrlKey || e.metaKey;
-    if (e.key === "Enter" && cmdOrCtrl) {
+    if (e.key === "Enter" && (cursorAtEnd() || cmdOrCtrl)) {
       e.preventDefault();
       search();
+    } else if (e.key === "ArrowUp" && cursorAtStart()) {
+      e.preventDefault();
+      setFix(qStorage.prevLine());
+    } else if (e.key === "ArrowDown" && cursorAtEnd()) {
+      e.preventDefault();
+      setFix(qStorage.nextLine());
     }
   }
   function handleInput() {
-    setValue(inputEl.value);
-    fixHeight();
+    setFix(inputEl.value);
+    // XXX: don't block UI thread, works?
+    setTimeout(() => qStorage.setLast(inputEl.value));
   }
 
   createEffect(() => {
@@ -77,9 +97,8 @@ export default function SearchArea(p: SearchProps) {
 
   createEffect((wasLoading) => {
     if (wasLoading && !p.loading) {
-      fixHeight();
       if (!p.loadingErr) {
-        p.onSearch();
+        p.onSearch(); // trigger JQ run
       }
     }
     return p.loading;
