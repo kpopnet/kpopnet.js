@@ -12,7 +12,7 @@ import type { Profiles } from "kpopnet.json";
 import type { Cache } from "../../lib/search";
 import { type JQ, type JQOptions, initJQ } from "./jq";
 import { useRouter } from "../router/router";
-import SearchArea from "../input/search-area";
+import SearchArea from "./search-area";
 import {
   IconCollapse,
   IconColored,

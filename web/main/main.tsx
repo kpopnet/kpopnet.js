@@ -5,7 +5,7 @@
 import { Match, Switch, createSignal, onCleanup, onMount } from "solid-js";
 import profiles from "kpopnet.json";
 
-import SearchInput from "../input/search-input";
+import SearchInput from "../search-input/search-input";
 import ItemList from "../item-list/item-list";
 import ItemView from "../item-view/item-view";
 import { type Cache, makeCache } from "../../lib/search";
