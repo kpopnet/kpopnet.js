@@ -44,6 +44,7 @@ export default function JQView(p: {
   const [output, setOutput] = createSignal("");
   const [options, setOptions] = createSignal<JQOptions>(JQOptsStorage.load());
   const [showHelp, setShowHelp] = createSignal(!view.query());
+  const [reset, setReset] = createSignal(0);
 
   const loading = () => !loadingErr() && !getJQ();
   const empptyOutput = () =>
@@ -59,6 +60,7 @@ export default function JQView(p: {
   function handleReset() {
     setView({ query: "", replace: true });
     setOptions(JQOptsStorage.clear());
+    setReset(reset() + 1); // trigger update
   }
 
   onMount(async () => {
@@ -90,7 +92,7 @@ export default function JQView(p: {
     if (running()) return;
     const jq = getJQ();
     if (!jq) return;
-    const q = view.query();
+    const q = view.query().trim();
     if (!q) return setOutput("");
     setRunning(true);
     setShowHelp(false);
@@ -115,8 +117,8 @@ export default function JQView(p: {
     <>
       <JQInput
         focus={p.focus}
+        reset={reset}
         loading={loading()}
-        loadingErr={!!loadingErr()}
         running={running()}
       />
       <div class="flex my-3 gap-x-3 justify-center">

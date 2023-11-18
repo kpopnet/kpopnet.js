@@ -4,6 +4,7 @@ import {
   Show,
   createSignal,
   onMount,
+  on,
 } from "solid-js";
 
 import Spinner from "../spinner/spinner";
@@ -14,8 +15,8 @@ import { JQQueryStorage } from "./jq-storage";
 
 interface InputProps {
   focus: Accessor<number>;
+  reset: Accessor<number>;
   loading: boolean;
-  loadingErr: boolean;
   running: boolean;
 }
 
@@ -83,21 +84,35 @@ export default function JQInput(p: InputProps) {
       focus();
     }
   });
-  createEffect(() => {
+  createEffect(
     // from hotkey
-    if (p.focus()) {
+    on(p.focus, (_, prev) => {
+      if (prev == null) return;
       focus();
       window.scrollTo(0, 0);
-    }
-  });
-  createEffect((prev) => {
-    // track url change
-    if (view.query() !== prev) {
+    })
+  );
+  createEffect(
+    // parent asked to reset our state
+    // XXX: has to use additional signal because can't clear empty query. is there better way?
+    // XXX: it will also run view.query effect is query isn't empty
+    on(p.reset, (_, prev) => {
+      if (prev == null) return;
       setFix(view.query());
       qStorage.setLast(view.query());
-    }
-    return view.query();
-  }, view.query());
+      focus();
+    })
+  );
+  createEffect(
+    // track url change (no initial)
+    // note that initial input value is set from URL
+    // but then we do the opposite: push from input to URL and storage
+    on(view.query, (q, prev) => {
+      if (prev == null) return;
+      setFix(q);
+      qStorage.pushLine(q);
+    })
+  );
 
   onMount(() => {
     fixHeight();

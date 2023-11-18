@@ -9,7 +9,7 @@ export class JQQueryStorage {
   private lines: string[] = []; // ["searched last", "searced first"]
   private lastLine: string = ""; // "last typed in input"
 
-  constructor(initQ: string) {
+  constructor(urlQuery: string) {
     try {
       this.lastLine = localStorage.getItem(this.LAST_FILTER_KEY) || "";
       const val = localStorage.getItem(this.FILTERS_KEY) || "[]";
@@ -18,18 +18,16 @@ export class JQQueryStorage {
       console.error(err);
     }
     if (!Array.isArray(this.lines)) this.lines = [];
-
-    if (initQ && initQ !== this.lastLine) {
-      // ?jq="query from url" ->
-      // lines = ["searched last", "searched first", "last typed in input"]
-      // lastLine = "query from url"
-      if (this.lastLine && this.lastLine !== this.lastSaved) {
-        this.lines.push(this.lastLine);
-      }
-      this.lastLine = initQ;
-    }
-
     this.lineIdx = this.lines.length;
+
+    if (urlQuery) {
+      // ?jq="query from url" ->
+      //   lines = ["searched last", "last typed in input"]
+      //   lastLine = "query from url"
+      // Dedup is checked by `pushLine`
+      this.pushLine(this.lastLine);
+      this.pushLine(urlQuery);
+    }
   }
 
   private get lastSaved(): string | undefined {
@@ -74,7 +72,7 @@ export class JQQueryStorage {
   pushLine(q: string) {
     // pushed line is last now
     this.setLast(q);
-    // no dups or empty
+    // no dups or empty in history
     q = q.trim();
     if (!q || q === this.lastSaved) return;
 
