@@ -42,7 +42,7 @@ export default function JQInput(p: InputProps) {
   }
   function setFix(q: string) {
     setValue(q);
-    fixHeight();
+    setTimeout(() => fixHeight());
   }
 
   function search() {
@@ -124,8 +124,8 @@ export default function JQInput(p: InputProps) {
         name="search"
         ref={inputEl!}
         class="block w-full
-          py-[9px] pl-[9px] pr-[calc(theme(spacing.icon)+9px)]
-          text-[20px] h-[50px]
+          py-[3px] sm:py-[9px] pl-[9px] pr-[calc(theme(spacing.icon)+9px)]
+          text-[20px] h-[38px] sm:h-[50px]
           bg-transparent rounded-none
           border border-kngray-1 outline-none
           text-neutral-600

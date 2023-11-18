@@ -138,7 +138,10 @@ function GroupUnitsView(p: { group: Group; cache: Cache }) {
 }
 
 function GroupIdolsView(p: { group: Group; cache: Cache }) {
-  const mToI = (m: GroupMember) => ({ i: p.cache.idolMap.get(m.id)!, gm: m });
+  const mToI = (m: GroupMember) => ({
+    i: p.cache.idolMap.get(m.idol_id)!,
+    gm: m,
+  });
   const activeMembers = createMemo(() =>
     p.group.members.filter((m) => m.current).map(mToI)
   );

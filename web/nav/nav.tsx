@@ -1,4 +1,4 @@
-import { Show, createSignal } from "solid-js";
+import { createSignal } from "solid-js";
 import { IconChat, IconHome, IconQuestion, IconWiki } from "../icons/icons";
 import logo from "../main/logo-200.png";
 import kastden from "./kastden.png";

@@ -25,7 +25,7 @@
     "@biowasm/aioli": "^3.1.0",
     "ansi_up": "^6.0.2",
     "bootstrap-icons": "^1.11.1",
-    "kpopnet.json": "^2.0.4",
+    "kpopnet.json": "^2.0.5",
     "solid-js": "^1.8.5",
     "tailwindcss": "^3.3.5"
   },

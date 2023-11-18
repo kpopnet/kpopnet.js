@@ -94,8 +94,9 @@ export default function JQView(p: {
     if (running()) return;
     const jq = getJQ();
     if (!jq) return;
+    setOutput("");
     const q = view.query().trim();
-    if (!q) return setOutput("");
+    if (!q) return;
     setRunning(true);
     setShowHelp(false);
     try {

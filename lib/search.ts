@@ -97,8 +97,8 @@ export function makeCache(profiles: Profiles): Cache {
   profiles.groups.forEach((group) => {
     const groupIdols: Idol[] = [];
     group.members.forEach((member) => {
-      const idol = idolMap.get(member.id);
-      if (!idol) throw new Error(`Invalid member ID: ${member.id}`);
+      const idol = idolMap.get(member.idol_id);
+      if (!idol) throw new Error(`Invalid member ID: ${member.idol_id}`);
       groupIdols.push(idol);
       idolGroupMemberMap.set(idolGroupMemberKey(idol, group), member);
     });

@@ -62,15 +62,11 @@ export function getAge(date: string): number {
 
 // https://stackoverflow.com/a/4819886
 export function isTouchDevice(): boolean {
-  return (
-    "ontouchstart" in window ||
-    navigator.maxTouchPoints > 0 ||
-    (navigator as any).msMaxTouchPoints > 0
-  );
+  return "ontouchstart" in window;
 }
 
-export function notTouch(fn: Function): (...args: any[]) => void {
-  return function (...args: any[]) {
+export function notTouch<A extends Function>(fn: A): A {
+  return <any>function (...args: any[]) {
     if (!isTouchDevice()) {
       fn(...args);
     }

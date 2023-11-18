@@ -46,7 +46,7 @@ test("serializeSorts", () => {
       { id: "real_name", name: "Name", enabled: true, reversed: true },
       { id: "weight", name: "Weight", enabled: true, reversed: false },
     ]),
-    "h:0+n:1+w:0"
+    "h:0 n:1 w:0"
   );
 
   const gstr = (v: any) => serializeSorts("group", v);
@@ -57,7 +57,7 @@ test("serializeSorts", () => {
       { id: "name", name: "Name", enabled: true, reversed: false },
       { id: "members", name: "Members＃", enabled: true, reversed: true },
     ]),
-    "g:0+m:1"
+    "g:0 m:1"
   );
 });
 
@@ -66,7 +66,7 @@ test("deserializeSorts", () => {
   deepEqual(idestr(""), getDefaultSortsCopy("idol"));
   deepEqual(idestr("kk+nnn:0"), getDefaultSortsCopy("idol"));
   deepEqual(idestr("n:aaa"), getDefaultSortsCopy("idol"));
-  deepEqual(idestr("h:0+n:1+w:0"), [
+  deepEqual(idestr("h:0 n:1 w:0"), [
     { id: "height", name: "Height", enabled: true, reversed: false },
     { id: "real_name", name: "Name", enabled: true, reversed: true },
     { id: "weight", name: "Weight", enabled: true, reversed: false },
@@ -76,7 +76,7 @@ test("deserializeSorts", () => {
 
   const gdestr = (v: any) => deserializeSorts("group", v);
   deepEqual(gdestr(""), getDefaultSortsCopy("group"));
-  deepEqual(gdestr("g:0+m:1"), [
+  deepEqual(gdestr("g:0 m:1"), [
     { id: "name", name: "Name", enabled: true, reversed: false },
     { id: "members", name: "Members＃", enabled: true, reversed: true },
     { id: "debut_date", name: "Debut date", enabled: false, reversed: true },

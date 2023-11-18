@@ -34,11 +34,11 @@ export default function JQHelp() {
         />
         <Query
           text="Common names"
-          query=".idols | group_by(.real_name_original)[] | select(length>=3)"
+          query=".idols | group_by(.real_name_original)[] | select(length>=4)"
         />
         <Query
-          text="Long names"
-          query=".groups | sort_by(.name | length) | reverse[:5] | map({id})"
+          text="Long group names"
+          query=".groups | sort_by(.name | length) | reverse[:5]"
         />
       </ul>
     </div>
@@ -54,7 +54,7 @@ function Query(p: { text: string; query: string }) {
   return (
     <li>
       <div class="flex items-center">
-        <span class="flex-[0_140px]">{p.text}</span>
+        <span class="flex-[0_80px] sm:flex-[0_140px]">{p.text}</span>
         <a
           class="flex-1 bg-neutral-200 px-3 py-0.5 hover:underline decoration-dashed"
           onClick={handleClick}

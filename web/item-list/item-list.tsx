@@ -61,8 +61,6 @@ function ItemList<T>(p: {
   itemView: ItemViewFn<T>;
   noSort?: boolean;
 }) {
-  const [view, _] = useRouter();
-
   const SHOW_PER_PAGE = 15;
   const [showLastX, setShowLastX] = createSignal(SHOW_PER_PAGE);
   const [items, setItems] = createSignal<T[]>([]);
@@ -120,7 +118,7 @@ function makeGroupItemView(cache: Cache) {
 function makeMixedItemView(cache: Cache) {
   // all Idol items are guaranteed to have a groups property
   return (item: Item) =>
-    (item as any).groups ? (
+    (item as Idol).groups ? (
       <IdolView idol={item as Idol} cache={cache} />
     ) : (
       <GroupView group={item as Group} cache={cache} />
