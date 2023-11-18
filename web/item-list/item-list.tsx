@@ -13,10 +13,16 @@ import {
   onCleanup,
   createSignal,
   createComputed,
+  Show,
 } from "solid-js";
 import type { Profiles, Idol, Group } from "kpopnet.json";
 
-import { type Cache, searchIdols, searchGroups } from "../../lib/search";
+import {
+  type Cache,
+  type Item,
+  searchIdols,
+  searchGroups,
+} from "../../lib/search";
 import IdolView from "../item-view/idol";
 import GroupView from "../item-view/group";
 import { IdolQueryRoute, useRouter } from "../router/router";
@@ -45,7 +51,16 @@ export default function SearchItemList(p: {
   }) as unknown as JSXElement;
 }
 
-function ItemList<T>(p: { allItems: Accessor<T[]>; itemView: ItemViewFn<T> }) {
+export function MixedItemList(p: { allItems: Accessor<Item[]>; cache: Cache }) {
+  const itemView = makeMixedItemView(p.cache);
+  return <ItemList allItems={p.allItems} itemView={itemView} noSort />;
+}
+
+function ItemList<T>(p: {
+  allItems: Accessor<T[]>;
+  itemView: ItemViewFn<T>;
+  noSort?: boolean;
+}) {
   const [view, _] = useRouter();
 
   const SHOW_PER_PAGE = 15;
@@ -65,27 +80,22 @@ function ItemList<T>(p: { allItems: Accessor<T[]>; itemView: ItemViewFn<T> }) {
     const pixelsToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
     return pixelsToBottom <= 100;
   }
-
   function handleScroll(e: Event) {
     if (nearBottom() && showLastX() < p.allItems().length) {
       setShowLastX((x) => x + SHOW_PER_PAGE);
     }
   }
-
-  onMount(() => {
-    document.addEventListener("scroll", handleScroll);
-  });
-
-  onCleanup(() => {
-    document.removeEventListener("scroll", handleScroll);
-  });
+  onMount(() => document.addEventListener("scroll", handleScroll));
+  onCleanup(() => document.removeEventListener("scroll", handleScroll));
 
   return (
     <Switch>
       <Match when={items().length}>
-        <ItemSort>
-          {p.allItems().length} result{p.allItems().length > 1 ? "s" : ""}
-        </ItemSort>
+        <Show when={!p.noSort}>
+          <ItemSort>
+            {p.allItems().length} result{p.allItems().length > 1 ? "s" : ""}
+          </ItemSort>
+        </Show>
         <section id="items">
           <For each={items()}>{p.itemView}</For>
         </section>
@@ -105,4 +115,14 @@ function makeIdolItemView(cache: Cache) {
 
 function makeGroupItemView(cache: Cache) {
   return (item: Group) => <GroupView group={item} cache={cache} />;
+}
+
+function makeMixedItemView(cache: Cache) {
+  // all Idol items are guaranteed to have a groups property
+  return (item: Item) =>
+    (item as any).groups ? (
+      <IdolView idol={item as Idol} cache={cache} />
+    ) : (
+      <GroupView group={item as Group} cache={cache} />
+    );
 }

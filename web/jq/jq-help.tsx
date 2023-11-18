@@ -25,16 +25,20 @@ export default function JQHelp() {
           text="[JSON schema]"
         />
       </p>
-      <p class="text-center text-[20px] text-zinc-500">Try example queries</p>
+      <p class="text-center text-[20px] text-zinc-500">Try example filters</p>
       <ul class="space-y-1 list-disc ml-[10px]">
-        <Query text="First 5 idols" query=".idols[0:5]" />
+        <Query text="First 5 idols" query=".idols[:5]" />
         <Query
           text="Average height"
           query="[.idols[].height | select(. != null)] | add/length"
         />
         <Query
           text="Common names"
-          query=".idols | group_by(.real_name_original)[] | select(length>=3) | map({id})"
+          query=".idols | group_by(.real_name_original)[] | select(length>=3)"
+        />
+        <Query
+          text="Long names"
+          query=".groups | sort_by(.name | length) | reverse[:5] | map({id})"
         />
       </ul>
     </div>

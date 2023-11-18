@@ -6,9 +6,9 @@ import type { Profiles } from "kpopnet.json";
 import { logTimes } from "../../lib/utils";
 
 export interface JQOptions {
-  monochrome?: boolean;
+  // monochrome?: boolean;
   compact?: boolean;
-  raw?: boolean;
+  // raw?: boolean;
 }
 
 class JQHandler {
@@ -27,10 +27,10 @@ class JQHandler {
     // options.push("--sort-keys");
     // options.push("--raw-input");
     // options.push("--slurp");
-    const cli = [];
-    if (opts.monochrome) cli.push("--monochrome-output");
+    const cli = ["--raw-output"];
+    // if (opts.monochrome) cli.push("--monochrome-output");
     if (opts.compact) cli.push("--compact-output");
-    if (opts.raw) cli.push("--raw-output");
+    // if (opts.raw) cli.push("--raw-output");
     cli.push(q, "kpopnet.json");
     return cli;
   }
@@ -41,16 +41,17 @@ class JQHandler {
 
     const cliOpts = this.getCliOpts(q, opts);
     let output = await this.aioli.exec("jq", cliOpts);
+    output = output.slice(0, 50_000); // FIXME: don't show too much in UI
     /*dev*/ const tRun = dev ? performance.now() : 0;
 
-    output = output.slice(0, 50_000); // FIXME: don't show too much in UI
+    if (dev) logTimes("jq", tStart, "run", tRun);
+    return output;
+  }
+
+  renderAnsi(output: string): string {
     const ansi_up = new this.AnsiCtor(); // FIXME: breakes output when reusing
     ansi_up.use_classes = true;
-    output = opts.monochrome ? output : ansi_up.ansi_to_html(output);
-    /*dev*/ const tHtml = dev ? performance.now() : 0;
-
-    if (dev) logTimes("jq", tStart, "run", tRun, "html", tHtml);
-    return output;
+    return ansi_up.ansi_to_html(output);
   }
 }
 export type JQ = JQHandler;

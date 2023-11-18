@@ -25,7 +25,6 @@ export class JQQueryStorage {
       //   lines = ["searched last", "last typed in input"]
       //   lastLine = "query from url"
       // Dedup is checked by `pushLine`
-      this.pushLine(this.lastLine);
       this.pushLine(urlQuery);
     }
   }
@@ -69,9 +68,16 @@ export class JQQueryStorage {
     return this.last();
   }
 
+  // push line, preserving the last typed
   pushLine(q: string) {
+    const lastLineWasSaved = this.lastLine === this.lastSaved;
+    if (!lastLineWasSaved) this.pushSingleLine(this.lastLine);
+    this.pushSingleLine(q);
     // pushed line is last now
     this.setLast(q);
+  }
+
+  private pushSingleLine(q: string) {
     // no dups or empty in history
     q = q.trim();
     if (!q || q === this.lastSaved) return;
@@ -90,7 +96,7 @@ export class JQQueryStorage {
 
 export class JQOptsStorage {
   static JQ_OPTS_KEY = "KN_JQ_OPTS";
-  static JQ_OPTS_DEFAULT: JQOptions = { raw: true };
+  static JQ_OPTS_DEFAULT: JQOptions = {};
 
   static defaults(): JQOptions {
     return structuredClone(this.JQ_OPTS_DEFAULT);

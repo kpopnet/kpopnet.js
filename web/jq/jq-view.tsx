@@ -7,29 +7,28 @@ import {
   JSXElement,
   createEffect,
   Show,
+  createMemo,
 } from "solid-js";
 import type { Profiles } from "kpopnet.json";
 
-import { type JQ, type JQOptions, initJQ } from "./jq";
+import { type JQ, initJQ } from "./jq";
 import JQInput from "./jq-input";
 import { JQOptsStorage } from "./jq-storage";
-import type { Cache } from "../../lib/search";
+import type { Cache, Item } from "../../lib/search";
 import { useRouter } from "../router/router";
 import {
+  IconClear,
   IconCollapse,
-  IconColored,
   IconExpand,
   IconHelp,
-  IconMonochrome,
-  IconQuote,
-  IconRaw,
-  IconRevert,
+  IconSection,
 } from "../icons/icons";
 import { showError } from "../../lib/utils";
 import Tooltip from "../tooltip/tooltip";
 import ToggleIcon, { type ToggleProps } from "../icons/toggle";
 import { ShowTransition } from "../animation/animation";
 import JQHelp from "./jq-help";
+import { MixedItemList } from "../item-list/item-list";
 
 export default function JQView(p: {
   focus: Accessor<number>;
@@ -41,14 +40,16 @@ export default function JQView(p: {
   const [loadingErr, setLoadingErr] = createSignal<any>();
   const [running, setRunning] = createSignal(false);
   const [runningErr, setRunningErr] = createSignal<any>();
-  const [output, setOutput] = createSignal("");
-  const [options, setOptions] = createSignal<JQOptions>(JQOptsStorage.load());
+  const [options, setOptions] = createSignal(JQOptsStorage.load());
   const [showHelp, setShowHelp] = createSignal(!view.query());
   const [reset, setReset] = createSignal(0);
 
+  const [output, setOutput] = createSignal("");
+  const outputHTML = createMemo(() => getJQ()?.renderAnsi(output()));
+  const matchedItems = createMemo(() => matchJQOutput(output(), p.cache));
+
   const loading = () => !loadingErr() && !getJQ();
-  const empptyOutput = () =>
-    !loadingErr() && !running() && !runningErr() && !output();
+  const hasInfo = () => loadingErr() || running() || runningErr() || output();
 
   function toggleFn(name: string) {
     return () => {
@@ -59,7 +60,7 @@ export default function JQView(p: {
 
   function handleReset() {
     setView({ query: "", replace: true });
-    setOptions(JQOptsStorage.clear());
+    // setOptions(JQOptsStorage.clear());
     setReset(reset() + 1); // trigger update
   }
 
@@ -68,6 +69,7 @@ export default function JQView(p: {
       setJQ(await loadJQ());
     } catch (err) {
       setLoadingErr(err);
+      console.error(err);
     }
   });
 
@@ -100,6 +102,7 @@ export default function JQView(p: {
       setOutput(await jq.run(q, options()));
     } catch (err) {
       setRunningErr(err);
+      console.error(err);
     } finally {
       setRunning(false);
     }
@@ -129,53 +132,37 @@ export default function JQView(p: {
           />
         </TooltipIcon>
         <ToggleTooltipIcon
-          tooltip="Full/Compact"
+          tooltip="Compact output"
           active={options().compact}
           on={IconCollapse}
           off={IconExpand}
           onClick={toggleFn("compact")}
         />
-        <ToggleTooltipIcon
-          tooltip="Raw/Quoted"
-          active={options().raw}
-          on={IconRaw}
-          off={IconQuote}
-          onClick={toggleFn("raw")}
-        />
-        <ToggleTooltipIcon
-          tooltip="Colored/Monochrome"
-          active={options().monochrome}
-          on={IconMonochrome}
-          off={IconColored}
-          onClick={toggleFn("monochrome")}
-        />
-        <TooltipIcon tooltip="Reset and clear">
-          <IconRevert class="icon_control" onClick={handleReset} />
+        <TooltipIcon tooltip="Clear output">
+          <IconClear class="icon_control" onClick={handleReset} />
         </TooltipIcon>
       </div>
       <ShowTransition when={showHelp}>
         <JQHelp />
       </ShowTransition>
-      <Show when={!empptyOutput()}>
+      <Show when={hasInfo()}>
         <JQOutput>
           <Switch>
             <Match when={loadingErr()}>
-              Loading error
-              <div class="err-sm">{showError(loadingErr())}</div>
+              Loading error: {showError(loadingErr())}
             </Match>
             <Match when={runningErr()}>
-              Runtime error
-              <div class="err-sm">{showError(runningErr())}</div>
+              Runtime error: {showError(runningErr())}
             </Match>
             <Match when={running()}>Running...</Match>
-            <Match when={options().monochrome}>
-              <div textContent={output()} />
-            </Match>
             <Match when>
-              <div innerHTML={output()} />
+              <div innerHTML={outputHTML()} />
             </Match>
           </Switch>
         </JQOutput>
+      </Show>
+      <Show when={matchedItems().length}>
+        <ItemSection items={matchedItems} cache={p.cache} />
       </Show>
     </>
   );
@@ -183,7 +170,7 @@ export default function JQView(p: {
 
 function JQOutput(p: { children: JSXElement }) {
   const [resizing, setResizing] = createSignal(false);
-  const [height, setHeight] = createSignal(300);
+  const [height, setHeight] = createSignal(200);
   const px = (n: number) => n + "px";
   let outputEl: HTMLElement;
   let startY = 0;
@@ -227,6 +214,26 @@ function JQOutput(p: { children: JSXElement }) {
   );
 }
 
+function ItemSection(p: { items: Accessor<Item[]>; cache: Cache }) {
+  const [show, setShow] = createSignal(true);
+  return (
+    <>
+      <div class="my-5 text-[20px] text-center">
+        <IconSection
+          class="icon_text_control w-[30px] h-[30px] inline-block"
+          onClick={() => setShow(!show())}
+        />{" "}
+        <span class="align-middle text-neutral-400 select-none">
+          Matched {p.items().length} item{p.items().length > 1 ? "s" : ""}
+        </span>
+      </div>
+      <Show when={show()}>
+        <MixedItemList allItems={p.items} cache={p.cache} />
+      </Show>
+    </>
+  );
+}
+
 function TooltipIcon(p: { tooltip: string; children: JSXElement }) {
   return (
     <Tooltip content={p.tooltip} left={-8} top={-6}>
@@ -241,4 +248,28 @@ function ToggleTooltipIcon(p: ToggleProps & { tooltip: string }) {
       <ToggleIcon class="icon_control" {...p} />
     </TooltipIcon>
   );
+}
+
+// "id"\e[0m\e[1;39m: \e[0m\e[0;32m"<id>"
+const ANSI_RE = "(?:\\x1b\\[[0-9;]*m)*";
+const ID_RE = new RegExp(`"id"${ANSI_RE}:\\s*${ANSI_RE}"([^"]+)"`, "g");
+
+function matchJQOutput(output: string, cache: Cache): Item[] {
+  // console.log(btoa(unescape(encodeURIComponent(output.slice(0, 1000)))));
+  const items: Item[] = [];
+  if (!output) return items;
+  for (const m of output.matchAll(ID_RE)) {
+    const id = m[1];
+    // TODO(Kagami): itemMap: Map<string, Item>?
+    const foundIdol = cache.idolMap.get(id);
+    if (foundIdol) {
+      items.push(foundIdol);
+      continue;
+    }
+    const foundGroup = cache.groupMap.get(id);
+    if (foundGroup) {
+      items.push(foundGroup);
+    }
+  }
+  return items;
 }

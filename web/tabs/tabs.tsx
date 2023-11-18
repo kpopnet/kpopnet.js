@@ -41,7 +41,7 @@ export default function TabsView() {
   const tabs: Tab[] = [
     { name: "Idols", route: IdolQueryRoute },
     { name: "Groups", route: GroupQueryRoute },
-    { name: "Query", route: JQRoute },
+    { name: "Filter", route: JQRoute },
   ];
   const tabRoutes = tabs.map((tab) => tab.route);
   const activeIdx = createMemo(() => tabRoutes.indexOf(view.route()));

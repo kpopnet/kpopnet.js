@@ -101,6 +101,7 @@ export function Searchable(p: {
   }
 
   function handleClick(e: MouseEvent) {
+    if (e.metaKey) return; // Command+Click = open in new tab
     e.preventDefault();
     setView({ route: newRoute(), query: newQuery() });
   }
