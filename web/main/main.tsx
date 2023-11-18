@@ -6,7 +6,7 @@ import { Match, Switch, createSignal, onCleanup, onMount } from "solid-js";
 import profiles from "kpopnet.json";
 
 import SearchInput from "../search-input/search-input";
-import ItemList from "../item-list/item-list";
+import SearchItemList from "../item-list/item-list";
 import ItemView from "../item-view/item-view";
 import { type Cache, makeCache } from "../../lib/search";
 import Router, {
@@ -86,7 +86,7 @@ function Main() {
             <Switch>
               <Match when={queryRoute(view.route())}>
                 <SearchInput focus={focus} />
-                <ItemList profiles={profiles} cache={cache()!} />
+                <SearchItemList profiles={profiles} cache={cache()!} />
               </Match>
               <Match when>
                 <JQView focus={focus} profiles={profiles} cache={cache()!} />
