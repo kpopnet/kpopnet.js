@@ -42,7 +42,12 @@ export default function JQInput(p: InputProps) {
   }
   function setFix(q: string) {
     setValue(q);
-    setTimeout(() => fixHeight());
+    fixHeight();
+  }
+  function setFixDelay(q: string) {
+    setValue(q);
+    // we're in untrack() scope so will fix later
+    setTimeout(fixHeight);
   }
 
   function search() {
@@ -98,7 +103,7 @@ export default function JQInput(p: InputProps) {
     // XXX: it will also run view.query effect is query isn't empty
     on(p.reset, (_, prev) => {
       if (prev == null) return;
-      setFix(view.query());
+      setFixDelay(view.query());
       qStorage.setLast(view.query());
       focus();
     })
@@ -109,7 +114,7 @@ export default function JQInput(p: InputProps) {
     // but then we do the opposite: push from input to URL and storage
     on(view.query, (q, prev) => {
       if (prev == null) return;
-      setFix(q);
+      setFixDelay(q);
       qStorage.pushLine(q);
     })
   );
@@ -131,7 +136,7 @@ export default function JQInput(p: InputProps) {
           text-neutral-600
           placeholder:text-kngray-1 placeholder:opacity-100
           disabled:text-kngray-1
-          resize-none overflow-hidden"
+          resize-none overflow-hidden break-all"
         classList={{
           "text-center": !value(),
         }}
@@ -142,7 +147,7 @@ export default function JQInput(p: InputProps) {
         onKeyDown={handleKeyDown}
         onInput={handleInput}
       />
-      <div class="absolute top-0 bottom-0 right-[9px] flex items-center">
+      <div class="absolute top-[7px] sm:top-[13px] right-[9px]">
         <Show when={!disabled()} fallback={<Spinner class="text-kngray-1" />}>
           <Show when={value()}>
             <IconSearch class="icon_control" onClick={search} />

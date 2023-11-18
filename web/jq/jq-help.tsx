@@ -16,10 +16,7 @@ export default function JQHelp() {
           url="https://github.com/kpopnet/kpopnet.json/wiki#jq"
           text="[Help]"
         />
-        <Link
-          url="https://jqlang.github.io/jq/manual/#basic-filters"
-          text="[JQ manual]"
-        />
+        <Link url="https://jqlang.github.io/jq/manual/" text="[JQ manual]" />
         <Link
           url="https://github.com/kpopnet/kpopnet.json/blob/master/kpopnet.d.ts"
           text="[JSON schema]"
@@ -38,7 +35,11 @@ export default function JQHelp() {
         />
         <Query
           text="Long group names"
-          query=".groups | sort_by(.name | length) | reverse[:5]"
+          query=".groups | sort_by(.name | -length)[:5]"
+        />
+        <Query
+          text="Debuts per year"
+          query='.groups | group_by(.debut_date[:4]) | sort_by(-length)[] | "\(.[0].debut_date[:4]): \(length)"'
         />
       </ul>
     </div>
