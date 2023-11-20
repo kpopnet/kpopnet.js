@@ -14,14 +14,11 @@ export interface JQOptions {
 
 class JQWrapper {
   jq: JQ;
-  // ansi_up: AnsiUp;
   AnsiCtor: new () => AnsiUp;
 
   constructor(jq: JQ, AnsiCtor: new () => AnsiUp) {
     this.jq = jq;
     this.AnsiCtor = AnsiCtor;
-    // this.ansi_up = new AnsiCtor();
-    // this.ansi_up.use_classes = true;
   }
 
   getCliOpts(q: string, opts: JQOptions): string[] {
@@ -45,14 +42,19 @@ class JQWrapper {
     output = output.slice(0, 50_000); // FIXME: don't show too much in UI
     /*dev*/ const tRun = dev ? performance.now() : 0;
 
-    if (dev) logTimes("jq", tStart, "run", tRun);
+    /*dev*/ if (dev) logTimes("jq", tStart, "run", tRun);
     return output;
   }
 
   renderAnsi(output: string): string {
-    const ansi_up = new this.AnsiCtor(); // FIXME: breakes output when reusing
+    /*dev*/ const dev = import.meta.env.DEV;
+    /*dev*/ const tStart = dev ? performance.now() : 0;
+    const ansi_up = new this.AnsiCtor();
     ansi_up.use_classes = true;
-    return ansi_up.ansi_to_html(output);
+    const html = ansi_up.ansi_to_html(output);
+    /*dev*/ const tRun = dev ? performance.now() : 0;
+    /*dev*/ if (dev) logTimes("ansi", tStart, "run", tRun);
+    return html;
   }
 }
 

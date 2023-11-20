@@ -32,7 +32,7 @@ export type Route =
   | "ItemRoute";
 export const IdolQueryRoute: Route = "IdolQueryRoute";
 export const GroupQueryRoute: Route = "GroupQueryRoute";
-export const JQRoute: Route = "JQRoute"; // FIXME(Kagami): queryRoute?
+export const JQRoute: Route = "JQRoute";
 export const ItemRoute: Route = "ItemRoute";
 
 // Internal signal value
