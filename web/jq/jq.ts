@@ -1,7 +1,8 @@
-/// <reference path="./jq.d.ts" />
-import type { Aioli } from "@biowasm/aioli";
-import type { AnsiUp } from "ansi_up";
+import moduleUrl from "jqw/jq.js?url";
+import wasmUrl from "jqw/jq.wasm?url";
+import type { JQ } from "jqw";
 import type { Profiles } from "kpopnet.json";
+import type { AnsiUp } from "ansi_up";
 
 import { logTimes } from "../../lib/utils";
 
@@ -11,13 +12,13 @@ export interface JQOptions {
   // raw?: boolean;
 }
 
-class JQHandler {
-  aioli: Aioli;
+class JQWrapper {
+  jq: JQ;
   // ansi_up: AnsiUp;
   AnsiCtor: new () => AnsiUp;
 
-  constructor(aioli: Aioli, AnsiCtor: new () => AnsiUp) {
-    this.aioli = aioli;
+  constructor(jq: JQ, AnsiCtor: new () => AnsiUp) {
+    this.jq = jq;
     this.AnsiCtor = AnsiCtor;
     // this.ansi_up = new AnsiCtor();
     // this.ansi_up.use_classes = true;
@@ -27,7 +28,7 @@ class JQHandler {
     // options.push("--sort-keys");
     // options.push("--raw-input");
     // options.push("--slurp");
-    const cli = ["--raw-output"];
+    const cli = ["--raw-output", "--color-output"];
     // if (opts.monochrome) cli.push("--monochrome-output");
     if (opts.compact) cli.push("--compact-output");
     // if (opts.raw) cli.push("--raw-output");
@@ -40,7 +41,7 @@ class JQHandler {
     /*dev*/ const tStart = dev ? performance.now() : 0;
 
     const cliOpts = this.getCliOpts(q, opts);
-    let output = await this.aioli.exec("jq", cliOpts);
+    let output = await this.jq.run(...cliOpts);
     output = output.slice(0, 50_000); // FIXME: don't show too much in UI
     /*dev*/ const tRun = dev ? performance.now() : 0;
 
@@ -54,25 +55,22 @@ class JQHandler {
     return ansi_up.ansi_to_html(output);
   }
 }
-export type JQ = JQHandler;
 
-export async function initJQ(profiles: Profiles): Promise<JQ> {
+export type JQW = JQWrapper;
+
+export async function loadJQW(profiles: Profiles): Promise<JQW> {
   /*dev*/ const dev = import.meta.env.DEV;
   /*dev*/ const tStart = dev ? performance.now() : 0;
 
-  const AioliCtor = (await import("@biowasm/aioli")).default;
+  const loadJQ = (await import("jqw")).default;
   const AnsiCtor = (await import("ansi_up")).AnsiUp;
   /*dev*/ const tLoad = dev ? performance.now() : 0;
 
   const data = JSON.stringify(profiles);
   /*dev*/ const tStr = dev ? performance.now() : 0;
 
-  const urlPrefix = location.origin + "/static/jq/1.6";
-  const aioli = await new AioliCtor([{ urlPrefix, tool: "jq" }]);
+  const jq = await loadJQ({ moduleUrl, wasmUrl, path: "kpopnet.json", data });
   /*dev*/ const tNew = dev ? performance.now() : 0;
-
-  await aioli.mount([{ name: "kpopnet.json", data }]);
-  /*dev*/ const tMount = dev ? performance.now() : 0;
 
   if (dev)
     logTimes(
@@ -82,12 +80,9 @@ export async function initJQ(profiles: Profiles): Promise<JQ> {
       tLoad,
       "stringify",
       tStr,
-      "aioli",
-      tNew,
-      "mount",
-      tMount
+      "jq",
+      tNew
     );
 
-  return new JQHandler(aioli, AnsiCtor);
+  return new JQWrapper(jq, AnsiCtor);
 }
-export default initJQ;

@@ -11,7 +11,7 @@ import {
 } from "solid-js";
 import type { Profiles } from "kpopnet.json";
 
-import { type JQ, initJQ } from "./jq";
+import { type JQW, loadJQW } from "./jq";
 import JQInput from "./jq-input";
 import { JQOptsStorage } from "./jq-storage";
 import type { Cache, Item } from "../../lib/search";
@@ -36,7 +36,7 @@ export default function JQView(p: {
   cache: Cache;
 }) {
   const [view, setView] = useRouter();
-  const [getJQ, setJQ] = createSignal<JQ>();
+  const [getJQ, setJQ] = createSignal<JQW>();
   const [loadingErr, setLoadingErr] = createSignal<any>();
   const [running, setRunning] = createSignal(false);
   const [runningErr, setRunningErr] = createSignal<any>();
@@ -112,7 +112,7 @@ export default function JQView(p: {
   async function loadJQ() {
     if (p.cache.custom.jq) return p.cache.custom.jq;
 
-    const jq = await initJQ(p.profiles);
+    const jq = await loadJQW(p.profiles);
     p.cache.custom.jq = jq;
     return jq;
   }
