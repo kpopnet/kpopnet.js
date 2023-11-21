@@ -7,9 +7,8 @@ import type { AnsiUp } from "ansi_up";
 import { logTimes } from "../../lib/utils";
 
 export interface JQOptions {
-  // monochrome?: boolean;
   compact?: boolean;
-  // raw?: boolean;
+  height?: number; // XXX(Kagami): not JQ option, but keep it here
 }
 
 class JQWrapper {
@@ -22,13 +21,8 @@ class JQWrapper {
   }
 
   getCliOpts(q: string, opts: JQOptions): string[] {
-    // options.push("--sort-keys");
-    // options.push("--raw-input");
-    // options.push("--slurp");
     const cli = ["--raw-output", "--color-output"];
-    // if (opts.monochrome) cli.push("--monochrome-output");
     if (opts.compact) cli.push("--compact-output");
-    // if (opts.raw) cli.push("--raw-output");
     cli.push(q, "kpopnet.json");
     return cli;
   }

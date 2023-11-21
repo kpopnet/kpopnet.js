@@ -80,7 +80,7 @@
   .ansi-magenta-fg        { color: #d33682; }
   .ansi-cyan-fg           { color: #2aa198; }
   .ansi-white-fg          { color: #073642; }
-  .ansi-bright-black-fg   { color: #fdf6e3; }
+  /* .ansi-bright-black-fg   { color: #fdf6e3; } */
   .ansi-bright-red-fg     { color: #cb4b16; }
   .ansi-bright-green-fg   { color: #93a1a1; }
   .ansi-bright-yellow-fg  { color: #839496; }

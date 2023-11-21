@@ -11,7 +11,7 @@ import {
 } from "solid-js";
 import type { Profiles } from "kpopnet.json";
 
-import { type JQW, loadJQW } from "./jq";
+import { type JQW, type JQOptions, loadJQW } from "./jq";
 import JQInput from "./jq-input";
 import { JQOptsStorage } from "./jq-storage";
 import type { Cache, Item } from "../../lib/search";
@@ -51,16 +51,21 @@ export default function JQView(p: {
   const loading = () => !loadingErr() && !getJQ();
   const hasInfo = () => loadingErr() || running() || runningErr() || output();
 
-  function toggleFn(name: string) {
-    return () => {
-      setOptions((prev: any) => ({ ...prev, [name]: !prev[name] }));
-      JQOptsStorage.save(options());
-    };
+  function setOption(name: string, value: any) {
+    setOptions((prev: JQOptions) => ({ ...prev, [name]: value }));
+    JQOptsStorage.save(options());
+  }
+  function toggleOption(name: string) {
+    setOption(name, !(options() as any)[name]);
+  }
+  function saveHeight(height: number) {
+    options().height = height; // don't need to trigger update
+    JQOptsStorage.save(options());
   }
 
   function handleReset() {
     setView({ query: "", replace: true });
-    // setOptions(JQOptsStorage.clear());
+    setOptions(JQOptsStorage.clear());
     setReset(reset() + 1); // trigger update
   }
 
@@ -133,13 +138,13 @@ export default function JQView(p: {
           />
         </TooltipIcon>
         <ToggleTooltipIcon
-          tooltip="Compact output"
+          tooltip="Full/Compact output"
           active={options().compact}
           on={IconCollapse}
           off={IconExpand}
-          onClick={toggleFn("compact")}
+          onClick={() => toggleOption("compact")}
         />
-        <TooltipIcon tooltip="Clear output">
+        <TooltipIcon tooltip="Clear">
           <IconClear class="icon_control" onClick={handleReset} />
         </TooltipIcon>
       </div>
@@ -147,7 +152,7 @@ export default function JQView(p: {
         <JQHelp />
       </ShowTransition>
       <Show when={hasInfo()}>
-        <JQOutput>
+        <JQOutput initHeight={options().height} saveHeight={saveHeight}>
           <Switch>
             <Match when={loadingErr()}>
               Loading error: {showError(loadingErr())}
@@ -169,25 +174,35 @@ export default function JQView(p: {
   );
 }
 
-function JQOutput(p: { children: JSXElement }) {
+function JQOutput(p: {
+  initHeight?: number;
+  saveHeight: (height: number) => void;
+  children: JSXElement;
+}) {
   const [resizing, setResizing] = createSignal(false);
-  const [height, setHeight] = createSignal(200);
+  const [height, setHeight] = createSignal(p.initHeight ?? 200);
   const px = (n: number) => n + "px";
   let outputEl: HTMLElement;
   let startY = 0;
   let startH = 0;
   function handleMouseDown(e: MouseEvent) {
     if (resizing()) return;
+    e.preventDefault();
     startY = e.clientY;
     startH = outputEl.getBoundingClientRect().height;
     setResizing(true);
 
     document.body.addEventListener("mousemove", handleGlobalMove);
-    document.body.addEventListener("mouseup", function handleMouseUp() {
-      setResizing(false);
-      document.body.removeEventListener("mousemove", handleGlobalMove);
-      document.body.removeEventListener("mouseup", handleMouseUp);
-    });
+    document.body.addEventListener(
+      "mouseup",
+      function handleMouseUp(e: MouseEvent) {
+        e.preventDefault();
+        setResizing(false);
+        p.saveHeight(height());
+        document.body.removeEventListener("mousemove", handleGlobalMove);
+        document.body.removeEventListener("mouseup", handleMouseUp);
+      }
+    );
   }
   function handleGlobalMove(e: MouseEvent) {
     setHeight(startH + e.clientY - startY);
@@ -200,11 +215,10 @@ function JQOutput(p: { children: JSXElement }) {
       />
       <article
         ref={outputEl!}
-        class="ansi whitespace-pre-wrap relative
+        class="ansi whitespace-pre-wrap break-all relative
           p-[9px] min-h-[50px] overflow-y-auto
           border border-kngray-1"
         style={{
-          "user-select": resizing() ? "none" : undefined,
           height: px(height()),
           "max-height": px(height()),
         }}
