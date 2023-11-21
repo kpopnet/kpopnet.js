@@ -99,7 +99,6 @@ export default function JQView(p: {
     if (running()) return;
     const jq = getJQ();
     if (!jq) return;
-    setOutput("");
     const q = view.query().trim();
     if (!q) return;
     setRunning(true);
@@ -160,7 +159,6 @@ export default function JQView(p: {
             <Match when={runningErr()}>
               Runtime error: {showError(runningErr())}
             </Match>
-            <Match when={running()}>Running...</Match>
             <Match when>
               <div innerHTML={outputHTML()} />
             </Match>

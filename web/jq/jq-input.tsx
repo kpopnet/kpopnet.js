@@ -135,7 +135,6 @@ export default function JQInput(p: InputProps) {
           border border-kngray-1 outline-none
           text-neutral-600
           placeholder:text-kngray-1 placeholder:opacity-100
-          disabled:text-kngray-1
           resize-none overflow-hidden break-all"
         classList={{
           "text-center": !value(),
