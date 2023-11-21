@@ -1,11 +1,12 @@
 import {
+  type JSXElement,
   For,
-  JSXElement,
   Show,
   children,
   createMemo,
   createSignal,
 } from "solid-js";
+import { Dynamic } from "solid-js/web";
 
 import {
   ItemRoute,
@@ -14,8 +15,9 @@ import {
   useRouter,
   GroupQueryRoute,
 } from "../router/router";
-import { IconExternalLink, IconLink } from "../icons/icons";
+import { IconLink, IconKastden, IconNamu, IconUknown } from "../icons/icons";
 import thumbFallbackUrl from "./no-preview.svg?url";
+import { ShowTransition } from "../animation/animation";
 
 export function Preview(p: { id: string; url: string | null }) {
   const thumbUrl = createMemo(() => p.url || thumbFallbackUrl);
@@ -149,8 +151,15 @@ export function LinkMenu(p: { urls: string[] }) {
     // we already have direct link to item in UI
     p.urls.filter((url) => !url.includes("net.kpop.re"))
   );
+  function getIcon(url: string): JSXElement {
+    let icon = IconUknown;
+    if (url.includes("selca.kastden.org")) icon = IconKastden;
+    if (url.includes("namu.wiki")) icon = IconNamu;
+    return <Dynamic component={icon} class="icon_small inline-block mr-1" />;
+  }
   function getLinkName(url: string): string {
     if (url.includes("selca.kastden.org")) return "kastden";
+    if (url.includes("namu.wiki")) return "namu";
     return "other";
   }
   return (
@@ -160,23 +169,28 @@ export function LinkMenu(p: { urls: string[] }) {
       onMouseLeave={() => setShowMenu(false)}
     >
       <IconLink class="icon_control inline-block sm:align-baseline" />
-      <Show when={showMenu()}>
-        <div class="absolute bg-body-bg border border-kngray-1 top-0 right-0 py-2.5 px-4">
+      <ShowTransition when={showMenu}>
+        <div
+          class="absolute bg-body-bg border border-kngray-1
+            top-0 right-0 py-2 pl-2 pr-8 w-max
+            flex flex-col items-start
+            transition-opacity duration-300 opacity-0"
+        >
           <For each={urls()}>
             {(url) => (
               <a
-                class="link whitespace-nowrap"
+                class="link"
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
               >
+                {getIcon(url)}
                 {getLinkName(url)}{" "}
-                <IconExternalLink class="icon_small inline-block align-baseline" />
               </a>
             )}
           </For>
         </div>
-      </Show>
+      </ShowTransition>
     </div>
   );
 }

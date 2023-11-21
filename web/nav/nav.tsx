@@ -1,7 +1,12 @@
 import { createSignal } from "solid-js";
-import { IconChat, IconHome, IconQuestion, IconWiki } from "../icons/icons";
+import {
+  IconChat,
+  IconHome,
+  IconQuestion,
+  IconWiki,
+  IconKastden,
+} from "../icons/icons";
 import logo from "../main/logo-200.png";
-import kastden from "./kastden.png";
 import { notTouch } from "../../lib/utils";
 import { ShowTransition } from "../animation/animation";
 
@@ -82,7 +87,7 @@ function Info() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <img class="icon_small inline-block" src={kastden} />
+            <IconKastden class="icon_small inline-block" />
             selca.kastden.org
           </a>
         </p>

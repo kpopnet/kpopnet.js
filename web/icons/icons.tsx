@@ -23,3 +23,7 @@ export { default as IconExpand } from "bootstrap-icons/icons/chevron-expand.svg"
 // export { default as IconMonochrome } from "bootstrap-icons/icons/palette-fill.svg";
 export { default as IconHelp } from "bootstrap-icons/icons/info-circle.svg";
 export { default as IconClear } from "bootstrap-icons/icons/x-circle.svg";
+
+export { default as IconKastden } from "./kastden.svg";
+export { default as IconNamu } from "./namu.svg";
+export { default as IconUknown } from "bootstrap-icons/icons/question.svg";
