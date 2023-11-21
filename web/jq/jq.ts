@@ -38,7 +38,7 @@ class JQWrapper {
     /*dev*/ const tStart = dev ? performance.now() : 0;
 
     const cliOpts = this.getCliOpts(q, opts);
-    let output = await this.jq.run(...cliOpts);
+    let output = await this.jq.run(cliOpts);
     output = output.slice(0, 50_000); // FIXME: don't show too much in UI
     /*dev*/ const tRun = dev ? performance.now() : 0;
 
