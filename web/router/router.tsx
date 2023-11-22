@@ -29,10 +29,12 @@ export type Route =
   | "IdolQueryRoute"
   | "GroupQueryRoute"
   | "JQRoute"
+  | "PQRoute"
   | "ItemRoute";
 export const IdolQueryRoute: Route = "IdolQueryRoute";
 export const GroupQueryRoute: Route = "GroupQueryRoute";
 export const JQRoute: Route = "JQRoute";
+export const PQRoute: Route = "PQRoute";
 export const ItemRoute: Route = "ItemRoute";
 
 // Internal signal value
@@ -80,6 +82,8 @@ export function routeToUrlParam(route: Route): string {
       return "gq";
     case JQRoute:
       return "jq";
+    case PQRoute:
+      return "pq";
     default:
       throw new Error(`Unknown route ${route.toString()}`);
   }
@@ -107,6 +111,8 @@ function createView(): View {
     [route, query] = [GroupQueryRoute, val];
   } else if ((val = params.get("jq")) != null) {
     [route, query] = [JQRoute, val];
+  } else if ((val = params.get("pq")) != null) {
+    [route, query] = [PQRoute, val];
   }
 
   let sorts: SortType[] = [];

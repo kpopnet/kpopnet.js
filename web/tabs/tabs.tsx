@@ -5,7 +5,9 @@ import {
   GroupQueryRoute,
   IdolQueryRoute,
   JQRoute,
+  PQRoute,
   useRouter,
+  queryRoute,
 } from "../router/router";
 
 interface Tab {
@@ -42,19 +44,19 @@ export default function TabsView() {
     { name: "Idols", route: IdolQueryRoute },
     { name: "Groups", route: GroupQueryRoute },
     { name: "Filter", route: JQRoute },
+    { name: "Plot", route: PQRoute },
   ];
   const tabRoutes = tabs.map((tab) => tab.route);
   const activeIdx = createMemo(() => tabRoutes.indexOf(view.route()));
 
   function setActive({ route }: Tab) {
-    const clearQuery = route === JQRoute || view.route() === JQRoute;
-    const query = clearQuery ? "" : view.query();
+    const keepQuery = queryRoute(route) && queryRoute(view.route());
+    const query = keepQuery ? view.query() : "";
     setView({ route, query });
   }
 
   function handleGlobalHotkeys(e: KeyboardEvent) {
-    const cmdOrCtrl = e.ctrlKey || e.metaKey;
-    if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && cmdOrCtrl) {
+    if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && e.ctrlKey) {
       e.preventDefault();
       const shift = e.key === "ArrowRight" ? 1 : -1;
       let nextIdx = tabRoutes.indexOf(view.route()) + shift;

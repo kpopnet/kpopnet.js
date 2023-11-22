@@ -2,7 +2,7 @@ import { For, Show, createMemo } from "solid-js";
 import type { Group, GroupMember, Idol } from "kpopnet.json";
 
 import { getIdolGroupMember, type Cache } from "../../lib/search";
-import { getAge } from "../../lib/utils";
+import { getAge } from "../../lib/date";
 import {
   Preview,
   Searchable,

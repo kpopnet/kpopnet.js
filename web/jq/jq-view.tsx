@@ -9,12 +9,12 @@ import {
   Show,
   createMemo,
 } from "solid-js";
-import type { Profiles } from "kpopnet.json";
 
-import { type JQW, type JQOptions, loadJQW } from "./jq";
+import type { Profiles, Item } from "../../lib/types";
+import { type JQW, type JQOptions, cachedJQW } from "./jq";
 import JQInput from "./jq-input";
 import { JQOptsStorage } from "./jq-storage";
-import type { Cache, Item } from "../../lib/search";
+import type { Cache } from "../../lib/search";
 import { useRouter } from "../router/router";
 import {
   IconClear,
@@ -71,7 +71,7 @@ export default function JQView(p: {
 
   onMount(async () => {
     try {
-      setJQ(await loadJQ());
+      setJQ(await cachedJQW(p.profiles, p.cache));
     } catch (err) {
       setLoadingErr(err);
       console.error(err);
@@ -112,14 +112,6 @@ export default function JQView(p: {
     } finally {
       setRunning(false);
     }
-  }
-
-  async function loadJQ() {
-    if (p.cache.custom.jq) return p.cache.custom.jq;
-
-    const jq = await loadJQW(p.profiles);
-    p.cache.custom.jq = jq;
-    return jq;
   }
 
   return (

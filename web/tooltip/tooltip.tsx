@@ -6,17 +6,14 @@ import { ShowTransition } from "../animation/animation";
 
 interface TooltipProps extends ComponentProps<"span"> {
   canShow?: boolean;
-  content: string;
+  content?: string;
   children: JSXElement;
   top?: number;
   left?: number;
 }
 
-function px(n: number) {
-  return n + "px";
-}
-
 export default function Tooltip(p: TooltipProps) {
+  const px = (n: number) => n + "px";
   const [show, setShow] = createSignal(false);
   const [local, other] = splitProps(p, [
     "class",
@@ -27,7 +24,7 @@ export default function Tooltip(p: TooltipProps) {
   ]);
   return (
     <span
-      onMouseEnter={notTouch(() => setShow(p.canShow ?? true))}
+      onMouseEnter={notTouch(() => setShow((p.canShow ?? true) && !!p.content))}
       onMouseLeave={() => setShow(false)}
       class="relative"
       classList={{ ...local.classList, [local.class || ""]: true }}
@@ -51,7 +48,9 @@ export default function Tooltip(p: TooltipProps) {
         before:border-t-8
         before:border-t-black"
         >
-          {p.content}
+          <div class="max-w-[200px] overflow-hidden text-ellipsis">
+            {p.content}
+          </div>
         </div>
       </ShowTransition>
     </span>

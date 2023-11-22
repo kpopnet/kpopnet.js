@@ -1,12 +1,12 @@
-import type { Idol, Group, Profiles, GroupMember } from "kpopnet.json";
-
+import type { Idol, Group, Profiles, GroupMember, Item } from "./types";
 import {
   type SortProp,
   defaultIdolProps,
   defaultGroupProps,
   sameSorts,
 } from "./sort";
-import { getAge, logTimes } from "./utils";
+import { getAge } from "./date";
+import { logTimes } from "./utils";
 
 export type IdolMap = Map<string, Idol>;
 export type IdolGroupsMap = Map<string, Group[]>;
@@ -29,8 +29,6 @@ export interface Cache {
   // TODO(Kagami): extend in web app?
   custom: { [key: string]: any };
 }
-
-export type Item = Idol | Group;
 
 type SearchProp = [string, string];
 interface Query {
