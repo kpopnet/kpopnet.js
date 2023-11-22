@@ -6,6 +6,7 @@ export { default as IconQuestion } from "bootstrap-icons/icons/question-circle.s
 export { default as IconChat } from "bootstrap-icons/icons/chat-square-text.svg";
 export { default as IconWiki } from "bootstrap-icons/icons/wikipedia.svg";
 export { default as IconSection } from "bootstrap-icons/icons/text-paragraph.svg";
+export { default as IconDiscord } from "bootstrap-icons/icons/discord.svg";
 
 export { default as IconSort } from "./arrows-sort.svg";
 export { default as IconSortDown } from "bootstrap-icons/icons/sort-down-alt.svg";

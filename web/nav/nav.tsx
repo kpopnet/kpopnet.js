@@ -4,6 +4,7 @@ import {
   IconHome,
   IconQuestion,
   IconWiki,
+  IconDiscord,
   IconKastden,
 } from "../icons/icons";
 import logo from "../main/logo-200.png";
@@ -69,14 +70,22 @@ function Info() {
           </a>
         </p>
         <p>
-          Questions:{" "}
+          Discussions:{" "}
           <a
             class="link"
             href="https://github.com/orgs/kpopnet/discussions"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <IconChat class="icon_small inline-block" /> kpopnet/discussions
+            <IconChat class="icon_small inline-block" /> forum
+          </a>{" "}
+          <a
+            class="link"
+            href="https://discord.gg/r54dUMEn6K"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <IconDiscord class="icon_small inline-block" /> discord
           </a>
         </p>
         <p>
