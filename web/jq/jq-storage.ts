@@ -33,6 +33,12 @@ export class JQQueryStorage {
     return this.lines.length ? this.lines[this.lines.length - 1] : undefined;
   }
 
+  private get prevLastSaved(): string | undefined {
+    return this.lines.length > 1
+      ? this.lines[this.lines.length - 2]
+      : undefined;
+  }
+
   last(): string {
     return this.lastLine;
   }
@@ -70,8 +76,7 @@ export class JQQueryStorage {
 
   // push line, preserving the last typed
   pushLine(q: string) {
-    const lastLineWasSaved = this.lastLine === this.lastSaved;
-    if (!lastLineWasSaved) this.pushSingleLine(this.lastLine);
+    this.pushSingleLine(this.lastLine);
     this.pushSingleLine(q);
     // pushed line is last now
     this.setLast(q);
@@ -80,7 +85,7 @@ export class JQQueryStorage {
   private pushSingleLine(q: string) {
     // no dups or empty in history
     q = q.trim();
-    if (!q || q === this.lastSaved) return;
+    if (!q || q === this.lastSaved || q === this.prevLastSaved) return;
 
     this.lines.push(q);
     this.lines = this.lines.slice(-this.MAX_LINES);
