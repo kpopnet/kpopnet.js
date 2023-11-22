@@ -64,7 +64,7 @@ export default function JQView(p: {
   }
 
   function handleReset() {
-    setView({ query: "", replace: true });
+    setView({ query: "" });
     setOptions(JQOptsStorage.clear());
     setReset(reset() + 1); // trigger update
   }
@@ -84,6 +84,7 @@ export default function JQView(p: {
     if (prev !== view.query()) {
       search();
       if (!view.query()) {
+        setOutput("");
         setShowHelp(true);
       }
     }

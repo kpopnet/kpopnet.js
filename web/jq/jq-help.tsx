@@ -50,7 +50,7 @@ function Query(p: { text: string; query: string }) {
   const [_, setView] = useRouter();
   function handleClick(e: MouseEvent) {
     e.preventDefault();
-    setView({ query: p.query, replace: true });
+    setView({ query: p.query });
   }
   return (
     <li>

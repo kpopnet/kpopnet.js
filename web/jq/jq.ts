@@ -41,13 +41,13 @@ class JQWrapper {
   }
 
   renderAnsi(output: string): string {
-    /*dev*/ const dev = import.meta.env.DEV;
-    /*dev*/ const tStart = dev ? performance.now() : 0;
+    // /*dev*/ const dev = import.meta.env.DEV;
+    // /*dev*/ const tStart = dev ? performance.now() : 0;
     const ansi_up = new this.AnsiCtor();
     ansi_up.use_classes = true;
     const html = ansi_up.ansi_to_html(output);
-    /*dev*/ const tRun = dev ? performance.now() : 0;
-    /*dev*/ if (dev) logTimes("ansi", tStart, "run", tRun);
+    // /*dev*/ const tRun = dev ? performance.now() : 0;
+    // /*dev*/ if (dev) logTimes("ansi", tStart, "run", tRun);
     return html;
   }
 }

@@ -53,7 +53,7 @@ export default function JQInput(p: InputProps) {
   function search() {
     const query = value().trim();
     if (!query) return;
-    setView({ query, replace: true });
+    setView({ query });
     qStorage.pushLine(value());
   }
 
