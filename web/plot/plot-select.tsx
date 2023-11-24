@@ -4,7 +4,7 @@ export default function FieldSelect(p: {
   value: string;
   setValue: (v: string) => void;
   label: string;
-  fields: string[];
+  fields?: string[];
   default?: string;
 }) {
   const isDefault = () => p.value === (p.default ?? "");
@@ -30,7 +30,7 @@ export default function FieldSelect(p: {
             {label("")}
           </option>
         </Show>
-        {p.fields.map((v) => (
+        {(p.fields || []).map((v) => (
           <option value={v} selected={v === p.value}>
             {label(v)}
           </option>

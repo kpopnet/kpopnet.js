@@ -1,5 +1,6 @@
 /** Tree-shakable re-export helper */
 import { plot, dot, rectY, binX } from "@observablehq/plot";
+export { type ChannelValue } from "@observablehq/plot";
 
 export interface Plot {
   plot: typeof plot;

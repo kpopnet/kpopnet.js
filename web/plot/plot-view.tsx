@@ -1,23 +1,38 @@
-import {
-  Show,
-  createMemo,
-  createResource,
-  createSignal,
-  onMount,
-} from "solid-js";
+import { Show, createResource, createSignal, onMount } from "solid-js";
 
 import type { Profiles, Item, Idol } from "../../lib/types";
 import type { Cache } from "../../lib/search";
-import type { Plot } from "./plot";
 import { type JQW, cachedJQW } from "../jq/jq";
 import { getIdolGen } from "../../lib/date";
 import { savePlot, withTime } from "../../lib/utils";
+import type { Plot, ChannelValue } from "./plot";
 import PlotInput from "./plot-input";
 import FieldSelect from "./plot-select";
 import PlotResize from "./plot-resize";
-import { IconClear, IconSave } from "../icons/icons";
+import { IconSave } from "../icons/icons";
 
 const GEN_FIELD = "(generation)";
+
+// Auto-format some fields values
+function smartValue(field: string): ChannelValue {
+  if (field.endsWith("_date")) {
+    return (i: any) => {
+      const v = i[field];
+      return v && new Date(v);
+    };
+  }
+  return field;
+}
+
+// Skip meaningless fields
+function smartFields(fields: string[]): string[] {
+  return fields.filter(
+    (f) =>
+      !["id", "urls", "thumb_url"].includes(f) &&
+      !f.startsWith("name") &&
+      !f.startsWith("real_name")
+  );
+}
 
 export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
   // const [view, setView] = useRouter();
@@ -32,7 +47,8 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
   const [xValue, setXValue] = createSignal("weight");
   const [yValue, setYValue] = createSignal("height");
   const [infoValue, setInfoValue] = createSignal("name");
-  const [graphValue, setGraphValue] = createSignal("auto");
+  // FIXME(Kagami): default = auto?
+  const [graphValue, setGraphValue] = createSignal("dot");
   const [sizeValue, setSizeValue] = createSignal("");
   const [colorValue, setColorValue] = createSignal(GEN_FIELD);
 
@@ -41,46 +57,46 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
     ([jq, q]) => jq.runBare(q)
   );
   const [itemsParsed] = createResource(
-    itemsUnparsed,
-    (s) => JSON.parse(s) as Item[]
+    () => !itemsUnparsed.error && itemsUnparsed(),
+    async (s) => JSON.parse(s) as Item[]
   );
-  const fields = createMemo(() => {
-    if (itemsParsed.error) return [];
-    const items = itemsParsed();
-    if (!items || !items.length) return [];
-    return Object.keys(items[0]);
-  });
-  const graphFields = () => ["auto", "dot"];
-  const colorFields = () => [GEN_FIELD].concat(fields());
+  const [fields] = createResource(
+    () => !itemsParsed.error && itemsParsed(),
+    (items) => (items.length ? Object.keys(items[0]) : [])
+  );
+  const graphFields = () => ["dot"];
+  const colorFields = () => [GEN_FIELD].concat(fields() || []);
 
-  const rendered = createMemo(() => {
-    const Plot = getPlot();
-    if (!Plot || itemsParsed.error) return;
-    const items = itemsParsed();
-    if (!items) return;
-    return withTime("plot", () =>
-      Plot.plot({
-        color: {
-          legend: true,
-        },
-        style: {
-          background: "transparent",
-        },
-        className: "kn-plot",
-        width: 780, // viewBox dimensions, will scale on mobile
-        height: height(),
-        marks: [
-          Plot.dot(items, {
-            x: xValue(),
-            y: yValue(),
-            fill: (i: Idol) => "gen" + getIdolGen(i),
-            channels: { [infoValue()]: infoValue() },
-            tip: true,
-          }),
-        ],
-      })
-    );
-  });
+  const [rendered] = createResource(
+    () =>
+      getPlot() &&
+      !itemsParsed.error &&
+      itemsParsed() &&
+      ([getPlot()!, itemsParsed()!] as const),
+    async ([Plot, items]) =>
+      withTime("plot", () =>
+        Plot.plot({
+          color: {
+            legend: true,
+          },
+          style: {
+            background: "transparent",
+          },
+          className: "kn-plot",
+          width: 780, // viewBox dimensions, will scale on mobile
+          height: height(),
+          marks: [
+            Plot.dot(items, {
+              x: smartValue(xValue()),
+              y: smartValue(yValue()),
+              fill: (i: Idol) => "gen" + getIdolGen(i),
+              channels: { [infoValue()]: infoValue() },
+              tip: true,
+            }),
+          ],
+        })
+      )
+  );
 
   function handleSave() {
     const plot = document.querySelector(".kn-plot-figure");
@@ -101,9 +117,9 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
 
   async function cachedPlot() {
     if (p.cache.custom.plot) return p.cache.custom.plot;
-    const plot = (await import("./plot")).default;
-    p.cache.custom.plot = plot;
-    return plot;
+    const Plot = (await import("./plot")).default;
+    p.cache.custom.plot = Plot;
+    return Plot;
   }
 
   // FIXME(Kagami): loading, loadingERr
@@ -145,7 +161,7 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
           label="Info"
         />
         <FieldSelect
-          default="auto"
+          default="dot"
           value={graphValue()}
           setValue={setGraphValue}
           fields={graphFields()}
