@@ -1,5 +1,5 @@
-import moduleUrl from "jqw/jq.js?url";
-import wasmUrl from "jqw/jq.wasm?url";
+import moduleUrl from "jqw/jq-re.js?url";
+import wasmUrl from "jqw/jq-re.wasm?url";
 import type { JQ } from "jqw";
 import type { Profiles } from "kpopnet.json";
 import type { AnsiUp } from "ansi_up";
