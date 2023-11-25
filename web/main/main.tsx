@@ -14,10 +14,12 @@ import Router, {
   IdolQueryRoute,
   useRouter,
   queryRoute,
+  JQRoute,
 } from "../router/router";
 import Navbar from "../nav/nav";
 import Tabs from "../tabs/tabs";
 import JQView from "../jq/jq-view";
+import PQView from "../plot/plot-view";
 import { showError } from "../../lib/utils";
 
 export default function MainContext() {
@@ -88,8 +90,11 @@ function Main() {
                 <SearchInput focus={focus} />
                 <SearchItemList profiles={profiles} cache={cache()!} />
               </Match>
-              <Match when>
+              <Match when={view.route() === JQRoute}>
                 <JQView focus={focus} profiles={profiles} cache={cache()!} />
+              </Match>
+              <Match when>
+                <PQView profiles={profiles} cache={cache()!} />
               </Match>
             </Switch>
           </Match>

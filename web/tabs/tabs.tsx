@@ -5,7 +5,10 @@ import {
   GroupQueryRoute,
   IdolQueryRoute,
   JQRoute,
+  PQRoute,
   useRouter,
+  queryRoute,
+  routeToUrlParam,
 } from "../router/router";
 
 interface Tab {
@@ -20,9 +23,16 @@ function TabView(p: {
   active: boolean;
   onClick: () => void;
 }) {
+  const url = () => "?" + routeToUrlParam(p.tab.route) + "=";
+  function handleClick(e: MouseEvent) {
+    if (e.metaKey) return; // Command+Click = open in new tab
+    e.preventDefault();
+    p.onClick();
+  }
   return (
     <a
-      onClick={p.onClick}
+      href={url()}
+      onClick={handleClick}
       class="px-4 py-1 transition-[flex] duration-100 text-gray-500 border-kngray-1"
       classList={{
         "border-l": p.activeIdx > p.idx || p.activeIdx < p.idx - 1,
@@ -42,19 +52,19 @@ export default function TabsView() {
     { name: "Idols", route: IdolQueryRoute },
     { name: "Groups", route: GroupQueryRoute },
     { name: "Filter", route: JQRoute },
+    { name: "Plot", route: PQRoute },
   ];
   const tabRoutes = tabs.map((tab) => tab.route);
   const activeIdx = createMemo(() => tabRoutes.indexOf(view.route()));
 
   function setActive({ route }: Tab) {
-    const clearQuery = route === JQRoute || view.route() === JQRoute;
-    const query = clearQuery ? "" : view.query();
+    const keepQuery = queryRoute(route) && queryRoute(view.route());
+    const query = keepQuery ? view.query() : "";
     setView({ route, query });
   }
 
   function handleGlobalHotkeys(e: KeyboardEvent) {
-    const cmdOrCtrl = e.ctrlKey || e.metaKey;
-    if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && cmdOrCtrl) {
+    if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && e.ctrlKey) {
       e.preventDefault();
       const shift = e.key === "ArrowRight" ? 1 : -1;
       let nextIdx = tabRoutes.indexOf(view.route()) + shift;

@@ -4,57 +4,56 @@ import type { JQ } from "jqw";
 import type { Profiles } from "kpopnet.json";
 import type { AnsiUp } from "ansi_up";
 
-import { logTimes } from "../../lib/utils";
+import type { Cache } from "../../lib/search";
+import { logTimes, withTime, withTimeAsync } from "../../lib/utils";
 
 export interface JQOptions {
-  compact?: boolean;
+  compact?: boolean /** pretty by default */;
   height?: number; // XXX(Kagami): not JQ option, but keep it here
 }
 
 class JQWrapper {
-  jq: JQ;
-  AnsiCtor: new () => AnsiUp;
+  private jq: JQ;
+  private AnsiCtor: new () => AnsiUp;
 
   constructor(jq: JQ, AnsiCtor: new () => AnsiUp) {
     this.jq = jq;
     this.AnsiCtor = AnsiCtor;
   }
 
-  getCliOpts(q: string, opts: JQOptions): string[] {
+  private getCliOpts(q: string, opts: JQOptions): string[] {
     const cli = ["--raw-output", "--color-output"];
     if (opts.compact) cli.push("--compact-output");
     cli.push(q, "kpopnet.json");
     return cli;
   }
 
-  async run(q: string, opts: JQOptions = {}): Promise<string> {
-    /*dev*/ const dev = import.meta.env.DEV;
-    /*dev*/ const tStart = dev ? performance.now() : 0;
+  run(q: string, opts: JQOptions = {}): Promise<string> {
+    return withTimeAsync("jq1", async () => {
+      const cliOpts = this.getCliOpts(q, opts);
+      const output = await this.jq.run(cliOpts);
+      return output.slice(0, 50_000); // FIXME: don't show too much in UI
+    });
+  }
 
-    const cliOpts = this.getCliOpts(q, opts);
-    let output = await this.jq.run(cliOpts);
-    output = output.slice(0, 50_000); // FIXME: don't show too much in UI
-    /*dev*/ const tRun = dev ? performance.now() : 0;
-
-    /*dev*/ if (dev) logTimes("jq", tStart, "run", tRun);
-    return output;
+  runBare(q: string): Promise<string> {
+    return withTimeAsync("jq2", async () => {
+      const cliOpts = ["--monochrome-output", "--compact-output"];
+      cliOpts.push(q, "kpopnet.json");
+      return await this.jq.run(cliOpts);
+    });
   }
 
   renderAnsi(output: string): string {
-    // /*dev*/ const dev = import.meta.env.DEV;
-    // /*dev*/ const tStart = dev ? performance.now() : 0;
     const ansi_up = new this.AnsiCtor();
     ansi_up.use_classes = true;
-    const html = ansi_up.ansi_to_html(output);
-    // /*dev*/ const tRun = dev ? performance.now() : 0;
-    // /*dev*/ if (dev) logTimes("ansi", tStart, "run", tRun);
-    return html;
+    return ansi_up.ansi_to_html(output);
   }
 }
 
 export type JQW = JQWrapper;
 
-export async function loadJQW(profiles: Profiles): Promise<JQW> {
+async function loadJQW(profiles: Profiles): Promise<JQW> {
   /*dev*/ const dev = import.meta.env.DEV;
   /*dev*/ const tStart = dev ? performance.now() : 0;
 
@@ -81,4 +80,11 @@ export async function loadJQW(profiles: Profiles): Promise<JQW> {
     );
 
   return new JQWrapper(jq, AnsiCtor);
+}
+
+export async function cachedJQW(profiles: Profiles, cache: Cache) {
+  if (cache.custom.jq) return cache.custom.jq;
+  const jq = await loadJQW(profiles);
+  cache.custom.jq = jq;
+  return jq;
 }

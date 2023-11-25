@@ -129,18 +129,14 @@ export function SearchableDate(p: { k: string; q: string; gq?: boolean }) {
       <Searchable k={p.k} q={y()} gq={p.gq}>
         {y()}
       </Searchable>
-      <Show when={m() !== "00"}>
-        -
-        <Searchable k={p.k} q={y() + "-" + m()} gq={p.gq}>
-          {m()}
-        </Searchable>
-        <Show when={d() !== "00"}>
-          -
-          <Searchable k={p.k} q={p.q} gq={p.gq}>
-            {d()}
-          </Searchable>
-        </Show>
-      </Show>
+      -
+      <Searchable k={p.k} q={y() + "-" + m()} gq={p.gq}>
+        {m()}
+      </Searchable>
+      -
+      <Searchable k={p.k} q={p.q} gq={p.gq}>
+        {d()}
+      </Searchable>
     </>
   );
 }

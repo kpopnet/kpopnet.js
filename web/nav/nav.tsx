@@ -6,6 +6,7 @@ import {
   IconWiki,
   IconDiscord,
   IconKastden,
+  IconNamu,
 } from "../icons/icons";
 import logo from "../main/logo-200.png";
 import { notTouch } from "../../lib/utils";
@@ -96,8 +97,15 @@ function Info() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <IconKastden class="icon_small inline-block" />
-            selca.kastden.org
+            <IconKastden class="icon_small inline-block" /> kastden
+          </a>{" "}
+          <a
+            class="link"
+            href="https://namu.wiki/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <IconNamu class="icon_small inline-block" /> namu
           </a>
         </p>
       </div>

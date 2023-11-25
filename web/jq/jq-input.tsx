@@ -57,21 +57,14 @@ export default function JQInput(p: InputProps) {
     qStorage.pushLine(value());
   }
 
-  function cursorAtStart() {
-    return true; //inputEl.selectionStart === 0;
-  }
-  function cursorAtEnd() {
-    return true; //inputEl.selectionEnd === inputEl.value.length;
-  }
   function handleKeyDown(e: KeyboardEvent) {
-    const cmdOrCtrl = e.ctrlKey || e.metaKey;
-    if (e.key === "Enter" && (cursorAtEnd() || cmdOrCtrl)) {
+    if (e.key === "Enter") {
       e.preventDefault();
       search();
-    } else if (e.key === "ArrowUp" && cursorAtStart()) {
+    } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setFix(qStorage.prevLine());
-    } else if (e.key === "ArrowDown" && cursorAtEnd()) {
+    } else if (e.key === "ArrowDown") {
       e.preventDefault();
       setFix(qStorage.nextLine());
     }

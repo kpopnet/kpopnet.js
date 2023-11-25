@@ -30,8 +30,8 @@ export function setUrlParams(
   // don't escape colon https://stackoverflow.com/q/13713671
   url.search = url.searchParams.toString().replace(/%3A/g, ":");
 
-  if (import.meta.env.DEV && !replace)
-    console.log("PUSH STATE", { k1, v1, k2, v2 });
+  if (import.meta.env.DEV)
+    console.log("NEW STATE", { k1, v1, k2, v2, replace });
   history[replace ? "replaceState" : "pushState"]("", "", url);
 }
 
@@ -41,23 +41,6 @@ export function fixMissedUrlParam(k: string, v: string) {
   url.searchParams.set(k, v);
   url.search = url.searchParams.toString().replace(/%3A/g, ":");
   history.replaceState("", "", url);
-}
-
-const MILLISECONDS_IN_YEAR = 1000 * 365 * 24 * 60 * 60;
-
-function fixZeroedDate(date: string): string {
-  // kpopnet.json uses "00" if month or day is unknown.
-  return date.replace(/-00/g, "-01");
-}
-
-export function getAge(date: string): number {
-  // Birthday is always in YYYY-MM-DD form and can be parsed as
-  // simplified ISO 8601 format.
-  const born = new Date(fixZeroedDate(date)).getTime();
-  if (isNaN(born)) return 0;
-  const now = Date.now();
-  const years = Math.floor((now - born) / MILLISECONDS_IN_YEAR);
-  return Math.max(0, years);
 }
 
 // https://stackoverflow.com/a/4819886
@@ -135,4 +118,29 @@ export function logTimes(
 
 export function showError(err: any): string {
   return err?.message || `Unknown error "${err}"`;
+}
+
+export function withTime<A>(name: string, fn: () => A): A {
+  return (function () {
+    /*dev*/ const dev = import.meta.env.DEV;
+    /*dev*/ const tStart = dev ? performance.now() : 0;
+    const result = fn();
+    /*dev*/ const tRun = dev ? performance.now() : 0;
+    /*dev*/ if (dev) logTimes(name, tStart, "run", tRun);
+    return result;
+  })();
+}
+
+export async function withTimeAsync<A>(
+  name: string,
+  fn: () => Promise<A>
+): Promise<A> {
+  return await (async function () {
+    /*dev*/ const dev = import.meta.env.DEV;
+    /*dev*/ const tStart = dev ? performance.now() : 0;
+    const result = await fn();
+    /*dev*/ const tRun = dev ? performance.now() : 0;
+    /*dev*/ if (dev) logTimes(name, tStart, "run", tRun);
+    return result;
+  })();
 }
