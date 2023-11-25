@@ -1,6 +1,7 @@
 import { Show } from "solid-js";
 
-export default function FieldSelect(p: {
+export default function PlotSelect(p: {
+  class?: string;
   value: string;
   setValue: (v: string) => void;
   label: string;
@@ -12,6 +13,7 @@ export default function FieldSelect(p: {
     <div
       class="flex flex-col"
       classList={{
+        [p.class ?? ""]: true,
         "text-gray-300": !p.value,
         "text-neutral-600": !!p.value,
       }}

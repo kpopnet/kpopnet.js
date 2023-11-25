@@ -12,7 +12,7 @@ import type { Cache } from "../../lib/search";
 import { type JQW, cachedJQW } from "../jq/jq";
 import type { Plot, PlotRender } from "./plot";
 import PlotInput from "./plot-input";
-import FieldSelect from "./plot-select";
+import PlotSelect from "./plot-select";
 import PlotResize from "./plot-resize";
 import { savePlot } from "./plot-utils";
 import { IconPeople, IconPerson, IconSave } from "../icons/icons";
@@ -36,6 +36,7 @@ const DEFAULT_VALUES: Values = {
   y: DEFAULT_IDOL_Y,
   graph: DEFAULT_GRAPH, // FIXME: default = auto?
   size: "",
+  symbol: "",
   color: GEN_FIELD,
 };
 
@@ -108,6 +109,7 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
       y: mbValue(f, v.y),
       graph: v.graph,
       size: mbValue(f, v.size),
+      symbol: mbValue(f, v.symbol),
       color: mbValue(f, v.color),
     };
   });
@@ -180,6 +182,7 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
       </section>
       <section class="grid grid-cols-3 gap-1">
         <PlotInput
+          class="col-span-full"
           value={query()}
           setValue={setQuery}
           loading={itemsParsed.loading}
@@ -187,32 +190,38 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
           parsedError={itemsParsed.error}
           unparsed={itemsUnparsed.error == null ? itemsUnparsed() : undefined}
         />
-        <FieldSelect
+        <PlotSelect
           value={values().x}
           setValue={(v) => setValue("x", v)}
           fields={axisFields()}
           label="X"
         />
-        <FieldSelect
+        <PlotSelect
           value={values().y}
           setValue={(v) => setValue("y", v)}
           fields={axisFields()}
           label="Y"
         />
-        <FieldSelect
+        <PlotSelect
           value={values().graph}
           setValue={(v) => setValue("graph", v)}
           fields={graphFields()}
           label="Graph"
           noEmpty
         />
-        <FieldSelect
+        <PlotSelect
           value={values().size}
           setValue={(v) => setValue("size", v)}
           fields={fields()}
           label="Size"
         />
-        <FieldSelect
+        <PlotSelect
+          value={values().symbol}
+          setValue={(v) => setValue("symbol", v)}
+          fields={fields()}
+          label="Shape"
+        />
+        <PlotSelect
           value={values().color}
           setValue={(v) => setValue("color", v)}
           fields={fields()}

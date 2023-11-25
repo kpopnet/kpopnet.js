@@ -4,6 +4,7 @@ import { IconCaretDown, IconCaretUp } from "../icons/icons";
 import ToggleIcon from "../icons/toggle";
 
 export default function PlotInput(p: {
+  class?: string;
   value: string;
   setValue: (v: string) => void;
   loading: boolean;
@@ -25,7 +26,10 @@ export default function PlotInput(p: {
   }
 
   return (
-    <section class="col-span-full relative text-neutral-600">
+    <section
+      class="relative text-neutral-600"
+      classList={{ [p.class ?? ""]: true }}
+    >
       <label>
         <span class="pr-1">Items filter</span>
         <Show when={hasOutput()}>

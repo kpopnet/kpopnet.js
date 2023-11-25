@@ -7,6 +7,7 @@ export interface Values {
   y: string;
   graph: string;
   size: string;
+  symbol: string;
   color: string;
 }
 
@@ -45,6 +46,14 @@ function smartChannels() {
   };
 }
 
+function toLabel(field: string) {
+  if (!field) return;
+  return {
+    label: field,
+    value: smartValue(field),
+  };
+}
+
 export function renderPlot(
   Plot: Plot,
   items: Item[],
@@ -65,22 +74,16 @@ export function renderPlot(
     height,
     marks: [
       Plot.dot(items, {
-        x: {
-          label: values.x,
-          value: smartValue(values.x),
-        },
-        y: {
-          label: values.y,
-          value: smartValue(values.y),
-        },
-        r: values.size ? smartValue(values.size) : undefined,
+        x: toLabel(values.x),
+        y: toLabel(values.y),
+        r: toLabel(values.size),
+        symbol: toLabel(values.symbol),
         fill: smartValue(values.color),
         channels: smartChannels(),
         tip: {
           fill: "#f3f4f6",
           format: {
             fill: false,
-            r: false,
           },
         },
       }),

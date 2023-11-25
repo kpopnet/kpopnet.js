@@ -8,6 +8,7 @@ import {
   PQRoute,
   useRouter,
   queryRoute,
+  routeToUrlParam,
 } from "../router/router";
 
 interface Tab {
@@ -22,9 +23,16 @@ function TabView(p: {
   active: boolean;
   onClick: () => void;
 }) {
+  const url = () => "?" + routeToUrlParam(p.tab.route) + "=";
+  function handleClick(e: MouseEvent) {
+    if (e.metaKey) return; // Command+Click = open in new tab
+    e.preventDefault();
+    p.onClick();
+  }
   return (
     <a
-      onClick={p.onClick}
+      href={url()}
+      onClick={handleClick}
       class="px-4 py-1 transition-[flex] duration-100 text-gray-500 border-kngray-1"
       classList={{
         "border-l": p.activeIdx > p.idx || p.activeIdx < p.idx - 1,
