@@ -30,8 +30,8 @@ export function setUrlParams(
   // don't escape colon https://stackoverflow.com/q/13713671
   url.search = url.searchParams.toString().replace(/%3A/g, ":");
 
-  if (import.meta.env.DEV && !replace)
-    console.log("PUSH STATE", { k1, v1, k2, v2 });
+  if (import.meta.env.DEV)
+    console.log("NEW STATE", { k1, v1, k2, v2, replace });
   history[replace ? "replaceState" : "pushState"]("", "", url);
 }
 
@@ -143,42 +143,4 @@ export async function withTimeAsync<A>(
     /*dev*/ if (dev) logTimes(name, tStart, "run", tRun);
     return result;
   })();
-}
-
-export function savePngData(data: string, filename = "plot.png") {
-  const a = document.createElement("a");
-  a.href = data;
-  a.download = filename;
-  a.click();
-}
-
-export function savePlot(node: HTMLElement, filename = "plot.png") {
-  const rect = node.getBoundingClientRect();
-  const w = rect.width;
-  const h = rect.height;
-  let svgStr = new XMLSerializer().serializeToString(node);
-  svgStr =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">` +
-    '<foreignObject width="100%" height="100%">' +
-    svgStr +
-    "</foreignObject></svg>";
-  const svgData = "data:image/svg+xml," + encodeURIComponent(svgStr);
-
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d")!;
-  const scale = window.devicePixelRatio;
-  canvas.width = w * scale;
-  canvas.height = h * scale;
-  canvas.style.width = w + "px";
-  canvas.style.height = h + "px";
-
-  const img = document.createElement("img");
-  img.onload = function () {
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    savePngData(canvas.toDataURL("image/png"), filename);
-  };
-  img.onerror = function (err) {
-    console.error(err);
-  };
-  img.src = svgData;
 }

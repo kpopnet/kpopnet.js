@@ -4,17 +4,16 @@ export default function FieldSelect(p: {
   value: string;
   setValue: (v: string) => void;
   label: string;
-  fields?: string[];
-  default?: string;
+  fields: string[];
+  noEmpty?: boolean;
 }) {
-  const isDefault = () => p.value === (p.default ?? "");
   const label = (v: string) => v || "−";
   return (
     <div
       class="flex flex-col"
       classList={{
-        "text-gray-300": isDefault(),
-        "text-neutral-600": !isDefault(),
+        "text-gray-300": !p.value,
+        "text-neutral-600": !!p.value,
       }}
     >
       <label>{p.label}</label>
@@ -25,12 +24,12 @@ export default function FieldSelect(p: {
         value={p.value}
         onInput={(e) => p.setValue(e.target.value)}
       >
-        <Show when={!p.default}>
+        <Show when={!p.noEmpty}>
           <option value="" selected={!p.value}>
             {label("")}
           </option>
         </Show>
-        {(p.fields || []).map((v) => (
+        {p.fields.map((v) => (
           <option value={v} selected={v === p.value}>
             {label(v)}
           </option>

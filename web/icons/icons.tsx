@@ -18,13 +18,13 @@ export { default as IconOff } from "bootstrap-icons/icons/toggle-off.svg";
 export { default as IconSearch } from "./search.svg";
 export { default as IconCollapse } from "bootstrap-icons/icons/chevron-contract.svg";
 export { default as IconExpand } from "bootstrap-icons/icons/chevron-expand.svg";
-// export { default as IconQuote } from "bootstrap-icons/icons/quote.svg";
-// export { default as IconRaw } from "bootstrap-icons/icons/filetype-raw.svg";
-// export { default as IconColored } from "bootstrap-icons/icons/palette.svg";
-// export { default as IconMonochrome } from "bootstrap-icons/icons/palette-fill.svg";
 export { default as IconHelp } from "bootstrap-icons/icons/info-circle.svg";
 export { default as IconClear } from "bootstrap-icons/icons/x-circle.svg";
 
 export { default as IconKastden } from "./kastden.svg";
 export { default as IconNamu } from "./namu.svg";
 export { default as IconUknown } from "bootstrap-icons/icons/question.svg";
+
+export { default as IconCaretDown } from "bootstrap-icons/icons/caret-down-fill.svg";
+export { default as IconPerson } from "bootstrap-icons/icons/person.svg";
+export { default as IconPeople } from "bootstrap-icons/icons/people.svg";

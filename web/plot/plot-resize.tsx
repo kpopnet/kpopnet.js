@@ -7,9 +7,8 @@ export default function PlotResize(p: {
 }) {
   const resolved = children(() => p.children);
 
-  // FIXME(Kagami): won't work on mobile with scaled plot
   const legendH = 33 + 5;
-  let startH = p.height + legendH;
+  let startH = 0;
   let startY = 0;
   let outputEl: HTMLDivElement;
   let resizing = false;
@@ -45,7 +44,8 @@ export default function PlotResize(p: {
         class="relative"
         style={{
           // keep the space occupied while plot is loading
-          height: resolved() ? undefined : startH + "px",
+          // FIXME: won't work on mobile with scaled plot because height is smaller there
+          height: resolved() ? undefined : `${p.height + legendH}px`,
         }}
       >
         {resolved()}

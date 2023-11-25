@@ -1,12 +1,18 @@
-import { Show } from "solid-js";
+import { Show, createSignal } from "solid-js";
 
-// TODO(Kagami): use jq-input component?
+import { IconCaretDown } from "../icons/icons";
+
 export default function PlotInput(p: {
   value: string;
   setValue: (v: string) => void;
-  error: any;
   loading: boolean;
+  unparsedError: any;
+  parsedError: any;
+  unparsed: string | undefined;
 }) {
+  const error = () => p.unparsedError || p.parsedError;
+  const [showOutput, setShowOutput] = createSignal(false);
+
   function handleKeyDown(
     e: KeyboardEvent & { currentTarget: HTMLTextAreaElement }
   ) {
@@ -15,17 +21,23 @@ export default function PlotInput(p: {
       p.setValue(e.currentTarget.value);
     }
   }
+
   return (
     <section class="col-span-full relative text-neutral-600">
       <label>
-        Items filter
-        <Show when={p.error}>
-          <span class="text-red-500 text-sm">: {p.error.toString()}</span>
+        <span class="pr-1">Items filter</span>
+        <Show when={!p.unparsedError && p.unparsed}>
+          <IconCaretDown
+            class="icon_control icon_small inline-block mr-1"
+            onClick={() => setShowOutput(!showOutput())}
+          />
+        </Show>
+        <Show when={error()}>
+          <span class="text-red-500 text-sm">{error().toString()}</span>
         </Show>
       </label>
       <textarea
         name="search"
-        // ref={inputEl!}
         class="block w-full
           py-[3px] pl-[9px] pr-[calc(theme(spacing.icon)+9px)]
           text-[20px] h-[38px]
@@ -38,7 +50,6 @@ export default function PlotInput(p: {
         // disabled={disabled()}
         spellcheck={false}
         onKeyDown={handleKeyDown}
-        // onInput={handleInput}
       />
       <div class="absolute top-[7px] sm:top-[13px] right-[9px]">
         {/* <Show when={!disabled()} fallback={<Spinner class="text-kngray-1" />}>
@@ -47,6 +58,15 @@ export default function PlotInput(p: {
           </Show>
         </Show> */}
       </div>
+      <Show when={showOutput()}>
+        <article
+          class="ansi whitespace-pre-wrap break-all relative
+          py-[3px] px-[9px] h-[150px] overflow-y-auto
+          border border-t-0 border-gray-300"
+        >
+          {p.unparsed!.slice(0, 1000)}
+        </article>
+      </Show>
     </section>
   );
 }

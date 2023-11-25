@@ -24,11 +24,10 @@ import {
   IconSection,
 } from "../icons/icons";
 import { showError } from "../../lib/utils";
-import Tooltip from "../tooltip/tooltip";
-import ToggleIcon, { type ToggleProps } from "../icons/toggle";
 import { ShowTransition } from "../animation/animation";
 import JQHelp from "./jq-help";
 import { MixedItemList } from "../item-list/item-list";
+import { ToggleTooltipIcon, TooltipIcon } from "../tooltip/tooltip";
 
 export default function JQView(p: {
   focus: Accessor<number>;
@@ -240,28 +239,11 @@ function ItemSection(p: { items: Accessor<Item[]>; cache: Cache }) {
   );
 }
 
-function TooltipIcon(p: { tooltip: string; children: JSXElement }) {
-  return (
-    <Tooltip content={p.tooltip} left={-8} top={-6}>
-      {p.children}
-    </Tooltip>
-  );
-}
-
-function ToggleTooltipIcon(p: ToggleProps & { tooltip: string }) {
-  return (
-    <TooltipIcon tooltip={p.tooltip}>
-      <ToggleIcon class="icon_control" {...p} />
-    </TooltipIcon>
-  );
-}
-
 // "id"\e[0m\e[1;39m: \e[0m\e[0;32m"<id>"
 const ANSI_RE = "(?:\\x1b\\[[0-9;]*m)*";
 const ID_RE = new RegExp(`"id"${ANSI_RE}:\\s*${ANSI_RE}"([^"]+)"`, "g");
 
 function matchJQOutput(output: string, cache: Cache): Item[] {
-  // console.log(btoa(unescape(encodeURIComponent(output.slice(0, 1000)))));
   const items: Item[] = [];
   if (!output) return items;
   for (const m of output.matchAll(ID_RE)) {

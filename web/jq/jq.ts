@@ -36,7 +36,7 @@ class JQWrapper {
     });
   }
 
-  runBare(q: string): Promise<any> {
+  runBare(q: string): Promise<string> {
     return withTimeAsync("jq2", async () => {
       const cliOpts = ["--monochrome-output", "--compact-output"];
       cliOpts.push(q, "kpopnet.json");

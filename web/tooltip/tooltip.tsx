@@ -3,6 +3,7 @@ import type { ComponentProps, JSXElement } from "solid-js";
 
 import { notTouch } from "../../lib/utils";
 import { ShowTransition } from "../animation/animation";
+import ToggleIcon, { type ToggleProps } from "../icons/toggle";
 
 interface TooltipProps extends ComponentProps<"span"> {
   canShow?: boolean;
@@ -12,7 +13,7 @@ interface TooltipProps extends ComponentProps<"span"> {
   left?: number;
 }
 
-export default function Tooltip(p: TooltipProps) {
+function Tooltip(p: TooltipProps) {
   const px = (n: number) => n + "px";
   const [show, setShow] = createSignal(false);
   const [local, other] = splitProps(p, [
@@ -54,5 +55,22 @@ export default function Tooltip(p: TooltipProps) {
         </div>
       </ShowTransition>
     </span>
+  );
+}
+export default Tooltip;
+
+export function TooltipIcon(p: { tooltip: string; children: JSXElement }) {
+  return (
+    <Tooltip content={p.tooltip} left={-8} top={-6}>
+      {p.children}
+    </Tooltip>
+  );
+}
+
+export function ToggleTooltipIcon(p: ToggleProps & { tooltip: string }) {
+  return (
+    <TooltipIcon tooltip={p.tooltip}>
+      <ToggleIcon class="icon_control" {...p} />
+    </TooltipIcon>
   );
 }
