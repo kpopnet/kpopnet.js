@@ -26,5 +26,6 @@ export { default as IconNamu } from "./namu.svg";
 export { default as IconUknown } from "bootstrap-icons/icons/question.svg";
 
 export { default as IconCaretDown } from "bootstrap-icons/icons/caret-down-fill.svg";
+export { default as IconCaretUp } from "bootstrap-icons/icons/caret-up-fill.svg";
 export { default as IconPerson } from "bootstrap-icons/icons/person.svg";
 export { default as IconPeople } from "bootstrap-icons/icons/people.svg";

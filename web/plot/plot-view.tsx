@@ -7,35 +7,29 @@ import {
 } from "solid-js";
 
 import { ItemRoute, useRouter } from "../router/router";
-import type { Profiles, Item, Idol, Group } from "../../lib/types";
+import type { Profiles, Item } from "../../lib/types";
 import type { Cache } from "../../lib/search";
 import { type JQW, cachedJQW } from "../jq/jq";
-import { getGroupGen, getIdolGen } from "../../lib/date";
-import type { Plot, PlotRender, ChannelValue } from "./plot";
+import type { Plot, PlotRender } from "./plot";
 import PlotInput from "./plot-input";
 import FieldSelect from "./plot-select";
 import PlotResize from "./plot-resize";
 import { savePlot } from "./plot-utils";
 import { IconPeople, IconPerson, IconSave } from "../icons/icons";
 import ToggleIcon from "../icons/toggle";
-
-interface Values {
-  x: string;
-  y: string;
-  graph: string;
-  size: string;
-  color: string;
-}
-
-const DEFAULT_QUERY = ".idols";
-const DEFAULT_GRAPH = "dot";
-const GEN_FIELD = "(generation)";
-const SPECIAL_FIELDS = [GEN_FIELD];
+import {
+  type Values,
+  GEN_FIELD,
+  SPECIAL_FIELDS,
+  renderPlot,
+} from "./plot-render";
 
 const DEFAULT_IDOL_X = "weight";
 const DEFAULT_IDOL_Y = "height";
 const DEFAULT_GROUP_X = "debut_date";
 const DEFAULT_GROUP_Y = "members";
+const DEFAULT_QUERY = ".idols";
+const DEFAULT_GRAPH = "dot";
 
 const DEFAULT_VALUES: Values = {
   x: DEFAULT_IDOL_X,
@@ -44,38 +38,6 @@ const DEFAULT_VALUES: Values = {
   size: "",
   color: GEN_FIELD,
 };
-
-// Auto-format some fields values
-function smartValue(field: string): ChannelValue {
-  switch (true) {
-    case field.endsWith("_date"):
-      return (i: any) => i[field] && new Date(i[field]);
-    case field === "groups":
-      return (i: Idol) => i.groups.length;
-    case field === "members":
-      return (i: Group) => i.members.length;
-    case field === GEN_FIELD:
-      return (i: any) => {
-        let gen: number | undefined;
-        if (i.members) {
-          gen = getGroupGen(i);
-        } else if (i.groups && i.birth_date) {
-          gen = getIdolGen(i);
-        }
-        return gen == null ? "unknown" : "gen" + gen;
-      };
-    default:
-      return field;
-  }
-}
-
-// Auto-provide channels
-function smartChannels() {
-  return {
-    "[click to open]": () => "",
-    name: (i: Item) => `${i.name} (${i.name_original})`,
-  };
-}
 
 export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
   const [_, setView] = useRouter();
@@ -90,7 +52,7 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
   const isGroupQuery = () => query().trim().startsWith(".groups");
   const toggleQuery = () => setQuery(isGroupQuery() ? ".idols" : ".groups");
 
-  const [_values, setValues] = createSignal<Values>(DEFAULT_VALUES);
+  const [_values, setValues] = createSignal(DEFAULT_VALUES);
   const setValue = (k: string, v: string) =>
     setValues((prev) => ({ ...prev, [k]: v }));
 
@@ -155,41 +117,9 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
     const Plot = getPlot();
     const items = itemsParsed();
     if (!Plot || !items) return;
-    console.log("@@@ render xy", values().x, values().y);
-    const plot = Plot.plot({
-      color: {
-        legend: true,
-      },
-      style: {
-        background: "transparent",
-        userSelect: "none",
-      },
-      className: "kn-plot",
-      width: 780, // viewBox dimensions, will scale on mobile
-      height: height(),
-      marks: [
-        Plot.dot(items, {
-          x: {
-            label: values().x,
-            value: smartValue(values().x),
-          },
-          y: {
-            label: values().y,
-            value: smartValue(values().y),
-          },
-          r: values().size ? smartValue(values().size) : undefined,
-          fill: smartValue(values().color),
-          channels: smartChannels(),
-          tip: {
-            fill: "#f3f4f6",
-            format: {
-              fill: false,
-              r: false,
-            },
-          },
-        }),
-      ],
-    });
+
+    const plot = renderPlot(Plot, items, values(), height());
+    // go to corresponding item page if clicked inside tip
     let tipItem: Item | undefined;
     plot.addEventListener("input", () => {
       tipItem = plot.value;
@@ -197,7 +127,7 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
     plot.addEventListener("click", (e: Event) => {
       const target = e.target as HTMLElement;
       const clickedPlot = target.classList.contains("kn-plot");
-      if (tipItem && !clickedPlot) {
+      if (tipItem && tipItem.id && !clickedPlot) {
         setView({ route: ItemRoute, query: tipItem.id });
       }
     });

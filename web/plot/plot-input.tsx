@@ -1,6 +1,7 @@
 import { Show, createSignal } from "solid-js";
 
-import { IconCaretDown } from "../icons/icons";
+import { IconCaretDown, IconCaretUp } from "../icons/icons";
+import ToggleIcon from "../icons/toggle";
 
 export default function PlotInput(p: {
   value: string;
@@ -12,6 +13,7 @@ export default function PlotInput(p: {
 }) {
   const error = () => p.unparsedError || p.parsedError;
   const [showOutput, setShowOutput] = createSignal(false);
+  const hasOutput = () => !p.unparsedError && !!p.unparsed;
 
   function handleKeyDown(
     e: KeyboardEvent & { currentTarget: HTMLTextAreaElement }
@@ -26,9 +28,12 @@ export default function PlotInput(p: {
     <section class="col-span-full relative text-neutral-600">
       <label>
         <span class="pr-1">Items filter</span>
-        <Show when={!p.unparsedError && p.unparsed}>
-          <IconCaretDown
+        <Show when={hasOutput()}>
+          <ToggleIcon
             class="icon_control icon_small inline-block mr-1"
+            active={showOutput()}
+            on={IconCaretUp}
+            off={IconCaretDown}
             onClick={() => setShowOutput(!showOutput())}
           />
         </Show>
@@ -58,7 +63,7 @@ export default function PlotInput(p: {
           </Show>
         </Show> */}
       </div>
-      <Show when={showOutput()}>
+      <Show when={showOutput() && hasOutput()}>
         <article
           class="ansi whitespace-pre-wrap break-all relative
           py-[3px] px-[9px] h-[150px] overflow-y-auto
