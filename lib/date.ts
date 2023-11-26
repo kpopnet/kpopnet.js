@@ -1,15 +1,41 @@
 import type { Idol, Group } from "./types";
 
-const MILLISECONDS_IN_YEAR = 1000 * 365 * 24 * 60 * 60;
-
 export function getAge(date: string): number {
   // Birthday is always in YYYY-MM-DD form and can be parsed as
   // simplified ISO 8601 format.
-  const born = new Date(date).getTime();
-  if (isNaN(born)) return 0;
-  const now = Date.now();
-  const years = Math.floor((now - born) / MILLISECONDS_IN_YEAR);
+  const born = new Date(date);
+  if (isNaN(+born)) return 0;
+  const now = new Date();
+  const years = now.getFullYear() - born.getFullYear();
   return Math.max(0, years);
+}
+
+export function getDebutAge(
+  birth_date: string,
+  debut_date: string | null
+): number | null {
+  if (!debut_date) return null;
+  const born = new Date(birth_date);
+  if (isNaN(+born)) return null;
+  const debut = new Date(debut_date);
+  if (isNaN(+debut)) return null;
+  const years = debut.getFullYear() - born.getFullYear();
+  return Math.max(0, years);
+}
+
+export function getLifespan(
+  debut_date: string | null,
+  disband_date: string | null
+): number | null {
+  // calculate lifespan only when both fields are exist
+  // because disband_date is often missing
+  if (!debut_date || !disband_date) return null;
+  const debut = new Date(debut_date);
+  if (isNaN(+debut)) return null;
+  const disband = new Date(disband_date);
+  if (isNaN(+disband)) return null;
+  const lifespan = disband.getFullYear() - debut.getFullYear();
+  return Math.max(0, lifespan);
 }
 
 // https://namu.wiki/w/한국%20아이돌/역사
@@ -45,7 +71,7 @@ export function getIdolGen(idol: Idol): number {
   return getGen(debut.getFullYear());
 }
 
-export function getGroupGen(group: Group): number | undefined {
+export function getGroupGen(group: Group): number | null {
   if (group.debut_date) {
     const debut = new Date(group.debut_date);
     return getGen(debut.getFullYear());
@@ -55,5 +81,7 @@ export function getGroupGen(group: Group): number | undefined {
     // using 4 as a rough estimate
     debut.setFullYear(debut.getFullYear() - 4);
     return getGen(debut.getFullYear());
+  } else {
+    return null;
   }
 }

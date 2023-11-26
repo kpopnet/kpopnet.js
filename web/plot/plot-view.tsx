@@ -16,12 +16,7 @@ import PlotSelect from "./plot-select";
 import PlotResize from "./plot-resize";
 import { savePlot } from "./plot-utils";
 import { IconPeople, IconPerson, IconSave } from "../icons/icons";
-import {
-  type Values,
-  GEN_FIELD,
-  SPECIAL_FIELDS,
-  renderPlot,
-} from "./plot-render";
+import { type Values, GEN_FIELD, renderPlot, smartFields } from "./plot-render";
 import PlotHelp from "./plot-help";
 import ToggleIcon from "../icons/toggle";
 
@@ -74,7 +69,7 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
     () => !itemsParsed.error && itemsParsed(),
     (items) => (items.length ? Object.keys(items[0]) : [])
   );
-  const fields = () => SPECIAL_FIELDS.concat(_fields() || []);
+  const fields = () => smartFields(_fields() || []);
   const axisFields = () =>
     fields().filter(
       (f) =>
@@ -134,7 +129,11 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
   });
 
   function handleSave() {
-    const plot = document.querySelector(".kn-plot-figure");
+    let plot = document.querySelector(".kn-plot-figure");
+    if (!plot) {
+      // plot() returns either <svg class="kn-plot"> or <figure class="kn-plot-figure">
+      plot = document.querySelector(".kn-plot");
+    }
     if (plot) {
       savePlot(plot as HTMLElement);
     }
@@ -205,7 +204,7 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
           setValue={(v) => setValue("graph", v)}
           fields={graphFields()}
           label="Graph"
-          noEmpty
+          nonEmpty
         />
         <PlotSelect
           value={values().size}
@@ -224,7 +223,7 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
           setValue={(v) => setValue("color", v)}
           fields={fields()}
           label="Color"
-          noEmpty
+          nonEmpty
         />
       </section>
     </>

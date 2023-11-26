@@ -6,7 +6,7 @@ export default function PlotSelect(p: {
   setValue: (v: string) => void;
   label: string;
   fields: string[];
-  noEmpty?: boolean;
+  nonEmpty?: boolean;
 }) {
   const label = (v: string) => v || "−";
   return (
@@ -26,7 +26,7 @@ export default function PlotSelect(p: {
         value={p.value}
         onInput={(e) => p.setValue(e.target.value)}
       >
-        <Show when={!p.noEmpty}>
+        <Show when={!p.nonEmpty}>
           <option value="" selected={!p.value}>
             {label("")}
           </option>

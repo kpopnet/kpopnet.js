@@ -1,5 +1,11 @@
 import type { Item, Idol, Group } from "../../lib/types";
-import { getGroupGen, getIdolGen } from "../../lib/date";
+import {
+  getAge,
+  getDebutAge,
+  getGroupGen,
+  getIdolGen,
+  getLifespan,
+} from "../../lib/date";
 import type { PlotRender, Plot, ChannelValue } from "./plot";
 
 export interface Values {
@@ -12,27 +18,47 @@ export interface Values {
 }
 
 export const GEN_FIELD = "(generation)";
-export const SPECIAL_FIELDS = [GEN_FIELD];
+const LIFESPAN_FIELD = "(lifespan)";
+const AGE_FIELD = "(age)";
+const DEBUT_AGE_FIELD = "(debut age)";
+
+export function smartFields(fields: string[]): string[] {
+  // actually user might have changed other fields with JQ query but this
+  // heuristic should good enough
+  const isGroup = fields.includes("members");
+  const isIdol = fields.includes("groups");
+
+  const special = [];
+  if (isIdol || isGroup) special.push(GEN_FIELD);
+  if (isGroup) special.push(LIFESPAN_FIELD);
+  if (isIdol) special.push(AGE_FIELD);
+  if (isIdol) special.push(DEBUT_AGE_FIELD);
+  return special.concat(fields);
+}
 
 // Auto-format some fields values
 function smartValue(field: string): ChannelValue {
-  switch (true) {
-    case field.endsWith("_date"):
-      return (i: any) => i[field] && new Date(i[field]);
-    case field === "groups":
+  if (field.endsWith("_date")) {
+    return (x: any) => x[field] && new Date(x[field]);
+  }
+  switch (field) {
+    case "groups":
       return (i: Idol) => i.groups.length;
-    case field === "members":
-      return (i: Group) => i.members.length;
-    case field === GEN_FIELD:
-      return (i: any) => {
-        let gen: number | undefined;
-        if (i.members) {
-          gen = getGroupGen(i);
-        } else if (i.groups && i.birth_date) {
-          gen = getIdolGen(i);
-        }
+    case "members":
+      return (g: Group) => g.members.length;
+    // TODO: half-gens?
+    case GEN_FIELD:
+      return (x: any) => {
+        const gen = x.members ? getGroupGen(x) : getIdolGen(x);
         return gen == null ? "unknown" : "gen" + gen;
       };
+    // TODO: return floats?
+    case LIFESPAN_FIELD:
+      return (g: Group) => getLifespan(g.debut_date, g.disband_date);
+    case AGE_FIELD:
+      return (i: Idol) => getAge(i.birth_date);
+    case DEBUT_AGE_FIELD:
+      return (i: Idol) => getDebutAge(i.birth_date, i.debut_date);
     default:
       return field;
   }
@@ -61,10 +87,7 @@ export function renderPlot(
   height: number
 ): PlotRender {
   if (import.meta.env.DEV) console.log("render xy", values.x, values.y);
-  return Plot.plot({
-    color: {
-      legend: true,
-    },
+  const plot = Plot.plot({
     style: {
       background: "transparent",
       userSelect: "none",
@@ -72,6 +95,11 @@ export function renderPlot(
     className: "kn-plot",
     width: 780, // viewBox dimensions, will scale on mobile
     height,
+    color: {
+      label: values.color,
+      legend: true,
+      // scheme: "Inferno",
+    },
     marks: [
       Plot.dot(items, {
         x: toLabel(values.x),
@@ -89,4 +117,11 @@ export function renderPlot(
       }),
     ],
   });
+  const ramp: HTMLElement | null = plot.querySelector(".kn-plot-ramp");
+  // we may generate legent with `plot.legend` but it has its own downsides too
+  if (ramp) {
+    ramp.style.height = "38px"; // same as 33 + 5px margin for swatches
+    ramp.style.background = "transparent";
+  }
+  return plot;
 }
