@@ -25,7 +25,6 @@ export default function PlotResize(p: {
       function handleMouseUp(e: MouseEvent) {
         e.preventDefault();
         resizing = false;
-        // FIXME: p.saveHeight(height()); or just setTimeout to localStorage?
         document.body.removeEventListener("mousemove", handleGlobalMove);
         document.body.removeEventListener("mouseup", handleMouseUp);
       }
@@ -36,12 +35,10 @@ export default function PlotResize(p: {
     p.setHeight(newH - legendH);
   }
 
-  // FIXME: loading indicator when no plot?
   return (
     <>
       <div
         ref={outputEl!}
-        class="relative"
         style={{
           // keep the space occupied while plot is loading
           // FIXME: won't work on mobile with scaled plot because height is smaller there
@@ -53,7 +50,7 @@ export default function PlotResize(p: {
       <div
         class="h-2 border-t-2 border-dotted border-kngray-1 cursor-ns-resize"
         onMouseDown={handleMouseDown}
-      ></div>
+      />
     </>
   );
 }

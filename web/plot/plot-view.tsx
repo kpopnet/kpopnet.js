@@ -51,11 +51,10 @@ export default function PlotView(p: {
 
   // account resources which are async or can fail
   // don't need to check for sync/pure functions
-  const loading = () =>
-    getJQ.loading || getPlot.loading || itemsUnparsed.loading;
-  const error = () =>
-    getJQ.error || getPlot.error || itemsUnparsed.error || itemsParsed.error;
+  const loading = () => getPlot.loading || getJQ.loading;
   const running = () => itemsUnparsed.loading;
+  const error = () =>
+    getPlot.error || getJQ.error || itemsUnparsed.error || itemsParsed.error;
 
   const [getPlot] = createResource(cachedPlot);
   const [getJQ] = createResource(() => cachedJQW(p.profiles, p.cache));
