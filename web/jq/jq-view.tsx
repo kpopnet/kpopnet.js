@@ -205,7 +205,7 @@ function JQOutput(p: {
       />
       <article
         ref={outputEl!}
-        class="ansi whitespace-pre-wrap break-all relative
+        class="ansi whitespace-pre-wrap break-all
           p-[9px] min-h-[50px] overflow-y-auto
           border border-kngray-1"
         style={{

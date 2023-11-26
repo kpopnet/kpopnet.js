@@ -1,15 +1,14 @@
 import {
-  Show,
+  type Accessor,
   createMemo,
   createResource,
   createSignal,
-  onMount,
 } from "solid-js";
 
 import { ItemRoute, useRouter } from "../router/router";
 import type { Profiles, Item } from "../../lib/types";
 import type { Cache } from "../../lib/search";
-import { type JQW, cachedJQW } from "../jq/jq";
+import { cachedJQW } from "../jq/jq";
 import type { Plot, PlotRender } from "./plot";
 import PlotInput from "./plot-input";
 import PlotSelect from "./plot-select";
@@ -20,32 +19,29 @@ import { type Values, GEN_FIELD, renderPlot, smartFields } from "./plot-render";
 import PlotHelp from "./plot-help";
 import ToggleIcon from "../icons/toggle";
 
+const DEFAULT_QUERY = ".idols";
 const DEFAULT_IDOL_X = "weight";
 const DEFAULT_IDOL_Y = "height";
 const DEFAULT_GROUP_X = "debut_date";
 const DEFAULT_GROUP_Y = "members";
-const DEFAULT_QUERY = ".idols";
-const DEFAULT_GRAPH = "dot";
 
 const DEFAULT_VALUES: Values = {
-  x: DEFAULT_IDOL_X,
-  y: DEFAULT_IDOL_Y,
-  graph: DEFAULT_GRAPH, // FIXME: default = auto?
+  x: "",
+  y: "",
+  graph: "dot", // FIXME: default = auto?
   size: "",
   symbol: "",
   color: GEN_FIELD,
 };
 
-export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
-  const [_, setView] = useRouter();
-  const [getPlot, setPlot] = createSignal<Plot>();
-  const [getJQ, setJQ] = createSignal<JQW>();
-  const [loadingErr, setLoadingErr] = createSignal<any>();
-  // const loading = () => !loadingErr() && !getPlot() && !getJQ();
-  const [height, setHeight] = createSignal(400);
-
-  // TODO(Kagami): populate from URL
-  const [query, setQuery] = createSignal(DEFAULT_QUERY);
+export default function PlotView(p: {
+  focus: Accessor<number>;
+  profiles: Profiles;
+  cache: Cache;
+}) {
+  const [view, setView] = useRouter();
+  const query = () => view.query() || DEFAULT_QUERY;
+  const setQuery = (query: string) => setView({ query });
   const isGroupQuery = () => query().trim().startsWith(".groups");
   const toggleQuery = () => setQuery(isGroupQuery() ? ".idols" : ".groups");
 
@@ -53,8 +49,18 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
   const setValue = (k: string, v: string) =>
     setValues((prev) => ({ ...prev, [k]: v }));
 
+  // account resources which are async or can fail
+  // don't need to check for sync/pure functions
+  const loading = () =>
+    getJQ.loading || getPlot.loading || itemsUnparsed.loading;
+  const error = () =>
+    getJQ.error || getPlot.error || itemsUnparsed.error || itemsParsed.error;
+  const running = () => itemsUnparsed.loading;
+
+  const [getPlot] = createResource(cachedPlot);
+  const [getJQ] = createResource(() => cachedJQW(p.profiles, p.cache));
   const [itemsUnparsed] = createResource(
-    () => getJQ() && ([getJQ()!, query()] as const),
+    () => !getJQ.error && getJQ() && ([getJQ()!, query()] as const),
     ([jq, q]) => jq.runBare(q)
   );
   const [itemsParsed] = createResource(
@@ -83,11 +89,9 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
   let wasGroup = false;
   let wasIdol = false;
   const mbValue = (f: string[], v: string) => (f.includes(v) ? v : "");
-  const values = createMemo<Values>((prev) => {
-    const f = fields(); // track fields;
+  const values = createMemo<Values>(() => {
+    const f = fields();
     const v = _values();
-    if (!prev) return v;
-
     const isGroup = f.includes("members");
     const isIdol = f.includes("groups");
     const toGroup = !wasGroup && isGroup;
@@ -110,11 +114,12 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
     };
   });
 
+  const [height, setHeight] = createSignal(400);
   const rendered = createMemo<PlotRender | undefined>((prev) => {
-    if (itemsParsed.error) return prev;
+    if (getPlot.error || itemsParsed.error) return prev;
     const Plot = getPlot();
     const items = itemsParsed();
-    if (!Plot || !items) return;
+    if (!Plot || !items) return; // still loading
 
     const plot = renderPlot(Plot, items, values(), height());
     // go to corresponding item page if clicked inside tip
@@ -129,63 +134,50 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
   });
 
   function handleSave() {
-    let plot = document.querySelector(".kn-plot-figure");
-    if (!plot) {
+    let plotEl = document.querySelector(".kn-plot-figure");
+    if (!plotEl) {
       // plot() returns either <svg class="kn-plot"> or <figure class="kn-plot-figure">
-      plot = document.querySelector(".kn-plot");
+      plotEl = document.querySelector(".kn-plot");
     }
-    if (plot) {
-      savePlot(plot as HTMLElement);
+    if (plotEl) {
+      savePlot(plotEl as HTMLElement);
     }
   }
 
-  onMount(async () => {
-    try {
-      setPlot(await cachedPlot());
-      setJQ(await cachedJQW(p.profiles, p.cache));
-    } catch (err) {
-      setLoadingErr(err);
-      console.error(err);
-    }
-  });
-
-  async function cachedPlot() {
+  async function cachedPlot(): Promise<Plot> {
     if (p.cache.custom.plot) return p.cache.custom.plot;
     const Plot = (await import("./plot")).default;
     p.cache.custom.plot = Plot;
     return Plot;
   }
 
-  // FIXME(Kagami): loading, loadingERr
   return (
     <>
       <section class="relative">
         <PlotResize height={height()} setHeight={setHeight}>
           {rendered()}
         </PlotResize>
-        <Show when={rendered()}>
-          <div class="absolute top-0 right-0 flex gap-x-3">
-            <PlotHelp />
-            <ToggleIcon
-              class="icon_control"
-              active={isGroupQuery()}
-              on={IconPerson}
-              off={IconPeople}
-              onClick={toggleQuery}
-            />
-            <IconSave onClick={handleSave} class="icon_control" />
-          </div>
-        </Show>
+        <div class="absolute top-0 right-0 flex gap-x-3">
+          <PlotHelp />
+          <ToggleIcon
+            class="icon_control"
+            active={isGroupQuery()}
+            on={IconPerson}
+            off={IconPeople}
+            onClick={toggleQuery}
+          />
+          <IconSave onClick={handleSave} class="icon_control" />
+        </div>
       </section>
       <section class="grid grid-cols-3 gap-1">
         <PlotInput
+          default={DEFAULT_QUERY}
+          focus={p.focus}
           class="col-span-full"
-          value={query()}
-          setValue={setQuery}
-          loading={itemsParsed.loading}
-          unparsedError={itemsUnparsed.error}
-          parsedError={itemsParsed.error}
-          unparsed={itemsUnparsed.error == null ? itemsUnparsed() : undefined}
+          loading={loading()}
+          running={running()}
+          error={error()}
+          unparsed={itemsUnparsed.error == null && itemsUnparsed()}
         />
         <PlotSelect
           value={values().x}

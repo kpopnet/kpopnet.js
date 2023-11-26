@@ -94,7 +94,7 @@ function Main() {
                 <JQView focus={focus} profiles={profiles} cache={cache()!} />
               </Match>
               <Match when>
-                <PQView profiles={profiles} cache={cache()!} />
+                <PQView focus={focus} profiles={profiles} cache={cache()!} />
               </Match>
             </Switch>
           </Match>

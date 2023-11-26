@@ -14,18 +14,24 @@ import { IconSearch } from "../icons/icons";
 import { JQQueryStorage } from "./jq-storage";
 
 interface InputProps {
+  type?: "PQ" | "JQ";
+  default?: string;
   focus: Accessor<number>;
-  reset: Accessor<number>;
+  reset?: Accessor<number>;
   loading: boolean;
   running: boolean;
 }
 
 export default function JQInput(p: InputProps) {
   const [view, setView] = useRouter();
-  const qStorage = new JQQueryStorage(view.query());
+  // initial value is from URL(1) or pre-defined(2) or localStorage(3)
+  const qStorage = new JQQueryStorage(view.query() || p.default || "", p.type);
   const [value, setValue] = createSignal(qStorage.last());
   const disabled = () => p.loading || p.running;
   let inputEl: HTMLTextAreaElement;
+
+  const pqType = () => p.type === "PQ";
+  const jqType = () => !pqType();
 
   function focus() {
     // mobile browsers show keyboard on focus, we don't need that
@@ -75,34 +81,41 @@ export default function JQInput(p: InputProps) {
     setTimeout(() => qStorage.setLast(inputEl.value));
   }
 
+  /* EFFECTS HANDLING */
+
+  // 1) auto-focus on query change, when result is ready
   createEffect(() => {
-    // track deps when to focus
     view.query();
     if (!p.loading && !p.running) {
       focus();
     }
   });
+
+  // 2) parent asks to focus (on hotkey)
   createEffect(
-    // from hotkey
     on(p.focus, (_, prev) => {
       if (prev == null) return;
       focus();
       window.scrollTo(0, 0);
     })
   );
+
+  // 3) parent asks to reset our state
+  if (p.reset) {
+    createEffect(
+      // XXX: has to use additional signal because can't clear empty query. is there better way?
+      // XXX: it will also run view.query effect if query isn't empty
+      on(p.reset, (_, prev) => {
+        if (prev == null) return;
+        setFixDelay(view.query());
+        qStorage.setLast(view.query());
+        focus();
+      })
+    );
+  }
+
+  // 4) track URL change (except initial)
   createEffect(
-    // parent asked to reset our state
-    // XXX: has to use additional signal because can't clear empty query. is there better way?
-    // XXX: it will also run view.query effect is query isn't empty
-    on(p.reset, (_, prev) => {
-      if (prev == null) return;
-      setFixDelay(view.query());
-      qStorage.setLast(view.query());
-      focus();
-    })
-  );
-  createEffect(
-    // track url change (no initial)
     // note that initial input value is set from URL
     // but then we do the opposite: push from input to URL and storage
     on(view.query, (q, prev) => {
@@ -112,6 +125,7 @@ export default function JQInput(p: InputProps) {
     })
   );
 
+  // 5) fix initial input height
   onMount(() => {
     fixHeight();
   });
@@ -122,15 +136,17 @@ export default function JQInput(p: InputProps) {
         name="search"
         ref={inputEl!}
         class="block w-full
-          py-[3px] sm:py-[9px] pl-[9px] pr-[calc(theme(spacing.icon)+9px)]
-          text-[20px] h-[38px] sm:h-[50px]
+          py-[3px] pl-[9px] pr-[calc(theme(spacing.icon)+9px)]
+          text-[20px] h-[38px]
           bg-transparent rounded-none
           border border-kngray-1 outline-none
           text-neutral-600
-          placeholder:text-kngray-1 placeholder:opacity-100
           resize-none overflow-hidden break-all"
         classList={{
-          "text-center": !value(),
+          "text-center": !value() && jqType(),
+          "sm:h-[50px] sm:py-[9px] placeholder:text-kngray-1 placeholder:opacity-100":
+            jqType(),
+          "placeholder:text-gray-300": pqType(),
         }}
         placeholder={p.loading ? "Loading JQ..." : "JQ filter"}
         value={value()}
@@ -139,8 +155,16 @@ export default function JQInput(p: InputProps) {
         onKeyDown={handleKeyDown}
         onInput={handleInput}
       />
-      <div class="absolute top-[7px] sm:top-[13px] right-[9px]">
-        <Show when={!disabled()} fallback={<Spinner class="text-kngray-1" />}>
+      <div
+        class="absolute top-[7px] right-[9px]"
+        classList={{ "sm:top-[13px]": jqType() }}
+      >
+        <Show
+          when={!disabled()}
+          fallback={
+            <Spinner class={jqType() ? "text-kngray-1" : "text-gray-300"} />
+          }
+        >
           <Show when={value()}>
             <IconSearch class="icon_control" onClick={search} />
           </Show>

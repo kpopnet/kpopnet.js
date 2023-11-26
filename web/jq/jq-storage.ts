@@ -1,18 +1,21 @@
 import { type JQOptions } from "./jq";
 
 export class JQQueryStorage {
-  FILTERS_KEY = "KN_JQ_FILTERS";
-  LAST_FILTER_KEY = "KN_JQ_LAST_FILTER";
   MAX_LINES = 50;
+
+  private filtersKey: string;
+  private lastFilterKey: string;
 
   private lineIdx: number = 0; // arrow up/down index
   private lines: string[] = []; // ["searched last", "searced first"]
   private lastLine: string = ""; // "last typed in input"
 
-  constructor(urlQuery: string) {
+  constructor(urlQuery: string, key = "JQ") {
+    this.filtersKey = `KN_${key}_FILTERS`;
+    this.lastFilterKey = `KN_${key}_LAST_FILTER`;
     try {
-      this.lastLine = localStorage.getItem(this.LAST_FILTER_KEY) || "";
-      const val = localStorage.getItem(this.FILTERS_KEY) || "[]";
+      this.lastLine = localStorage.getItem(this.lastFilterKey) || "";
+      const val = localStorage.getItem(this.filtersKey) || "[]";
       this.lines = JSON.parse(val);
     } catch (err) {
       console.error(err);
@@ -48,7 +51,7 @@ export class JQQueryStorage {
     // scroll to last when changing any line in history
     this.lineIdx = this.lines.length;
     try {
-      localStorage.setItem(this.LAST_FILTER_KEY, q);
+      localStorage.setItem(this.lastFilterKey, q);
     } catch (err) {
       console.error(err);
     }
@@ -92,7 +95,7 @@ export class JQQueryStorage {
     this.lineIdx = this.lines.length; // scroll to last again
     const val = JSON.stringify(this.lines);
     try {
-      localStorage.setItem(this.FILTERS_KEY, val);
+      localStorage.setItem(this.filtersKey, val);
     } catch (err) {
       console.error(err);
     }
