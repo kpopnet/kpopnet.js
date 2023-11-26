@@ -31,7 +31,7 @@ export default function JQInput(p: InputProps) {
     // mobile browsers show keyboard on focus, we don't need that
     if (!isTouchDevice()) {
       inputEl.focus();
-      inputEl.selectionStart = inputEl.selectionEnd = inputEl.value.length;
+      // inputEl.selectionStart = inputEl.selectionEnd = inputEl.value.length;
     }
   }
 

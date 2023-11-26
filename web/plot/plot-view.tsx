@@ -16,13 +16,14 @@ import PlotSelect from "./plot-select";
 import PlotResize from "./plot-resize";
 import { savePlot } from "./plot-utils";
 import { IconPeople, IconPerson, IconSave } from "../icons/icons";
-import ToggleIcon from "../icons/toggle";
 import {
   type Values,
   GEN_FIELD,
   SPECIAL_FIELDS,
   renderPlot,
 } from "./plot-render";
+import PlotHelp from "./plot-help";
+import ToggleIcon from "../icons/toggle";
 
 const DEFAULT_IDOL_X = "weight";
 const DEFAULT_IDOL_Y = "height";
@@ -122,15 +123,11 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
 
     const plot = renderPlot(Plot, items, values(), height());
     // go to corresponding item page if clicked inside tip
-    let tipItem: Item | undefined;
-    plot.addEventListener("input", () => {
-      tipItem = plot.value;
-    });
     plot.addEventListener("click", (e: Event) => {
       const target = e.target as HTMLElement;
       const clickedPlot = target.classList.contains("kn-plot");
-      if (tipItem && tipItem.id && !clickedPlot) {
-        setView({ route: ItemRoute, query: tipItem.id });
+      if (plot.value && plot.value.id && !clickedPlot) {
+        setView({ route: ItemRoute, query: plot.value.id });
       }
     });
     return plot;
@@ -168,12 +165,13 @@ export default function PlotView(p: { profiles: Profiles; cache: Cache }) {
           {rendered()}
         </PlotResize>
         <Show when={rendered()}>
-          <div class="absolute top-0 right-0 flex gap-x-2">
+          <div class="absolute top-0 right-0 flex gap-x-3">
+            <PlotHelp />
             <ToggleIcon
               class="icon_control"
               active={isGroupQuery()}
-              on={IconPeople}
-              off={IconPerson}
+              on={IconPerson}
+              off={IconPeople}
               onClick={toggleQuery}
             />
             <IconSave onClick={handleSave} class="icon_control" />

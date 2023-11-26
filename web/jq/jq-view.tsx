@@ -131,8 +131,8 @@ export default function JQView(p: {
         <ToggleTooltipIcon
           tooltip="Full/Compact output"
           active={options().compact}
-          on={IconCollapse}
-          off={IconExpand}
+          on={IconExpand}
+          off={IconCollapse}
           onClick={() => toggleOption("compact")}
         />
         <TooltipIcon tooltip="Clear">

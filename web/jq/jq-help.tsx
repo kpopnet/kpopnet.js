@@ -1,4 +1,5 @@
 import { useRouter } from "../router/router";
+import { Link } from "../utils/utils";
 
 export default function JQHelp() {
   return (
@@ -65,13 +66,5 @@ function Query(p: { text: string; query: string }) {
         </a>
       </div>
     </li>
-  );
-}
-
-function Link(p: { url: string; text: string }) {
-  return (
-    <a class="link" href={p.url} target="_blank" rel="noopener noreferrer">
-      {p.text}
-    </a>
   );
 }

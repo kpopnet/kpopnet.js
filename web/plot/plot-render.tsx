@@ -42,7 +42,7 @@ function smartValue(field: string): ChannelValue {
 function smartChannels() {
   return {
     "[click to open]": () => "",
-    name: (i: Item) => `${i.name} (${i.name_original})`,
+    name: "name",
   };
 }
 
