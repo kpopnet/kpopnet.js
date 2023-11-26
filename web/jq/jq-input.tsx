@@ -64,13 +64,14 @@ export default function JQInput(p: InputProps) {
   }
 
   function handleKeyDown(e: KeyboardEvent) {
+    const ctrlOrMeta = e.ctrlKey || e.metaKey;
     if (e.key === "Enter") {
       e.preventDefault();
       search();
-    } else if (e.key === "ArrowUp") {
+    } else if (e.key === "ArrowUp" && !ctrlOrMeta) {
       e.preventDefault();
       setFix(qStorage.prevLine());
-    } else if (e.key === "ArrowDown") {
+    } else if (e.key === "ArrowDown" && !ctrlOrMeta) {
       e.preventDefault();
       setFix(qStorage.nextLine());
     }
