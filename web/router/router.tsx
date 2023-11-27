@@ -3,7 +3,6 @@ import {
   type Accessor,
   createContext,
   createEffect,
-  createMemo,
   createSignal,
   on,
   onCleanup,
@@ -18,6 +17,11 @@ import {
   deserializeSorts,
   serializeIfChanged,
 } from "../../lib/sort";
+import {
+  type Values,
+  serializeFields,
+  deserializeFields,
+} from "../../lib/plot";
 import {
   debounce,
   fixMissedUrlParam,
@@ -42,6 +46,7 @@ export interface View {
   route: Route;
   query: string;
   sorts: SortType[];
+  fields: Values | null;
   delay: boolean /** set URL search param with delay to avoid cluttering history */;
   popstate: boolean /** handling popstate event */;
   replace: boolean /** replace history instead of adding new entry */;
@@ -51,6 +56,7 @@ export interface GetView {
   route: Accessor<Route>;
   query: Accessor<string>;
   sorts: Accessor<SortType[]>;
+  fields: Accessor<Values | null>;
 }
 // Can set any combination of the view fields
 export type SetView = Partial<View>;
@@ -125,7 +131,22 @@ function createView(): View {
     }
   }
 
-  return { route, query, sorts, delay: false, popstate: false, replace: false };
+  let fields = null;
+  if (route === PQRoute) {
+    if ((val = params.get("f"))) {
+      fields = deserializeFields(query, val);
+    }
+  }
+
+  return {
+    route,
+    query,
+    sorts,
+    fields,
+    delay: false,
+    popstate: false,
+    replace: false,
+  };
 }
 
 function serializeRouteSorts(route: Route, sorts: SortType[]): string {
@@ -136,15 +157,20 @@ function serializeRouteSorts(route: Route, sorts: SortType[]): string {
 export default function Router(prop: { children: JSXElement }) {
   const [viewSig, setViewSig] = createSignal<View>(createView());
   const getView: GetView = {
-    route: createMemo(() => viewSig().route),
-    query: createMemo(() => viewSig().query),
-    sorts: createMemo(() => viewSig().sorts),
+    route: () => viewSig().route,
+    query: () => viewSig().query,
+    sorts: () => viewSig().sorts,
+    fields: () => viewSig().fields,
   };
   function setViewDefaults(opts: SetView) {
     const defOpts: SetView = { delay: false, popstate: false, replace: false }; // reset opts
     // Reset sorts on route change
     if (opts.route && viewSig().route !== opts.route && !opts.sorts) {
       defOpts.sorts = loadRouteSorts(opts.route);
+    }
+    // Reset fields on route change
+    if (opts.route && viewSig().route !== opts.route && !opts.fields) {
+      defOpts.fields = null;
     }
     setViewSig({ ...viewSig(), ...defOpts, ...opts });
   }
@@ -153,16 +179,24 @@ export default function Router(prop: { children: JSXElement }) {
   const debounceSetUrlParams = debounce(setUrlParams, 400);
   const setFn = (d: boolean) => (d ? debounceSetUrlParams : setUrlParams);
   createEffect(
-    on(viewSig, ({ route, query, sorts, delay, popstate, replace }, prev) => {
-      if (popstate) return; // don't do anything on "Go Back"
-      const sq = serializeRouteSorts(route, sorts);
-      if (!prev && sq) fixMissedUrlParam("s", sq); // put sort settings from localStorage to URL
-      if (!prev) return; // don't do anything else on start
-      if (route === ItemRoute) window.scrollTo(0, 0); // scroll even if same item because user clicked something
-      const prevsq = serializeRouteSorts(prev.route, prev.sorts);
-      if (route === prev.route && query === prev.query && sq === prevsq) return; // no duplicated entries
-      setFn(delay)(routeToUrlParam(route), query, "s", sq, replace);
-    })
+    on(
+      viewSig,
+      ({ route, query: q, sorts, fields, delay, popstate, replace }, prev) => {
+        if (popstate) return; // don't do anything on "Go Back"
+        const sq = serializeRouteSorts(route, sorts);
+        if (!prev && sq) fixMissedUrlParam("s", sq); // put sort settings from localStorage to URL
+        if (!prev) return; // don't do anything else on start
+        if (route === ItemRoute) window.scrollTo(0, 0); // scroll even if same item because user clicked something
+        const prevq = prev.query;
+        const prevsq = serializeRouteSorts(prev.route, prev.sorts);
+        const prevfq = serializeFields(prevq, prev.fields);
+        const fq = serializeFields(q, fields);
+        // prettier-ignore
+        if (route === prev.route && q === prevq && sq === prevsq && fq === prevfq) return; // no duplicated entries
+        // prettier-ignore
+        setFn(delay)([routeToUrlParam(route), q], ["s", sq], ["f", fq], replace);
+      }
+    )
   );
 
   function handleBack(e: PopStateEvent) {

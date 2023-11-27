@@ -1,3 +1,4 @@
+import type { PlotRender, Plot, ChannelValue } from "./plot";
 import type { Item, Idol, Group } from "../../lib/types";
 import {
   getAge,
@@ -6,38 +7,32 @@ import {
   getIdolGen,
   getLifespan,
 } from "../../lib/date";
-import type { PlotRender, Plot, ChannelValue } from "./plot";
-
-export interface Values {
-  x: string;
-  y: string;
-  graph: string;
-  size: string;
-  symbol: string;
-  color: string;
-}
-
-export const GEN_FIELD = "(generation)";
-const LIFESPAN_FIELD = "(lifespan)";
-const AGE_FIELD = "(age)";
-const DEBUT_AGE_FIELD = "(debut age)";
+import {
+  type Values,
+  AGE_FIELD,
+  DEBUT_AGE_FIELD,
+  GEN_FIELD,
+  LIFESPAN_FIELD,
+} from "../../lib/plot";
 
 export function smartFields(fields: string[]): string[] {
   // actually user might have changed other fields with JQ query but this
-  // heuristic should good enough
+  // heuristic should be good enough
   const isGroup = fields.includes("members");
   const isIdol = fields.includes("groups");
 
-  const special = [];
-  if (isIdol || isGroup) special.push(GEN_FIELD);
-  if (isGroup) special.push(LIFESPAN_FIELD);
-  if (isIdol) special.push(AGE_FIELD);
-  if (isIdol) special.push(DEBUT_AGE_FIELD);
+  const special = [GEN_FIELD];
+  if (isGroup) {
+    special.push(LIFESPAN_FIELD);
+  } else if (isIdol) {
+    special.push(AGE_FIELD, DEBUT_AGE_FIELD);
+  }
   return special.concat(fields);
 }
 
 // Auto-format some fields values
 function smartValue(field: string): ChannelValue {
+  if (!field) return null;
   if (field.endsWith("_date")) {
     return (x: any) => x[field] && new Date(x[field]);
   }

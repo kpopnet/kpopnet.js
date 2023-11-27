@@ -15,24 +15,17 @@ import PlotSelect from "./plot-select";
 import PlotResize from "./plot-resize";
 import { savePlot } from "./plot-utils";
 import { IconPeople, IconPerson, IconSave } from "../icons/icons";
-import { type Values, GEN_FIELD, renderPlot, smartFields } from "./plot-render";
+import {
+  type Values,
+  DEFAULT_COLOR,
+  IDOL_VALUES,
+  GROUP_VALUES,
+  isGroupQuery,
+  getDefaultValues,
+} from "../../lib/plot";
+import { renderPlot, smartFields } from "./plot-render";
 import PlotHelp from "./plot-help";
 import ToggleIcon from "../icons/toggle";
-
-const DEFAULT_QUERY = ".idols";
-const DEFAULT_IDOL_X = "weight";
-const DEFAULT_IDOL_Y = "height";
-const DEFAULT_GROUP_X = "debut_date";
-const DEFAULT_GROUP_Y = "members";
-
-const DEFAULT_VALUES: Values = {
-  x: "",
-  y: "",
-  graph: "dot", // FIXME: default = auto?
-  size: "",
-  symbol: "",
-  color: GEN_FIELD,
-};
 
 export default function PlotView(p: {
   focus: Accessor<number>;
@@ -40,14 +33,10 @@ export default function PlotView(p: {
   cache: Cache;
 }) {
   const [view, setView] = useRouter();
-  const query = () => view.query() || DEFAULT_QUERY;
+  const query = () => view.query() || ".idols";
   const setQuery = (query: string) => setView({ query });
-  const isGroupQuery = () => query().trim().startsWith(".groups");
-  const toggleQuery = () => setQuery(isGroupQuery() ? ".idols" : ".groups");
-
-  const [_values, setValues] = createSignal(DEFAULT_VALUES);
-  const setValue = (k: string, v: string) =>
-    setValues((prev) => ({ ...prev, [k]: v }));
+  const toggleQuery = () =>
+    setQuery(isGroupQuery(query()) ? ".idols" : ".groups");
 
   // account resources which are async or can fail
   // don't need to check for sync/pure functions
@@ -84,34 +73,42 @@ export default function PlotView(p: {
     );
   const graphFields = () => ["dot"];
 
-  // Change default fields based on parsed items
+  // Apply additional logic to the router's field values:
+  // 1) Provide appropriate defaults
+  // 2) Change fields when switching between idols/groups
+  // 3) Remove non-existing values
+  // Note that updated values will be populated into URL string only after user
+  // interaction (e.g. query change).
   let wasGroup = false;
   let wasIdol = false;
-  const mbValue = (f: string[], v: string) => (f.includes(v) ? v : "");
   const values = createMemo<Values>(() => {
+    const mbValue = (v: string, def = "") => (f.includes(v) ? v : def);
     const f = fields();
-    const v = _values();
-    const isGroup = f.includes("members");
-    const isIdol = f.includes("groups");
+    const v = view.fields() || getDefaultValues(query());
+    const isGroup = isGroupQuery(query());
+    const isIdol = !isGroupQuery(query());
     const toGroup = !wasGroup && isGroup;
     const toIdol = !wasIdol && isIdol;
     wasGroup = isGroup;
     wasIdol = isIdol;
+    // XXX: update in place because we want Router to remember our changes.
+    // Don't want to put that logic into the Router.
+    // TODO: maybe use createEffect instead?
     if (toGroup || toIdol) {
-      // change without triggering update
-      v.x = toGroup ? DEFAULT_GROUP_X : DEFAULT_IDOL_X;
-      v.y = toGroup ? DEFAULT_GROUP_Y : DEFAULT_IDOL_Y;
+      Object.assign(v, toGroup ? GROUP_VALUES : IDOL_VALUES);
     }
-
     return {
-      x: mbValue(f, v.x),
-      y: mbValue(f, v.y),
+      x: mbValue(v.x),
+      y: mbValue(v.y),
       graph: v.graph,
-      size: mbValue(f, v.size),
-      symbol: mbValue(f, v.symbol),
-      color: mbValue(f, v.color),
+      size: mbValue(v.size),
+      symbol: mbValue(v.symbol),
+      color: mbValue(v.color, DEFAULT_COLOR),
     };
   });
+  // update query too to set default query once user interacted with something
+  const setValue = (k: string, v: string) =>
+    setView({ query: query(), fields: { ...values(), [k]: v } });
 
   const [height, setHeight] = createSignal(400);
   const rendered = createMemo<PlotRender | undefined>((prev) => {
@@ -160,7 +157,7 @@ export default function PlotView(p: {
           <PlotHelp />
           <ToggleIcon
             class="icon_control"
-            active={isGroupQuery()}
+            active={isGroupQuery(query())}
             on={IconPerson}
             off={IconPeople}
             onClick={toggleQuery}
@@ -170,7 +167,7 @@ export default function PlotView(p: {
       </section>
       <section class="grid grid-cols-3 gap-1">
         <PlotInput
-          default={DEFAULT_QUERY}
+          default=".idols"
           focus={p.focus}
           class="col-span-full"
           loading={loading()}

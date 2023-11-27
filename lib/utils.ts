@@ -12,10 +12,9 @@ export function getUrlParams(): URLSearchParams {
 }
 
 export function setUrlParams(
-  k1: string,
-  v1: string,
-  k2: string,
-  v2: string,
+  [k1, v1]: string[],
+  [k2, v2]: string[],
+  [k3, v3]: string[],
   replace = false
 ) {
   const url = new URL(location.href);
@@ -27,11 +26,14 @@ export function setUrlParams(
   if (v2) {
     url.searchParams.set(k2, v2);
   }
+  if (v3) {
+    url.searchParams.set(k3, v3);
+  }
   // don't escape colon https://stackoverflow.com/q/13713671
   url.search = url.searchParams.toString().replace(/%3A/g, ":");
 
   if (import.meta.env.DEV)
-    console.log("NEW STATE", { k1, v1, k2, v2, replace });
+    console.log("NEW STATE", [k1, v1], [k2, v2], [k3, v3], replace);
   history[replace ? "replaceState" : "pushState"]("", "", url);
 }
 

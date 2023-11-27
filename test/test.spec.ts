@@ -8,8 +8,14 @@ import {
   serializeSorts,
   deserializeSorts,
 } from "../lib/sort";
+import {
+  deserializeFields,
+  serializeFields,
+  exportedForTesting as plotTesting,
+} from "../lib/plot";
 
 const { normalizeCommaWords } = searchTesting;
+const { DEFAULT_IDOL_VALUES, DEFAULT_GROUP_VALUES } = plotTesting;
 
 test("reorderArray", () => {
   const arr = [1, 2, 3, 4];
@@ -87,4 +93,37 @@ test("deserializeSorts", () => {
       reversed: true,
     },
   ]);
+});
+
+test("serializeFields", () => {
+  const istr = (v: any) => serializeFields(".idols", v);
+  deepEqual(istr(DEFAULT_IDOL_VALUES), "");
+  deepEqual(
+    istr({ ...DEFAULT_IDOL_VALUES, x: "debut_date", y: "(debut_age)" }),
+    "x:debut_date y:(debut_age)"
+  );
+
+  const gstr = (v: any) => serializeFields(".groups", v);
+  deepEqual(gstr(DEFAULT_GROUP_VALUES), "");
+  deepEqual(
+    gstr({ ...DEFAULT_GROUP_VALUES, x: "debut_date", y: "(lifespan)" }),
+    "y:(lifespan)"
+  );
+});
+
+test("deserializeFields", () => {
+  const idestr = (v: any) => deserializeFields(".idols", v);
+  deepEqual(idestr(""), DEFAULT_IDOL_VALUES);
+  deepEqual(idestr("x:debut_date y:(debut_age)"), {
+    ...DEFAULT_IDOL_VALUES,
+    x: "debut_date",
+    y: "(debut_age)",
+  });
+
+  const gdestr = (v: any) => deserializeFields(".groups", v);
+  deepEqual(gdestr(""), DEFAULT_GROUP_VALUES);
+  deepEqual(gdestr("y:(lifespan)"), {
+    ...DEFAULT_GROUP_VALUES,
+    y: "(lifespan)",
+  });
 });
