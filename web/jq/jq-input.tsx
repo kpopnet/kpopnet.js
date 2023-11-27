@@ -18,6 +18,7 @@ interface InputProps {
   default?: string;
   focus: Accessor<number>;
   reset?: Accessor<number>;
+  autoFocus?: boolean;
   loading: boolean;
   running: boolean;
 }
@@ -27,11 +28,13 @@ export default function JQInput(p: InputProps) {
   // initial value is from URL(1) or pre-defined(2) or localStorage(3)
   const qStorage = new JQQueryStorage(view.query() || p.default || "", p.type);
   const [value, setValue] = createSignal(qStorage.last());
-  const disabled = () => p.loading || p.running;
   let inputEl: HTMLTextAreaElement;
 
   const pqType = () => p.type === "PQ";
   const jqType = () => !pqType();
+
+  // don't lose focus on running if no auto focus
+  const disabled = () => p.loading || (p.autoFocus && p.running);
 
   function focus() {
     // mobile browsers show keyboard on focus, we don't need that
@@ -85,12 +88,14 @@ export default function JQInput(p: InputProps) {
   /* EFFECTS HANDLING */
 
   // 1) auto-focus on query change, when result is ready
-  createEffect(() => {
-    view.query();
-    if (!p.loading && !p.running) {
-      focus();
-    }
-  });
+  if (p.autoFocus) {
+    createEffect(() => {
+      view.query();
+      if (!p.loading && !p.running) {
+        focus();
+      }
+    });
+  }
 
   // 2) parent asks to focus (on hotkey)
   createEffect(
@@ -140,14 +145,14 @@ export default function JQInput(p: InputProps) {
           py-[3px] pl-[9px] pr-[calc(theme(spacing.icon)+9px)]
           text-[20px] h-[38px]
           bg-transparent rounded-none
-          border border-kngray-1 outline-none
+          border outline-none
           text-neutral-600
           resize-none overflow-hidden break-all"
         classList={{
           "text-center": !value() && jqType(),
-          "sm:h-[50px] sm:py-[9px] placeholder:text-kngray-1 placeholder:opacity-100":
+          "sm:h-[50px] sm:py-[9px] border-kngray-1 placeholder:text-kngray-1 placeholder:opacity-100":
             jqType(),
-          "placeholder:text-gray-300": pqType(),
+          "border-gray-300 placeholder:text-gray-300": pqType(),
         }}
         placeholder={p.loading ? "Loading JQ..." : "JQ filter"}
         value={value()}

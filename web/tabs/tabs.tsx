@@ -17,6 +17,7 @@ interface Tab {
 }
 
 function TabView(p: {
+  route: Route;
   tab: Tab;
   idx: number;
   activeIdx: number;
@@ -25,18 +26,20 @@ function TabView(p: {
 }) {
   const url = () => "?" + routeToUrlParam(p.tab.route) + "=";
   function handleClick(e: MouseEvent) {
+    if (p.active) return;
     if (e.metaKey) return; // Command+Click = open in new tab
     e.preventDefault();
     p.onClick();
   }
   return (
     <a
-      href={url()}
+      href={p.active ? undefined : url()}
       onClick={handleClick}
       class="px-4 py-1 transition-[flex] duration-100 text-gray-500 border-kngray-1"
       classList={{
-        "border-l": p.activeIdx > p.idx || p.activeIdx < p.idx - 1,
+        "border-l": !(p.active && p.idx === 0),
         "last:border-r": !p.active,
+        "border-b": p.route === PQRoute && !p.active,
         "flex-1": p.active,
         "cursor-pointer text-link hover:text-link-hover bg-[#ddd]": !p.active,
       }}
@@ -93,6 +96,7 @@ export default function TabsView() {
       <For each={tabs}>
         {(tab, i) => (
           <TabView
+            route={view.route()}
             tab={tab}
             idx={i()}
             activeIdx={activeIdx()}

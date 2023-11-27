@@ -116,6 +116,7 @@ export default function JQView(p: {
   return (
     <>
       <JQInput
+        autoFocus
         focus={p.focus}
         reset={reset}
         loading={loading()}
