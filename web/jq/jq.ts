@@ -1,11 +1,11 @@
 import moduleUrl from "jqw/jq-re.js?url";
 import wasmUrl from "jqw/jq-re.wasm?url";
-import type { JQ } from "jqw";
+import type { JQ as JQW } from "jqw";
 import type { Profiles } from "kpopnet.json";
 import type { AnsiUp } from "ansi_up";
 
 import type { Cache } from "../../lib/search";
-import { logTimes, withTime, withTimeAsync } from "../../lib/utils";
+import { logTimes, withTimeAsync } from "../../lib/utils";
 
 export interface JQOptions {
   compact?: boolean /** pretty by default */;
@@ -13,11 +13,11 @@ export interface JQOptions {
 }
 
 class JQWrapper {
-  private jq: JQ;
+  private jqw: JQW;
   private AnsiCtor: new () => AnsiUp;
 
-  constructor(jq: JQ, AnsiCtor: new () => AnsiUp) {
-    this.jq = jq;
+  constructor(jqw: JQW, AnsiCtor: new () => AnsiUp) {
+    this.jqw = jqw;
     this.AnsiCtor = AnsiCtor;
   }
 
@@ -31,7 +31,7 @@ class JQWrapper {
   run(q: string, opts: JQOptions = {}): Promise<string> {
     return withTimeAsync("jq1", async () => {
       const cliOpts = this.getCliOpts(q, opts);
-      const output = await this.jq.run(cliOpts);
+      const output = await this.jqw.run(cliOpts);
       return output.slice(0, 50_000); // FIXME: don't show too much in UI
     });
   }
@@ -40,7 +40,7 @@ class JQWrapper {
     return withTimeAsync("jq2", async () => {
       const cliOpts = ["--monochrome-output", "--compact-output"];
       cliOpts.push(q, "kpopnet.json");
-      return await this.jq.run(cliOpts);
+      return await this.jqw.run(cliOpts);
     });
   }
 
@@ -51,20 +51,20 @@ class JQWrapper {
   }
 }
 
-export type JQW = JQWrapper;
+export type JQ = JQWrapper;
 
-async function loadJQW(profiles: Profiles): Promise<JQW> {
+async function loadJQ(profiles: Profiles): Promise<JQ> {
   /*dev*/ const dev = import.meta.env.DEV;
   /*dev*/ const tStart = dev ? performance.now() : 0;
 
-  const loadJQ = (await import("jqw")).default;
+  const loadJQW = (await import("jqw")).default;
   const AnsiCtor = (await import("ansi_up")).AnsiUp;
   /*dev*/ const tLoad = dev ? performance.now() : 0;
 
   const data = JSON.stringify(profiles);
   /*dev*/ const tStr = dev ? performance.now() : 0;
 
-  const jq = await loadJQ({ moduleUrl, wasmUrl, path: "kpopnet.json", data });
+  const jqw = await loadJQW({ moduleUrl, wasmUrl, path: "kpopnet.json", data });
   /*dev*/ const tNew = dev ? performance.now() : 0;
 
   if (dev)
@@ -79,12 +79,12 @@ async function loadJQW(profiles: Profiles): Promise<JQW> {
       tNew
     );
 
-  return new JQWrapper(jq, AnsiCtor);
+  return new JQWrapper(jqw, AnsiCtor);
 }
 
-export async function cachedJQW(profiles: Profiles, cache: Cache) {
+export async function cachedJQ(profiles: Profiles, cache: Cache): Promise<JQ> {
   if (cache.custom.jq) return cache.custom.jq;
-  const jq = await loadJQW(profiles);
+  const jq = await loadJQ(profiles);
   cache.custom.jq = jq;
   return jq;
 }

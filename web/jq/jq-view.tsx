@@ -11,7 +11,7 @@ import {
 } from "solid-js";
 
 import type { Profiles, Item } from "../../lib/types";
-import { type JQW, type JQOptions, cachedJQW } from "./jq";
+import { type JQ, type JQOptions, cachedJQ } from "./jq";
 import JQInput from "./jq-input";
 import { JQOptsStorage } from "./jq-storage";
 import type { Cache } from "../../lib/search";
@@ -35,7 +35,7 @@ export default function JQView(p: {
   cache: Cache;
 }) {
   const [view, setView] = useRouter();
-  const [getJQ, setJQ] = createSignal<JQW>();
+  const [getJQ, setJQ] = createSignal<JQ>();
   const [loadingErr, setLoadingErr] = createSignal<any>();
   const [running, setRunning] = createSignal(false);
   const [runningErr, setRunningErr] = createSignal<any>();
@@ -70,7 +70,7 @@ export default function JQView(p: {
 
   onMount(async () => {
     try {
-      setJQ(await cachedJQW(p.profiles, p.cache));
+      setJQ(await cachedJQ(p.profiles, p.cache));
     } catch (err) {
       setLoadingErr(err);
       console.error(err);

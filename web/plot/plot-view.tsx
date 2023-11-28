@@ -8,7 +8,7 @@ import {
 import { ItemRoute, useRouter } from "../router/router";
 import type { Profiles, Item } from "../../lib/types";
 import type { Cache } from "../../lib/search";
-import { cachedJQW } from "../jq/jq";
+import { cachedJQ } from "../jq/jq";
 import type { Plot, PlotRender } from "./plot";
 import PlotInput from "./plot-input";
 import PlotSelect from "./plot-select";
@@ -46,7 +46,7 @@ export default function PlotView(p: {
     getPlot.error || getJQ.error || itemsUnparsed.error || itemsParsed.error;
 
   const [getPlot] = createResource(cachedPlot);
-  const [getJQ] = createResource(() => cachedJQW(p.profiles, p.cache));
+  const [getJQ] = createResource(() => cachedJQ(p.profiles, p.cache));
   const [itemsUnparsed] = createResource(
     () => !getJQ.error && getJQ() && ([getJQ()!, query()] as const),
     ([jq, q]) => jq.runBare(q)

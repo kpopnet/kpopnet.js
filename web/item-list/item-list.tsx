@@ -17,12 +17,8 @@ import {
 } from "solid-js";
 import type { Profiles, Idol, Group } from "kpopnet.json";
 
-import {
-  type Cache,
-  type Item,
-  searchIdols,
-  searchGroups,
-} from "../../lib/search";
+import type { Item } from "../../lib/types";
+import { type Cache, searchIdols, searchGroups } from "../../lib/search";
 import IdolView from "../item-view/idol";
 import GroupView from "../item-view/group";
 import { IdolQueryRoute, useRouter } from "../router/router";
