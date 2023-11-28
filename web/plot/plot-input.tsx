@@ -15,6 +15,12 @@ export default function PlotInput(p: {
 }) {
   const [showOutput, setShowOutput] = createSignal(false);
   const hasOutput = () => !!p.unparsed;
+  const output = () => {
+    let out = p.unparsed;
+    if (!out) return "";
+    if (out.length > 1000) out = out.slice(0, 1000) + "…";
+    return out;
+  };
 
   return (
     <div class={p.class}>
@@ -46,7 +52,7 @@ export default function PlotInput(p: {
           py-[3px] px-[9px] h-[150px] overflow-y-auto
           border border-t-0 border-gray-300"
         >
-          {p.unparsed && p.unparsed.slice(0, 1000)}
+          {output()}
         </article>
       </Show>
     </div>

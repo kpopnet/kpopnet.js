@@ -1,7 +1,6 @@
 import { Show } from "solid-js";
 
 export default function PlotSelect(p: {
-  class?: string;
   value: string;
   setValue: (v: string) => void;
   label: string;
@@ -13,7 +12,6 @@ export default function PlotSelect(p: {
     <div
       class="flex flex-col"
       classList={{
-        [p.class ?? ""]: true,
         "text-gray-300": !p.value,
         "text-neutral-600": !!p.value,
       }}
@@ -22,7 +20,7 @@ export default function PlotSelect(p: {
       <select
         class="block w-full px-1 py-1
           bg-transparent border border-gray-300
-          outline-none"
+          outline-none cursor-pointer"
         value={p.value}
         onInput={(e) => p.setValue(e.target.value)}
       >
