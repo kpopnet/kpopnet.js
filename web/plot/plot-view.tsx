@@ -77,26 +77,32 @@ export default function PlotView(p: {
   // 1) Provide appropriate defaults
   // 2) Change fields when switching between idols/groups
   // 3) Remove non-existing values
-  // Note that updated values will be populated into URL string only after user
-  // interaction (e.g. query change).
+  // Note that updated values will be populated into URL only after user
+  // interaction (e.g. select change).
+  let first = true; // don't fix on load
   let wasGroup = false;
-  let wasIdol = false;
   const values = createMemo<Values>(() => {
-    const mbValue = (v: string, def = "") => (f.includes(v) ? v : def);
-    const f = fields();
+    // if loading return from URL/defaults
     const v = view.fields() || getDefaultValues(query());
+    if (!_fields()) return v;
+
+    // loaded, real item fields populated
+    const f = fields();
+
+    // fix default fields when switching
     const isGroup = isGroupQuery(query());
-    const isIdol = !isGroupQuery(query());
-    const toGroup = !wasGroup && isGroup;
-    const toIdol = !wasIdol && isIdol;
+    const toGroup = !first && !wasGroup && isGroup;
+    const toIdol = !first && wasGroup && !isGroup;
     wasGroup = isGroup;
-    wasIdol = isIdol;
-    // XXX: update in place because we want Router to remember our changes.
-    // Don't want to put that logic into the Router.
-    // TODO: maybe use createEffect instead?
+    first = false;
     if (toGroup || toIdol) {
+      // TODO: update in place because we want Router to remember our changes.
+      // Don't want to put that logic into the Router. Maybe use createEffect instead?
       Object.assign(v, toGroup ? GROUP_VALUES : IDOL_VALUES);
     }
+
+    // remove wrong fields
+    const mbValue = (v: string, def = "") => (f.includes(v) ? v : def);
     return {
       x: mbValue(v.x),
       y: mbValue(v.y),

@@ -49,7 +49,7 @@ const DEFAULT_GROUP_VALUES: Values = {
 // But because we use it only to get default plot field values it's fine until
 // same function is used for both serialization and deserialization
 export function isGroupQuery(q: string) {
-  return q.trim().startsWith(".groups");
+  return q.includes(".groups");
 }
 
 export function getDefaultValues(q: string): Values {
@@ -75,7 +75,7 @@ export function deserializeFields(q: string, f: string): Values {
   for (const part of f.trim().split(/\s+/)) {
     if (!part.includes(":")) continue;
     const [k, v] = part.split(":");
-    if (!/^[\w()]+$/.test(v)) continue; // sanity check
+    if (!/^[\w()]*$/.test(v)) continue; // sanity check
     if (Object.hasOwn(values, k)) {
       // We can't know whether such field actually exists in the output for the
       // given query but not a big deal.
