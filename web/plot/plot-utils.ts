@@ -7,16 +7,19 @@ function savePngData(data: string, filename = "plot.png") {
 
 export function savePlot(node: HTMLElement, filename = "plot.png") {
   const rect = node.getBoundingClientRect();
-  const w = rect.width;
-  const h = rect.height;
+  const w = rect.width + 10;
+  const h = rect.height + 10;
 
+  const wrapper = document.createElement("div");
+  wrapper.style.padding = "5px";
+  wrapper.style.background = "white";
   const clone = node.cloneNode(true) as HTMLElement;
-  clone.style.background = "white";
-  clone.style.padding = "5px";
+  clone.style.margin = "0";
+  wrapper.appendChild(clone);
   const svgStr =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">` +
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">` +
     '<foreignObject width="100%" height="100%">' +
-    new XMLSerializer().serializeToString(clone) +
+    new XMLSerializer().serializeToString(wrapper) +
     "</foreignObject></svg>";
   const svgData = "data:image/svg+xml," + encodeURIComponent(svgStr);
 

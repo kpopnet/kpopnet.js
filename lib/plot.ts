@@ -11,9 +11,14 @@ export const GEN_FIELD = "(generation)";
 export const LIFESPAN_FIELD = "(lifespan)";
 export const AGE_FIELD = "(age)";
 export const DEBUT_AGE_FIELD = "(debut_age)";
+export const COUNT_FIELD = "(count)";
 
-export const DEFAULT_GRAPH = "dot"; // FIXME: default = auto?
-export const DEFAULT_COLOR = GEN_FIELD;
+export const DOT_GRAPH = "dot";
+export const HIST_GRAPH = "histogram";
+export const GRAPHS = [DOT_GRAPH, HIST_GRAPH];
+
+const DEFAULT_GRAPH = DOT_GRAPH; // FIXME: default = auto?
+const DEFAULT_COLOR = GEN_FIELD;
 
 // default plot settings which make sense
 const DEFAULT_VALUES: Values = {

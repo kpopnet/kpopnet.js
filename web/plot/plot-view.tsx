@@ -17,11 +17,11 @@ import { savePlot } from "./plot-utils";
 import { IconPeople, IconPerson, IconSave } from "../icons/icons";
 import {
   type Values,
-  DEFAULT_COLOR,
   IDOL_VALUES,
   GROUP_VALUES,
   isGroupQuery,
   getDefaultValues,
+  GRAPHS,
 } from "../../lib/plot";
 import { renderPlot, smartFields } from "./plot-render";
 import PlotHelp from "./plot-help";
@@ -48,8 +48,8 @@ export default function PlotView(p: {
   const [getPlot] = createResource(cachedPlot);
   const [getJQ] = createResource(() => cachedJQ(p.profiles, p.cache));
   const [itemsUnparsed] = createResource(
-    () => !getJQ.error && getJQ() && ([getJQ()!, query()] as const),
-    ([jq, q]) => jq.runBare(q)
+    () => !getJQ.error && getJQ() && query(),
+    (q) => getJQ()!.runBare(q)
   );
   const [itemsParsed] = createResource(
     () => !itemsUnparsed.error && itemsUnparsed(),
@@ -71,7 +71,7 @@ export default function PlotView(p: {
         !f.startsWith("name") &&
         !f.startsWith("real_name")
     );
-  const graphFields = () => ["dot"];
+  const graphFields = () => GRAPHS;
 
   // Apply additional logic to the router's field values:
   // 1) Provide appropriate defaults
@@ -102,14 +102,14 @@ export default function PlotView(p: {
     }
 
     // remove wrong fields
-    const mbValue = (v: string, def = "") => (f.includes(v) ? v : def);
+    const mbValue = (v: string) => (f.includes(v) ? v : "");
     return {
       x: mbValue(v.x),
       y: mbValue(v.y),
       graph: v.graph,
       size: mbValue(v.size),
       symbol: mbValue(v.symbol),
-      color: mbValue(v.color, DEFAULT_COLOR),
+      color: mbValue(v.color),
     };
   });
   // update query too to set default query once user interacted with something
@@ -217,7 +217,6 @@ export default function PlotView(p: {
           setValue={(v) => setValue("color", v)}
           fields={fields()}
           label="Color"
-          nonEmpty
         />
       </section>
     </>

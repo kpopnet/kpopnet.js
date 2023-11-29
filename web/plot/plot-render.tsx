@@ -13,6 +13,9 @@ import {
   DEBUT_AGE_FIELD,
   GEN_FIELD,
   LIFESPAN_FIELD,
+  COUNT_FIELD,
+  DOT_GRAPH,
+  HIST_GRAPH,
 } from "../../lib/plot";
 
 export function smartFields(fields: string[]): string[] {
@@ -59,6 +62,10 @@ function smartValue(field: string): ChannelValue {
   }
 }
 
+function smartColor(field: string): ChannelValue {
+  return field ? smartValue(field) : "#4e79a7";
+}
+
 // Auto-provide channels
 function smartChannels() {
   return {
@@ -73,6 +80,53 @@ function toLabel(field: string) {
     label: field,
     value: smartValue(field),
   };
+}
+
+function getTip() {
+  return {
+    fill: "#f3f4f6",
+    format: {
+      fill: false,
+    },
+  };
+}
+
+function getDotMark(Plot: Plot, items: Item[], values: Values) {
+  return Plot.dot(items, {
+    x: toLabel(values.x),
+    y: toLabel(values.y),
+    r: toLabel(values.size),
+    symbol: toLabel(values.symbol),
+    fill: smartColor(values.color),
+    channels: smartChannels(),
+    tip: getTip(),
+  });
+}
+
+function getHistMark(Plot: Plot, items: Item[], values: Values) {
+  return Plot.rectY(
+    items,
+    Plot.binX(
+      {
+        y: { label: COUNT_FIELD, reduceIndex: (i: any) => i.length } as any,
+      },
+      {
+        x: toLabel(values.x),
+        fill: smartColor(values.color),
+        tip: getTip(),
+      } as any
+    )
+  );
+}
+
+function getMarks(Plot: Plot, items: Item[], values: Values) {
+  const marks = [];
+  if (values.graph === DOT_GRAPH) {
+    marks.push(getDotMark(Plot, items, values));
+  } else if (values.graph === HIST_GRAPH) {
+    marks.push(getHistMark(Plot, items, values));
+  }
+  return marks;
 }
 
 export function renderPlot(
@@ -93,24 +147,8 @@ export function renderPlot(
     color: {
       label: values.color,
       legend: true,
-      // scheme: "Inferno",
     },
-    marks: [
-      Plot.dot(items, {
-        x: toLabel(values.x),
-        y: toLabel(values.y),
-        r: toLabel(values.size),
-        symbol: toLabel(values.symbol),
-        fill: smartValue(values.color),
-        channels: smartChannels(),
-        tip: {
-          fill: "#f3f4f6",
-          format: {
-            fill: false,
-          },
-        },
-      }),
-    ],
+    marks: getMarks(Plot, items, values),
   });
   const ramp: HTMLElement | null = plot.querySelector(".kn-plot-ramp");
   // we may generate legent with `plot.legend` but it has its own downsides too

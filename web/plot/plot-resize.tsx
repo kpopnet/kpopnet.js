@@ -39,10 +39,11 @@ export default function PlotResize(p: {
     <>
       <div
         ref={outputEl!}
+        class="flex items-end"
         style={{
-          // keep the space occupied while plot is loading
+          // force same height even without legend
           // FIXME: won't work on mobile with scaled plot because height is smaller there
-          height: resolved() ? undefined : `${p.height + legendH}px`,
+          "min-height": `${p.height + legendH}px`,
         }}
       >
         {resolved()}
