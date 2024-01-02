@@ -6,7 +6,16 @@ export function getAge(date: string): number {
   const born = new Date(date);
   if (isNaN(+born)) return 0;
   const now = new Date();
-  const years = now.getFullYear() - born.getFullYear();
+  const offset = now.getTimezoneOffset() + 9 * 60; // change local TZ to KST
+  now.setTime(now.getTime() + offset * 60 * 1000);
+  let years = now.getFullYear() - born.getFullYear();
+  if (
+    now.getMonth() < born.getMonth() ||
+    (now.getMonth() === born.getMonth() && now.getDate() < born.getDate())
+  ) {
+    // birthday has not yet happened this year
+    years -= 1;
+  }
   return Math.max(0, years);
 }
 
