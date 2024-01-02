@@ -1,5 +1,17 @@
 import type { Idol, Group } from "./types";
 
+function subYears(d1: Date, d2: Date): number {
+  let years = d1.getFullYear() - d2.getFullYear();
+  if (
+    d1.getMonth() < d2.getMonth() ||
+    (d1.getMonth() === d2.getMonth() && d1.getDate() < d2.getDate())
+  ) {
+    // year shift has not yet happened
+    years -= 1;
+  }
+  return Math.max(0, years);
+}
+
 export function getAge(date: string): number {
   // Birthday is always in YYYY-MM-DD form and can be parsed as
   // simplified ISO 8601 format.
@@ -8,15 +20,7 @@ export function getAge(date: string): number {
   const now = new Date();
   const offset = now.getTimezoneOffset() + 9 * 60; // change local TZ to KST
   now.setTime(now.getTime() + offset * 60 * 1000);
-  let years = now.getFullYear() - born.getFullYear();
-  if (
-    now.getMonth() < born.getMonth() ||
-    (now.getMonth() === born.getMonth() && now.getDate() < born.getDate())
-  ) {
-    // birthday has not yet happened this year
-    years -= 1;
-  }
-  return Math.max(0, years);
+  return subYears(now, born);
 }
 
 export function getDebutAge(
@@ -28,8 +32,7 @@ export function getDebutAge(
   if (isNaN(+born)) return null;
   const debut = new Date(debut_date);
   if (isNaN(+debut)) return null;
-  const years = debut.getFullYear() - born.getFullYear();
-  return Math.max(0, years);
+  return subYears(debut, born);
 }
 
 export function getLifespan(
@@ -43,8 +46,7 @@ export function getLifespan(
   if (isNaN(+debut)) return null;
   const disband = new Date(disband_date);
   if (isNaN(+disband)) return null;
-  const lifespan = disband.getFullYear() - debut.getFullYear();
-  return Math.max(0, lifespan);
+  return subYears(disband, debut);
 }
 
 // https://namu.wiki/w/한국%20아이돌/역사
