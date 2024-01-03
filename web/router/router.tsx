@@ -4,6 +4,7 @@ import {
   createContext,
   createEffect,
   createSignal,
+  createMemo,
   on,
   onCleanup,
   onMount,
@@ -157,10 +158,10 @@ function serializeRouteSorts(route: Route, sorts: SortType[]): string {
 export default function Router(prop: { children: JSXElement }) {
   const [viewSig, setViewSig] = createSignal<View>(createView());
   const getView: GetView = {
-    route: () => viewSig().route,
-    query: () => viewSig().query,
-    sorts: () => viewSig().sorts,
-    fields: () => viewSig().fields,
+    route: createMemo(() => viewSig().route),
+    query: createMemo(() => viewSig().query),
+    sorts: createMemo(() => viewSig().sorts),
+    fields: createMemo(() => viewSig().fields),
   };
   function setViewDefaults(opts: SetView) {
     const defOpts: SetView = { delay: false, popstate: false, replace: false }; // reset opts

@@ -5,7 +5,7 @@ import IdolView from "./idol";
 import { GroupWithIdolsView } from "./group";
 
 /** Show corresponding single item by its id */
-export function ItemView(p: { id: string; cache: Cache }) {
+function ItemView(p: { id: string; cache: Cache }) {
   const foundIdol = createMemo(() => p.cache.idolMap.get(p.id));
   const foundGroup = createMemo(() => p.cache.groupMap.get(p.id));
   const notFound = createMemo(() => !foundIdol() && !foundGroup());
